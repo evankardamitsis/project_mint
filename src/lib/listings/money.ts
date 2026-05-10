@@ -22,3 +22,15 @@ export function eurosToCents(input: string): { ok: true; cents: number } | { ok:
   }
   return { ok: true, cents: Math.round(euros * 100) };
 }
+
+/** Display cents as a euro string suitable for controlled price inputs. */
+export function centsToEurosInput(cents: number): string {
+  if (!Number.isFinite(cents) || cents < 0) {
+    return "";
+  }
+  const s = (cents / 100).toFixed(2);
+  if (s.endsWith(".00")) {
+    return String(Math.round(cents / 100));
+  }
+  return s.replace(/0$/, "").replace(/\.$/, "");
+}

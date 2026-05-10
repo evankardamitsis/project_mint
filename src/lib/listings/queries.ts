@@ -1,14 +1,16 @@
 import { createClient } from "@/lib/supabase/server";
 
 import type {
+  AdminListingRow,
   BrandOption,
   CategoryOption,
   ListingCardData,
   ListingDetailData,
   ListingImageRow,
-  SellerProfileRow,
+  SellerListingEditData,
+  SellerProfileFull,
 } from "@/types/listings";
-import type { ListingCondition } from "@/types/domain";
+import type { ListingCondition, ListingStatus } from "@/types/domain";
 
 function sortImages(images: ListingImageRow[] | null | undefined): ListingImageRow[] {
   if (!images?.length) {
@@ -52,7 +54,7 @@ export async function fetchBrands(): Promise<BrandOption[]> {
   return (data ?? []) as BrandOption[];
 }
 
-export async function fetchSellerProfileForUser(): Promise<SellerProfileRow | null> {
+export async function fetchSellerProfileForUser(): Promise<SellerProfileFull | null> {
   const supabase = await createClient();
   const {
     data: { user },
@@ -62,14 +64,16 @@ export async function fetchSellerProfileForUser(): Promise<SellerProfileRow | nu
   }
   const { data, error } = await supabase
     .from("seller_profiles")
-    .select("id, user_id, display_name")
+    .select(
+      "id, user_id, display_name, bio, location, phone, verification_status, payout_status, created_at, updated_at",
+    )
     .eq("user_id", user.id)
     .maybeSingle();
   if (error) {
     console.error("[listings] fetchSellerProfileForUser", error.message);
     return null;
   }
-  return data as SellerProfileRow | null;
+  return data as SellerProfileFull | null;
 }
 
 export type BrowseQueryParams = {
@@ -220,7 +224,7 @@ export async function fetchSellerListings(
   const { data, error } = await supabase
     .from("listings")
     .select(
-      "id, title, slug, price_cents, currency, condition, status, location, created_at, listing_images ( id, url, sort_order )",
+      "id, title, slug, price_cents, currency, condition, status, location, created_at, protected_delivery_enabled, listing_images ( id, url, sort_order )",
     )
     .eq("seller_id", sellerProfileId)
     .order("created_at", { ascending: false });
@@ -241,6 +245,7 @@ export async function fetchSellerListings(
       status: row.status as ListingCardData["status"],
       created_at: row.created_at as string,
       primary_image_url: primaryImageUrl(images),
+      protected_delivery_enabled: Boolean(row.protected_delivery_enabled),
     };
   });
 }
@@ -260,6 +265,7 @@ type ListingDetailRow = {
   protected_delivery_enabled: boolean;
   created_at: string;
   published_at: string | null;
+  rejection_reason: string | null;
   categories: { id: string; name: string; slug: string } | null;
   brands: { id: string; name: string; slug: string } | null;
   seller_profiles: { display_name: string } | null;
@@ -288,6 +294,7 @@ export async function fetchListingBySlug(
       protected_delivery_enabled,
       created_at,
       published_at,
+      rejection_reason,
       categories ( id, name, slug ),
       brands ( id, name, slug ),
       seller_profiles ( display_name ),
@@ -331,9 +338,180 @@ export async function fetchListingBySlug(
     protected_delivery_enabled: row.protected_delivery_enabled,
     created_at: row.created_at,
     published_at: row.published_at,
+    rejection_reason: row.rejection_reason ?? null,
     category,
     brand,
     seller_display_name: seller?.display_name ?? "Seller",
     images,
   };
+}
+
+export async function fetchSellerListingStats(sellerId: string): Promise<{
+  total: number;
+  active: number;
+  pending_review: number;
+  sold: number;
+}> {
+  const supabase = await createClient();
+  const countFor = async (status?: ListingStatus) => {
+    let q = supabase
+      .from("listings")
+      .select("id", { count: "exact", head: true })
+      .eq("seller_id", sellerId);
+    if (status) {
+      q = q.eq("status", status);
+    }
+    const { count, error } = await q;
+    if (error) {
+      console.error("[listings] fetchSellerListingStats", error.message);
+      return 0;
+    }
+    return count ?? 0;
+  };
+  const [total, active, pending_review, sold] = await Promise.all([
+    countFor(),
+    countFor("active"),
+    countFor("pending_review"),
+    countFor("sold"),
+  ]);
+  return { total, active, pending_review, sold };
+}
+
+type SellerListingEditRow = {
+  id: string;
+  seller_id: string;
+  title: string;
+  slug: string;
+  description: string | null;
+  condition: ListingCondition;
+  price_cents: number;
+  currency: string;
+  location: string | null;
+  status: ListingStatus;
+  category_id: string;
+  brand_id: string | null;
+  offers_enabled: boolean;
+  protected_delivery_enabled: boolean;
+  listing_images: ListingImageRow[] | null;
+};
+
+export async function fetchSellerListingForEdit(
+  listingId: string,
+): Promise<SellerListingEditData | null> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("listings")
+    .select(
+      `
+      id,
+      seller_id,
+      title,
+      slug,
+      description,
+      condition,
+      price_cents,
+      currency,
+      location,
+      status,
+      category_id,
+      brand_id,
+      offers_enabled,
+      protected_delivery_enabled,
+      listing_images ( id, listing_id, url, sort_order, created_at )
+    `,
+    )
+    .eq("id", listingId)
+    .maybeSingle();
+  if (error) {
+    console.error("[listings] fetchSellerListingForEdit", error.message);
+    return null;
+  }
+  if (!data) {
+    return null;
+  }
+  const row = data as unknown as SellerListingEditRow;
+  return {
+    id: row.id,
+    seller_id: row.seller_id,
+    title: row.title,
+    slug: row.slug,
+    description: row.description,
+    condition: row.condition,
+    price_cents: row.price_cents,
+    currency: row.currency ?? "EUR",
+    location: row.location,
+    status: row.status,
+    category_id: row.category_id,
+    brand_id: row.brand_id,
+    offers_enabled: row.offers_enabled,
+    protected_delivery_enabled: row.protected_delivery_enabled,
+    images: sortImages(row.listing_images ?? undefined),
+  };
+}
+
+type AdminListingQueryRow = {
+  id: string;
+  title: string;
+  slug: string;
+  price_cents: number;
+  currency: string;
+  condition: ListingCondition;
+  status: ListingStatus;
+  created_at: string;
+  categories: { name: string } | null | { name: string }[];
+  seller_profiles: { display_name: string } | null | { display_name: string }[];
+  listing_images: ListingImageRow[] | null;
+};
+
+export async function fetchAdminListings(
+  filter: ListingStatus | "all",
+): Promise<AdminListingRow[]> {
+  const supabase = await createClient();
+  let q = supabase
+    .from("listings")
+    .select(
+      `
+      id,
+      title,
+      slug,
+      price_cents,
+      currency,
+      condition,
+      status,
+      created_at,
+      categories ( name ),
+      seller_profiles ( display_name ),
+      listing_images ( url, sort_order )
+    `,
+    )
+    .order("created_at", { ascending: false });
+  if (filter !== "all") {
+    q = q.eq("status", filter);
+  }
+  const { data, error } = await q;
+  if (error) {
+    console.error("[listings] fetchAdminListings", error.message);
+    return [];
+  }
+  return (data ?? []).map((raw) => {
+    const row = raw as unknown as AdminListingQueryRow;
+    const cat = Array.isArray(row.categories) ? row.categories[0] : row.categories;
+    const seller = Array.isArray(row.seller_profiles)
+      ? row.seller_profiles[0]
+      : row.seller_profiles;
+    const images = row.listing_images as ListingImageRow[] | null | undefined;
+    return {
+      id: row.id,
+      title: row.title,
+      slug: row.slug,
+      price_cents: row.price_cents,
+      currency: row.currency ?? "EUR",
+      condition: row.condition,
+      status: row.status,
+      created_at: row.created_at,
+      seller_display_name: seller?.display_name ?? "Seller",
+      category_name: cat?.name ?? null,
+      primary_image_url: primaryImageUrl(images),
+    };
+  });
 }

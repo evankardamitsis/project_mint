@@ -43,3 +43,8 @@ export const listingCreateFieldSchema = z.object({
 });
 
 export type ListingCreateFields = z.infer<typeof listingCreateFieldSchema>;
+
+/** Same field rules as create; used for seller edits. */
+export const listingEditFieldSchema = listingCreateFieldSchema;
+
+export type ListingEditFields = z.infer<typeof listingEditFieldSchema>;

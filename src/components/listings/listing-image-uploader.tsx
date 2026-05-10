@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useCallback, useState } from "react";
+import { forwardRef, useCallback, useState } from "react";
 
 import { Label } from "@/components/ui/label";
 import {
@@ -13,13 +13,10 @@ import { cn } from "@/lib/utils";
 
 type Preview = { name: string; src: string };
 
-export function ListingImageUploader({
-  className,
-  error,
-}: {
-  className?: string;
-  error?: string;
-}) {
+export const ListingImageUploader = forwardRef<
+  HTMLInputElement,
+  { className?: string; error?: string }
+>(function ListingImageUploader({ className, error }, ref) {
   const [previews, setPreviews] = useState<Preview[]>([]);
 
   const onFiles = useCallback((list: FileList | null) => {
@@ -50,6 +47,7 @@ export function ListingImageUploader({
     <div className={cn("space-y-2", className)}>
       <Label htmlFor="listing-images">Photos (optional, up to {MAX_LISTING_IMAGES})</Label>
       <input
+        ref={ref}
         id="listing-images"
         name="images"
         type="file"
@@ -84,4 +82,6 @@ export function ListingImageUploader({
       ) : null}
     </div>
   );
-}
+});
+
+ListingImageUploader.displayName = "ListingImageUploader";

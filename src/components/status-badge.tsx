@@ -71,6 +71,20 @@ const pdCheckStatus: Record<string, BadgeVariant> = {
   rejected: "destructive",
 };
 
+const sellerVerificationStatus: Record<string, BadgeVariant> = {
+  unverified: "outline",
+  pending: "secondary",
+  verified: "default",
+  rejected: "destructive",
+};
+
+const sellerPayoutStatus: Record<string, BadgeVariant> = {
+  not_started: "outline",
+  pending: "secondary",
+  active: "default",
+  disabled: "destructive",
+};
+
 const maps = {
   listing: listingStatus,
   order: orderStatus,
@@ -79,6 +93,8 @@ const maps = {
   dispute: disputeStatus,
   shipment: shipmentStatus,
   protected_delivery: pdCheckStatus,
+  seller_verification: sellerVerificationStatus,
+  seller_payout: sellerPayoutStatus,
 } as const;
 
 export type StatusDomain = keyof typeof maps;

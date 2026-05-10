@@ -2,9 +2,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { ListingGallery } from "@/components/listings/listing-gallery";
+import { ListingManagementPanel } from "@/components/listings/listing-management-panel";
 import { ConditionBadge } from "@/components/condition-badge";
 import { Price } from "@/components/price";
-import { StatusBadge } from "@/components/status-badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getProfile } from "@/lib/auth/guards";
@@ -26,8 +26,8 @@ export default async function ListingPage(props: PageProps) {
   ]);
 
   const isAdmin = profile?.role === "admin";
-  const isOwnerSeller = sellerSelf?.id === listing.seller_id;
-  const showStatus = isAdmin || isOwnerSeller;
+  const isOwnerSeller = Boolean(sellerSelf?.id === listing.seller_id);
+  const showManagement = isAdmin || isOwnerSeller;
 
   return (
     <div className="mx-auto w-full max-w-6xl space-y-8 px-4 py-10 sm:px-6">
@@ -43,9 +43,6 @@ export default async function ListingPage(props: PageProps) {
             <h1 className="text-2xl font-semibold tracking-tight">{listing.title}</h1>
             <div className="flex flex-wrap items-center gap-2">
               <ConditionBadge condition={listing.condition} />
-              {showStatus ? (
-                <StatusBadge domain="listing" value={listing.status} />
-              ) : null}
               {listing.protected_delivery_enabled ? (
                 <span className="rounded-full border border-border bg-muted px-2 py-0.5 text-xs font-medium text-foreground">
                   Protected delivery
@@ -84,6 +81,16 @@ export default async function ListingPage(props: PageProps) {
                 <p className="whitespace-pre-wrap text-sm leading-relaxed">{listing.description}</p>
               </CardContent>
             </Card>
+            ) : null}
+          {showManagement ? (
+            <ListingManagementPanel
+              listingId={listing.id}
+              slug={listing.slug}
+              status={listing.status}
+              isOwnerSeller={isOwnerSeller}
+              isAdmin={Boolean(isAdmin)}
+              rejectionReason={listing.rejection_reason}
+            />
           ) : null}
           <Card>
             <CardHeader>

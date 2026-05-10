@@ -5,6 +5,7 @@ export const marketingNav = [
 
 export const sellerNav = [
   { href: "/seller", label: "Overview" },
+  { href: "/seller/profile", label: "Profile" },
   { href: "/seller/listings", label: "Listings" },
   { href: "/seller/listings/new", label: "New listing" },
   { href: "/seller/orders", label: "Orders" },

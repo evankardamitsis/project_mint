@@ -26,45 +26,6 @@ function isAcceptedImage(file: File): boolean {
   return (LISTING_IMAGE_ACCEPTED_TYPES as readonly string[]).includes(file.type);
 }
 
-export async function createSellerProfileAction(): Promise<{
-  ok: boolean;
-  error?: string;
-}> {
-  try {
-    const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) {
-      return { ok: false, error: "You need to be signed in." };
-    }
-    const { data: profile, error: pErr } = await supabase
-      .from("profiles")
-      .select("full_name")
-      .eq("id", user.id)
-      .maybeSingle();
-    if (pErr) {
-      console.error("[listings] createSellerProfileAction profile", pErr.message);
-      return { ok: false, error: "Could not load your profile." };
-    }
-    const display = profile?.full_name?.trim() || "Seller";
-    const { error } = await supabase.from("seller_profiles").insert({
-      user_id: user.id,
-      display_name: display,
-    });
-    if (error) {
-      console.error("[listings] createSellerProfileAction insert", error.message);
-      return { ok: false, error: "Could not create seller profile. Try again." };
-    }
-    revalidatePath("/seller");
-    revalidatePath("/seller/listings/new");
-    return { ok: true };
-  } catch (e) {
-    console.error("[listings] createSellerProfileAction", e);
-    return { ok: false, error: "Something went wrong." };
-  }
-}
-
 export async function createListingAction(
   _prev: CreateListingState | undefined,
   formData: FormData,
@@ -76,6 +37,15 @@ export async function createListingAction(
     } = await supabase.auth.getUser();
     if (!user) {
       return { ok: false, error: "You need to be signed in." };
+    }
+
+    const { data: sessionData } = await supabase.auth.getSession();
+    if (!sessionData.session?.access_token) {
+      console.error("[listings] createListingAction missing session for PostgREST");
+      return {
+        ok: false,
+        error: "Your session expired or could not be loaded. Sign in again and retry.",
+      };
     }
 
     const { data: seller, error: sellerErr } = await supabase
@@ -164,28 +134,48 @@ export async function createListingAction(
         ? parsed.data.brand_id
         : null;
 
-    const { data: listing, error: insertErr } = await supabase
-      .from("listings")
-      .insert({
-        seller_id: seller.id,
-        category_id: parsed.data.category_id,
-        brand_id: brandId,
-        title: parsed.data.title.trim(),
-        slug,
-        description: parsed.data.description?.trim() || null,
-        condition: parsed.data.condition,
-        price_cents: price.cents,
-        currency: "EUR",
-        location: parsed.data.location?.trim() || null,
-        status: "pending_review",
-        offers_enabled: parsed.data.offers_enabled,
-        protected_delivery_enabled: parsed.data.protected_delivery_enabled,
-      })
-      .select("id")
-      .single();
+    const { error: insertErr } = await supabase.from("listings").insert({
+      seller_id: seller.id,
+      category_id: parsed.data.category_id,
+      brand_id: brandId,
+      title: parsed.data.title.trim(),
+      slug,
+      description: parsed.data.description?.trim() || null,
+      condition: parsed.data.condition,
+      price_cents: price.cents,
+      currency: "EUR",
+      location: parsed.data.location?.trim() || null,
+      status: "pending_review",
+      offers_enabled: parsed.data.offers_enabled,
+      protected_delivery_enabled: parsed.data.protected_delivery_enabled,
+    });
 
-    if (insertErr || !listing) {
-      console.error("[listings] createListingAction insert", insertErr?.message);
+    if (insertErr) {
+      console.error(
+        "[listings] createListingAction insert",
+        insertErr.message,
+        insertErr.code,
+        insertErr.details,
+      );
+      return {
+        ok: false,
+        error: "We could not save your listing. Try again in a moment.",
+      };
+    }
+
+    const { data: listing, error: listingFetchErr } = await supabase
+      .from("listings")
+      .select("id")
+      .eq("slug", slug)
+      .eq("seller_id", seller.id)
+      .maybeSingle();
+
+    if (listingFetchErr || !listing) {
+      console.error(
+        "[listings] createListingAction fetch id after insert",
+        listingFetchErr?.message,
+        listingFetchErr?.code,
+      );
       return {
         ok: false,
         error: "We could not save your listing. Try again in a moment.",
@@ -226,6 +216,13 @@ export async function createListingAction(
       const { error: imgErr } = await supabase.from("listing_images").insert(rows);
       if (imgErr) {
         console.error("[listings] listing_images insert", imgErr.message);
+        revalidatePath("/browse");
+        revalidatePath("/");
+        revalidatePath("/seller");
+        revalidatePath("/seller/listings");
+        revalidatePath(`/seller/listings/${listingId}/edit`);
+        revalidatePath(`/listing/${slug}`);
+        revalidatePath("/admin/listings");
         return {
           ok: true,
           slug,
@@ -242,8 +239,11 @@ export async function createListingAction(
 
     revalidatePath("/browse");
     revalidatePath("/");
+    revalidatePath("/seller");
     revalidatePath("/seller/listings");
+    revalidatePath(`/seller/listings/${listingId}/edit`);
     revalidatePath(`/listing/${slug}`);
+    revalidatePath("/admin/listings");
 
     return { ok: true, slug, warning };
   } catch (e) {

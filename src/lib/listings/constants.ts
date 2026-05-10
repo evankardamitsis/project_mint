@@ -14,3 +14,17 @@ export const LISTING_IMAGE_ACCEPTED_TYPES = [
 export type ListingImageMime = (typeof LISTING_IMAGE_ACCEPTED_TYPES)[number];
 
 export const MAX_LISTING_IMAGES = 10;
+
+/** Extract `bucket/object/path` object path from a public object URL, or null. */
+export function listingImageObjectPathFromPublicUrl(publicUrl: string): string | null {
+  const marker = `/object/public/${LISTING_IMAGES_BUCKET}/`;
+  const i = publicUrl.indexOf(marker);
+  if (i === -1) {
+    return null;
+  }
+  try {
+    return decodeURIComponent(publicUrl.slice(i + marker.length));
+  } catch {
+    return null;
+  }
+}

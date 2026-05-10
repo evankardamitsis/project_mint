@@ -33,7 +33,7 @@ export function ListingCard({
   return (
     <Link href={`/listing/${slug}`} className={cn("group block", className)}>
       <Card className="h-full overflow-hidden transition-shadow hover:shadow-md">
-        <div className="relative aspect-[4/3] w-full bg-muted">
+        <div className="relative aspect-4/3 w-full bg-muted">
           {imageUrl ? (
             <Image
               src={imageUrl}

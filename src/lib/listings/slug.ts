@@ -22,11 +22,13 @@ function randomSuffix(): string {
 export async function ensureUniqueListingSlug(
   supabase: SupabaseClient,
   title: string,
+  excludeListingId?: string | null,
 ): Promise<string> {
   let candidate = slugifyTitle(title);
   for (let i = 0; i < 12; i += 1) {
     const { data, error } = await supabase.rpc("listing_slug_taken", {
       p_slug: candidate,
+      p_exclude_listing_id: excludeListingId ?? null,
     });
     if (error) {
       throw error;

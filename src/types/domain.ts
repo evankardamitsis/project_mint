@@ -1,5 +1,13 @@
 export type UserRole = "buyer" | "seller" | "admin";
 
+export type SellerVerificationStatus =
+  | "unverified"
+  | "pending"
+  | "verified"
+  | "rejected";
+
+export type SellerPayoutStatus = "not_started" | "pending" | "active" | "disabled";
+
 export type ListingCondition =
   | "brand_new"
   | "mint"

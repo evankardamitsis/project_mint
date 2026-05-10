@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -13,16 +14,18 @@ import {
 } from "react";
 
 import { ListingImageUploader } from "@/components/listings/listing-image-uploader";
+import {
+  type UpdateSellerListingState,
+  deleteListingImageAction,
+  updateSellerListingAction,
+} from "@/lib/listings/seller-actions";
+import { centsToEurosInput } from "@/lib/listings/money";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  createListingAction,
-  type CreateListingState,
-} from "@/lib/listings/actions";
-import type { BrandOption, CategoryOption } from "@/types/listings";
+import type { BrandOption, CategoryOption, SellerListingEditData } from "@/types/listings";
 import type { ListingCondition } from "@/types/domain";
 
 const conditions: { value: ListingCondition; label: string }[] = [
@@ -36,7 +39,8 @@ const conditions: { value: ListingCondition; label: string }[] = [
   { value: "non_functioning", label: "Non-functioning" },
 ];
 
-function buildListingFormData(
+function buildEditFormData(
+  listingId: string,
   fields: {
     title: string;
     categoryId: string;
@@ -51,6 +55,7 @@ function buildListingFormData(
   imageInput: HTMLInputElement | null,
 ): FormData {
   const fd = new FormData();
+  fd.set("listing_id", listingId);
   fd.set("title", fields.title);
   fd.set("category_id", fields.categoryId);
   fd.set("brand_id", fields.brandId);
@@ -76,35 +81,38 @@ function buildListingFormData(
   return fd;
 }
 
-export function ListingForm({
+export function ListingEditForm({
+  listing,
   categories,
   brands,
 }: {
+  listing: SellerListingEditData;
   categories: CategoryOption[];
   brands: BrandOption[];
 }) {
   const router = useRouter();
   const imageInputRef = useRef<HTMLInputElement>(null);
-  const initial = useMemo<CreateListingState>(() => ({ ok: false }), []);
+  const initial = useMemo<UpdateSellerListingState>(() => ({ ok: false }), []);
 
-  const [title, setTitle] = useState("");
-  const [categoryId, setCategoryId] = useState("");
-  const [brandId, setBrandId] = useState("");
-  const [description, setDescription] = useState("");
-  const [condition, setCondition] = useState<ListingCondition>("excellent");
-  const [priceEuros, setPriceEuros] = useState("");
-  const [location, setLocation] = useState("");
-  const [offersEnabled, setOffersEnabled] = useState(true);
-  const [protectedDeliveryEnabled, setProtectedDeliveryEnabled] = useState(false);
-
-  const [state, formAction, pending] = useActionState(
-    createListingAction,
-    initial,
+  const [title, setTitle] = useState(listing.title);
+  const [categoryId, setCategoryId] = useState(listing.category_id);
+  const [brandId, setBrandId] = useState(listing.brand_id ?? "");
+  const [description, setDescription] = useState(listing.description ?? "");
+  const [condition, setCondition] = useState<ListingCondition>(listing.condition);
+  const [priceEuros, setPriceEuros] = useState(centsToEurosInput(listing.price_cents));
+  const [location, setLocation] = useState(listing.location ?? "");
+  const [offersEnabled, setOffersEnabled] = useState(listing.offers_enabled);
+  const [protectedDeliveryEnabled, setProtectedDeliveryEnabled] = useState(
+    listing.protected_delivery_enabled,
   );
+  const [images, setImages] = useState(listing.images);
+
+  const [state, formAction, pending] = useActionState(updateSellerListingAction, initial);
 
   useEffect(() => {
     if (state.ok) {
       router.push(`/listing/${state.slug}`);
+      router.refresh();
     }
   }, [router, state]);
 
@@ -117,7 +125,8 @@ export function ListingForm({
     if (!form.reportValidity()) {
       return;
     }
-    const fd = buildListingFormData(
+    const fd = buildEditFormData(
+      listing.id,
       {
         title,
         categoryId,
@@ -136,8 +145,18 @@ export function ListingForm({
     });
   }
 
+  async function removeImage(imageId: string) {
+    const res = await deleteListingImageAction(listing.id, imageId);
+    if (res.ok) {
+      setImages((prev) => prev.filter((i) => i.id !== imageId));
+      router.refresh();
+    }
+  }
+
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
+      <input type="hidden" name="listing_id" value={listing.id} />
+
       <Card>
         <CardHeader>
           <CardTitle className="text-base">Basics</CardTitle>
@@ -150,7 +169,6 @@ export function ListingForm({
               name="title"
               required
               minLength={3}
-              placeholder="e.g. Fender Player Stratocaster"
               value={title}
               onChange={(ev) => setTitle(ev.target.value)}
             />
@@ -168,9 +186,6 @@ export function ListingForm({
               value={categoryId}
               onChange={(ev) => setCategoryId(ev.target.value)}
             >
-              <option value="" disabled>
-                Select category
-              </option>
               {categories.map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.name}
@@ -204,7 +219,6 @@ export function ListingForm({
               id="description"
               name="description"
               rows={5}
-              placeholder="Condition details, what is included, history…"
               value={description}
               onChange={(ev) => setDescription(ev.target.value)}
             />
@@ -240,7 +254,6 @@ export function ListingForm({
               type="text"
               inputMode="decimal"
               required
-              placeholder="e.g. 850 or 1299.50"
               value={priceEuros}
               onChange={(ev) => setPriceEuros(ev.target.value)}
             />
@@ -253,7 +266,6 @@ export function ListingForm({
             <Input
               id="location"
               name="location"
-              placeholder="City or region"
               value={location}
               onChange={(ev) => setLocation(ev.target.value)}
             />
@@ -298,7 +310,32 @@ export function ListingForm({
         <CardHeader>
           <CardTitle className="text-base">Photos</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-4">
+          {images.length > 0 ? (
+            <div className="flex flex-wrap gap-3">
+              {images.map((img) => (
+                <div
+                  key={img.id}
+                  className="relative flex flex-col gap-2 rounded-lg border border-border p-2"
+                >
+                  <div className="relative size-24 overflow-hidden rounded-md bg-muted">
+                    <Image src={img.url} alt="" fill className="object-cover" unoptimized />
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="text-destructive"
+                    onClick={() => void removeImage(img.id)}
+                  >
+                    Remove
+                  </Button>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground">No photos yet.</p>
+          )}
           <ListingImageUploader ref={imageInputRef} />
         </CardContent>
       </Card>
@@ -316,10 +353,13 @@ export function ListingForm({
 
       <div className="flex flex-wrap gap-3">
         <Button type="submit" disabled={pending}>
-          {pending ? "Publishing…" : "Submit for review"}
+          {pending ? "Saving…" : "Save changes"}
+        </Button>
+        <Button variant="outline" type="button" render={<Link href={`/listing/${listing.slug}`} />}>
+          View listing
         </Button>
         <Button variant="outline" type="button" render={<Link href="/seller/listings" />}>
-          Cancel
+          Back to listings
         </Button>
       </div>
     </form>

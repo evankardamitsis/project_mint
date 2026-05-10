@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 
+import { SellerListingRowActions } from "@/components/listings/seller-listing-row-actions";
 import { ConditionBadge } from "@/components/condition-badge";
 import { EmptyState } from "@/components/empty-state";
 import { PageHeader } from "@/components/page-header";
@@ -49,7 +50,7 @@ export default async function SellerListingsPage() {
           {seller ? (
             <Button render={<Link href="/seller/listings/new" />}>Create listing</Button>
           ) : (
-            <Button render={<Link href="/seller/listings/new" />}>Get started</Button>
+            <Button render={<Link href="/seller/profile" />}>Set up profile</Button>
           )}
         </EmptyState>
       ) : (
@@ -62,6 +63,7 @@ export default async function SellerListingsPage() {
                 <TableHead>Price</TableHead>
                 <TableHead>Condition</TableHead>
                 <TableHead>Status</TableHead>
+                <TableHead>Protected</TableHead>
                 <TableHead>Created</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
@@ -94,16 +96,14 @@ export default async function SellerListingsPage() {
                   <TableCell>
                     <StatusBadge domain="listing" value={row.status} />
                   </TableCell>
+                  <TableCell className="text-muted-foreground text-xs">
+                    {row.protected_delivery_enabled ? "Yes" : "—"}
+                  </TableCell>
                   <TableCell className="whitespace-nowrap text-muted-foreground text-xs">
                     {new Date(row.created_at).toLocaleDateString("el-GR")}
                   </TableCell>
                   <TableCell className="text-right">
-                    <Button variant="ghost" size="sm" render={<Link href={`/listing/${row.slug}`} />}>
-                      View
-                    </Button>
-                    <Button variant="ghost" size="sm" disabled title="Editing listings is coming soon">
-                      Edit
-                    </Button>
+                    <SellerListingRowActions listingId={row.id} slug={row.slug} status={row.status} />
                   </TableCell>
                 </TableRow>
               ))}
