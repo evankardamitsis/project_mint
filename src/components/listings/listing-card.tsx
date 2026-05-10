@@ -16,6 +16,7 @@ export function ListingCard({
   location,
   imageUrl,
   imageAlt,
+  imagePriority,
   className,
   footer,
 }: {
@@ -27,6 +28,8 @@ export function ListingCard({
   location?: string | null;
   imageUrl?: string | null;
   imageAlt?: string;
+  /** First above-the-fold cards: improves LCP (use sparingly). */
+  imagePriority?: boolean;
   className?: string;
   footer?: React.ReactNode;
 }) {
@@ -41,6 +44,7 @@ export function ListingCard({
               fill
               className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
               sizes="(max-width: 768px) 100vw, 33vw"
+              {...(imagePriority ? { priority: true, loading: "eager" as const } : {})}
             />
           ) : (
             <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">

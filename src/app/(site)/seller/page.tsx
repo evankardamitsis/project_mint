@@ -132,7 +132,7 @@ export default async function SellerHomePage() {
           </EmptyState>
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {recent.map((row) => (
+            {recent.map((row, index) => (
               <ListingCard
                 key={row.id}
                 title={row.title}
@@ -142,6 +142,7 @@ export default async function SellerHomePage() {
                 condition={row.condition}
                 location={row.location}
                 imageUrl={row.primary_image_url}
+                imagePriority={index < 3}
                 footer={
                   <div className="flex flex-wrap items-center gap-2">
                     <StatusBadge domain="listing" value={row.status} />

@@ -7,7 +7,7 @@ export default async function BuyerLayout({
 }: {
   children: React.ReactNode;
 }) {
-  await requireRole(["buyer"], { nextAfterLogin: "/buyer" });
+  await requireRole(["buyer", "seller", "admin"], { nextAfterLogin: "/buyer" });
 
   return (
     <DashboardShell

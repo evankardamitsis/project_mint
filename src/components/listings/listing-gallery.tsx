@@ -45,6 +45,7 @@ export function ListingGallery({
           className="object-cover"
           sizes="(max-width: 1024px) 100vw, 60vw"
           priority
+          loading="eager"
         />
       </div>
       {sorted.length > 1 ? (

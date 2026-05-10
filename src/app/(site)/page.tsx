@@ -37,7 +37,7 @@ export default async function HomePage() {
               Listings will appear here once sellers publish active inventory.
             </p>
           ) : (
-            listings.slice(0, 2).map((item) => (
+            listings.slice(0, 2).map((item, index) => (
               <ListingCard
                 key={item.id}
                 title={item.title}
@@ -47,6 +47,7 @@ export default async function HomePage() {
                 condition={item.condition}
                 location={item.location}
                 imageUrl={item.primary_image_url}
+                imagePriority={index === 0}
               />
             ))
           )}

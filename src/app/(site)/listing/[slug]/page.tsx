@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 
 import { ListingGallery } from "@/components/listings/listing-gallery";
 import { ListingManagementPanel } from "@/components/listings/listing-management-panel";
+import { ListingOfferPanel } from "@/components/offers/listing-offer-panel";
 import { ConditionBadge } from "@/components/condition-badge";
 import { Price } from "@/components/price";
 import { Button } from "@/components/ui/button";
@@ -106,6 +107,15 @@ export default async function ListingPage(props: PageProps) {
               </Button>
             </CardContent>
           </Card>
+          <ListingOfferPanel
+            listingId={listing.id}
+            slug={listing.slug}
+            currency={listing.currency}
+            offersEnabled={listing.offers_enabled}
+            listingActive={listing.status === "active"}
+            viewer={profile}
+            isListingSeller={isOwnerSeller}
+          />
         </div>
       </div>
     </div>

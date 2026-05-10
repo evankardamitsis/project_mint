@@ -66,7 +66,7 @@ export default async function BrowsePage(props: PageProps) {
         />
       ) : (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {listings.map((item) => (
+          {listings.map((item, index) => (
             <ListingCard
               key={item.id}
               title={item.title}
@@ -76,6 +76,7 @@ export default async function BrowsePage(props: PageProps) {
               condition={item.condition}
               location={item.location}
               imageUrl={item.primary_image_url}
+              imagePriority={index < 3}
             />
           ))}
         </div>
