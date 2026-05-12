@@ -18,6 +18,8 @@ export interface BuyerOfferRow {
   expires_at: string | null;
   created_at: string;
   listings: OfferListingSummary | null;
+  /** Set when an order was created from this accepted offer. */
+  order_id: string | null;
 }
 
 export interface SellerOfferRow {

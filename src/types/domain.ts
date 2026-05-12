@@ -64,6 +64,13 @@ export type DisputeStatus =
   | "refunded"
   | "closed";
 
+export type DisputeReason =
+  | "damaged"
+  | "not_as_described"
+  | "not_received"
+  | "counterfeit"
+  | "other";
+
 export type ShipmentStatus =
   | "pending"
   | "in_transit"
@@ -77,6 +84,13 @@ export type ProtectedDeliveryCheckStatus =
   | "submitted"
   | "approved"
   | "rejected";
+
+export type ProtectedDeliveryAssetType =
+  | "condition_photo"
+  | "serial_number_photo"
+  | "packaging_photo"
+  | "sealed_package_photo"
+  | "receipt_photo";
 
 export interface Profile {
   id: string;

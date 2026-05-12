@@ -3,9 +3,9 @@ import { notFound } from "next/navigation";
 
 import { ListingGallery } from "@/components/listings/listing-gallery";
 import { ListingManagementPanel } from "@/components/listings/listing-management-panel";
+import { ListingPurchaseSection } from "@/components/listings/listing-purchase-section";
 import { ListingOfferPanel } from "@/components/offers/listing-offer-panel";
 import { ConditionBadge } from "@/components/condition-badge";
-import { Price } from "@/components/price";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getProfile } from "@/lib/auth/guards";
@@ -93,20 +93,7 @@ export default async function ListingPage(props: PageProps) {
               rejectionReason={listing.rejection_reason}
             />
           ) : null}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Price</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <Price amountCents={listing.price_cents} currency={listing.currency} className="text-2xl" />
-              <p className="text-xs text-muted-foreground">
-                Checkout and payments are not available yet — browse only.
-              </p>
-              <Button className="w-full" disabled>
-                Buy (coming soon)
-              </Button>
-            </CardContent>
-          </Card>
+          <ListingPurchaseSection listing={listing} viewer={profile} isOwnerSeller={isOwnerSeller} />
           <ListingOfferPanel
             listingId={listing.id}
             slug={listing.slug}

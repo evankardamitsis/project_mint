@@ -94,6 +94,7 @@ export function BuyerOfferDashboardList({ rows }: { rows: BuyerOfferRow[] }) {
                   status={row.status}
                   expiresAt={row.expires_at}
                   parentOfferId={row.parent_offer_id}
+                  linkedOrderId={row.order_id}
                 />
               </TableCell>
             </TableRow>
@@ -148,6 +149,7 @@ export function BuyerOfferCards({ rows }: { rows: BuyerOfferRow[] }) {
             status={row.status}
             expiresAt={row.expires_at}
             parentOfferId={row.parent_offer_id}
+            linkedOrderId={row.order_id}
           />
         </div>
       ))}

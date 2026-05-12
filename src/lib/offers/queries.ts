@@ -129,10 +129,34 @@ export async function fetchBuyerOffers(): Promise<BuyerOfferRow[]> {
     return [];
   }
 
-  return (data ?? []).map((row) => {
+  const rows = data ?? [];
+  const acceptedIds = rows
+    .filter((r) => (r.status as string) === "accepted")
+    .map((r) => r.id as string);
+  const orderByOffer = new Map<string, string>();
+  if (acceptedIds.length > 0) {
+    const { data: ordRows, error: ordErr } = await supabase
+      .from("orders")
+      .select("id, offer_id")
+      .eq("buyer_id", user.id)
+      .in("offer_id", acceptedIds);
+    if (ordErr) {
+      console.error("[offers] fetchBuyerOffers orders", ordErr.message);
+    } else {
+      for (const o of ordRows ?? []) {
+        const oid = o.offer_id as string | null;
+        if (oid) {
+          orderByOffer.set(oid, o.id as string);
+        }
+      }
+    }
+  }
+
+  return rows.map((row) => {
     const listing = coerceListingJoin(row.listings);
+    const id = row.id as string;
     return {
-      id: row.id as string,
+      id,
       listing_id: row.listing_id as string,
       amount_cents: row.amount_cents as number,
       status: row.status as BuyerOfferRow["status"],
@@ -140,6 +164,7 @@ export async function fetchBuyerOffers(): Promise<BuyerOfferRow[]> {
       expires_at: (row.expires_at as string | null) ?? null,
       created_at: row.created_at as string,
       listings: primaryFromNested(listing),
+      order_id: orderByOffer.get(id) ?? null,
     };
   });
 }

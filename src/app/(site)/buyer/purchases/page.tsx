@@ -1,17 +1,43 @@
-import { PageHeader } from "@/components/page-header";
-import { PlaceholderTable } from "@/components/dashboard/placeholder-table";
+import Link from "next/link";
+import { Package } from "lucide-react";
 
-export default function BuyerPurchasesPage() {
+import { OrderDashboardCards, OrderDashboardTable } from "@/components/orders/order-dashboard-list";
+import { EmptyState } from "@/components/empty-state";
+import { PageHeader } from "@/components/page-header";
+import { Button } from "@/components/ui/button";
+import { fetchBuyerOrders } from "@/lib/orders/queries";
+
+export default async function BuyerPurchasesPage() {
+  const rows = await fetchBuyerOrders();
+
   return (
     <div className="space-y-8">
       <PageHeader
         title="Purchases"
-        description="Paid orders, shipment tracking, and dispute windows will be listed here."
+        description="Orders you start with Buy now or from an accepted offer. Demo payments only — Stripe later."
       />
-      <PlaceholderTable
-        columns={["Order", "Listing", "Seller", "Status", "Total"]}
-        emptyLabel="You have not bought anything yet — completed purchases will land in this table."
-      />
+      {rows.length === 0 ? (
+        <EmptyState
+          icon={Package}
+          title="No purchases yet"
+          description="When you buy a listing or complete checkout from an accepted offer, your orders appear here."
+        >
+          <Button render={<Link href="/browse" />}>Browse listings</Button>
+        </EmptyState>
+      ) : (
+        <>
+          <OrderDashboardTable
+            rows={rows}
+            detailHref={(id) => `/buyer/purchases/${id}`}
+            disputeHref={(id) => `/buyer/purchases/${id}/dispute`}
+          />
+          <OrderDashboardCards
+            rows={rows}
+            detailHref={(id) => `/buyer/purchases/${id}`}
+            disputeHref={(id) => `/buyer/purchases/${id}/dispute`}
+          />
+        </>
+      )}
     </div>
   );
 }

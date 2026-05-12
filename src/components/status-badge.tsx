@@ -55,6 +55,14 @@ const disputeStatus: Record<string, BadgeVariant> = {
   closed: "secondary",
 };
 
+const disputeReasonMap: Record<string, BadgeVariant> = {
+  damaged: "destructive",
+  not_as_described: "secondary",
+  not_received: "outline",
+  counterfeit: "destructive",
+  other: "outline",
+};
+
 const shipmentStatus: Record<string, BadgeVariant> = {
   pending: "outline",
   in_transit: "secondary",
@@ -91,6 +99,7 @@ const maps = {
   offer: offerStatus,
   payment: paymentStatus,
   dispute: disputeStatus,
+  dispute_reason: disputeReasonMap,
   shipment: shipmentStatus,
   protected_delivery: pdCheckStatus,
   seller_verification: sellerVerificationStatus,
