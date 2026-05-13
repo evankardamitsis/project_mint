@@ -1,21 +1,24 @@
 import type { Metadata } from "next";
-import { Barlow_Condensed, Geist, Geist_Mono } from "next/font/google";
+import { Roboto, Roboto_Condensed, Roboto_Mono } from "next/font/google";
 
 import { getLocale } from "@/i18n/get-locale";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+/** Roboto matches `--font-display` (Roboto Condensed) for consistent Greek at UI sizes; Inter read as a different face next to condensed headlines. */
+const robotoSans = Roboto({
+  variable: "--font-body",
+  subsets: ["latin", "latin-ext", "greek", "greek-ext"],
+  display: "swap",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+const robotoMono = Roboto_Mono({
+  variable: "--font-code",
+  subsets: ["latin", "latin-ext", "greek"],
+  display: "swap",
 });
 
-const barlowCondensed = Barlow_Condensed({
-  subsets: ["latin", "latin-ext"],
+const displayCondensed = Roboto_Condensed({
+  subsets: ["latin", "latin-ext", "greek", "greek-ext"],
   weight: ["800", "900"],
   variable: "--font-display",
   display: "swap",
@@ -40,7 +43,7 @@ export default async function RootLayout({
   return (
     <html
       lang={locale === "el" ? "el" : "en"}
-      className={`${geistSans.variable} ${geistMono.variable} ${barlowCondensed.variable} h-full antialiased`}
+      className={`${robotoSans.variable} ${robotoMono.variable} ${displayCondensed.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col" suppressHydrationWarning>
         {children}
