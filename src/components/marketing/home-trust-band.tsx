@@ -6,15 +6,20 @@ import {
   IconTruck,
 } from "@tabler/icons-react";
 
-const items = [
-  { Icon: IconShieldCheck, label: "Protected payments" },
-  { Icon: IconCurrencyEuro, label: "Payment held" },
-  { Icon: IconCamera, label: "Seller uploads proof" },
-  { Icon: IconTruck, label: "Tracking verified" },
-  { Icon: IconMessageReport, label: "Dispute support" },
-] as const;
+import { getLocale } from "@/i18n/get-locale";
+import { MESSAGES } from "@/i18n/messages";
 
-export function HomeTrustBand() {
+export async function HomeTrustBand() {
+  const locale = await getLocale();
+  const t = MESSAGES[locale].trust;
+  const items = [
+    { Icon: IconShieldCheck, label: t.protectedPayments },
+    { Icon: IconCurrencyEuro, label: t.paymentHeld },
+    { Icon: IconCamera, label: t.sellerProof },
+    { Icon: IconTruck, label: t.trackingVerified },
+    { Icon: IconMessageReport, label: t.disputeSupport },
+  ] as const;
+
   return (
     <div className="w-full bg-[#E8F7F1] px-6 py-4 lg:px-10">
       <div className="mx-auto flex max-w-[1400px] flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between lg:flex-nowrap lg:items-center lg:gap-6">

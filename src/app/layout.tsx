@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+
+import { getLocale } from "@/i18n/get-locale";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -21,14 +23,16 @@ export const metadata: Metadata = {
     "Protected marketplace for music gear & collectibles — with optional protected delivery and payment hold.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const locale = await getLocale();
+
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col" suppressHydrationWarning>
+    <html lang={locale === "el" ? "el" : "en"} className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
+      <body className="flex min-h-full flex-col" suppressHydrationWarning>
         {children}
       </body>
     </html>

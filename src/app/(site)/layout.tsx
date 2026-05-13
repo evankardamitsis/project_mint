@@ -1,16 +1,21 @@
 import { SiteFooter } from "@/components/marketing/site-footer";
 import { SiteHeader } from "@/components/marketing/site-header";
+import { getLocale } from "@/i18n/get-locale";
+import { MESSAGES } from "@/i18n/messages";
 
-export default function SiteLayout({
+export default async function SiteLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const locale = await getLocale();
+  const messages = MESSAGES[locale];
+
   return (
     <>
-      <SiteHeader />
+      <SiteHeader messages={messages} />
       <div className="flex-1 bg-background">{children}</div>
-      <SiteFooter />
+      <SiteFooter locale={locale} messages={messages} />
     </>
   );
 }

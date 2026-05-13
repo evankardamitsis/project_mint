@@ -11,6 +11,8 @@ import {
   fetchCategories,
 } from "@/lib/listings/queries";
 import { SITE_CONTAINER } from "@/config/site-layout";
+import { getLocale } from "@/i18n/get-locale";
+import { MESSAGES } from "@/i18n/messages";
 import { cn } from "@/lib/utils";
 
 type PageProps = {
@@ -37,6 +39,9 @@ function filtersActive(p: BrowseQueryParams): boolean {
 }
 
 export default async function BrowsePage(props: PageProps) {
+  const locale = await getLocale();
+  const b = MESSAGES[locale].browse;
+
   const sp = await props.searchParams;
   const params: BrowseQueryParams = {
     q: first(sp.q),
@@ -56,11 +61,11 @@ export default async function BrowsePage(props: PageProps) {
 
   const active = filtersActive(params);
   const countLabel =
-    listings.length === 1 ? "1 listing" : `${listings.length} listings`;
+    listings.length === 1 ? b.countOne : b.countMany.replace("{n}", String(listings.length));
 
   return (
     <div className={cn(SITE_CONTAINER, "space-y-6 bg-background py-6 sm:space-y-8 sm:py-8")}>
-      <h1 className="heading text-ink">Browse gear</h1>
+      <h1 className="heading text-ink">{b.title}</h1>
 
       <ListingFilters
         categories={categories}
@@ -81,19 +86,15 @@ export default async function BrowsePage(props: PageProps) {
       {listings.length === 0 && active ? (
         <div className="flex flex-col items-center justify-center gap-4 rounded-2xl border border-border bg-surface px-6 py-16 text-center shadow-sm">
           <IconMusicOff className="size-10 text-[var(--color-text-tertiary)]" stroke={1.5} aria-hidden />
-          <h2 className="text-lg font-semibold text-ink">No listings found</h2>
-          <p className="max-w-md text-sm text-[var(--color-text-secondary)]">
-            Try adjusting your filters or browse all gear.
-          </p>
-          <Button render={<Link href="/browse" />}>Clear filters</Button>
+          <h2 className="text-lg font-semibold text-ink">{b.emptyFilteredTitle}</h2>
+          <p className="max-w-md text-sm text-[var(--color-text-secondary)]">{b.emptyFilteredBody}</p>
+          <Button render={<Link href="/browse" />}>{b.clearFilters}</Button>
         </div>
       ) : listings.length === 0 ? (
         <div className="flex flex-col items-center justify-center gap-4 rounded-2xl border border-border bg-surface px-6 py-16 text-center shadow-sm">
           <IconMusicOff className="size-10 text-[var(--color-text-tertiary)]" stroke={1.5} aria-hidden />
-          <h2 className="text-lg font-semibold text-ink">No listings yet</h2>
-          <p className="max-w-md text-sm text-[var(--color-text-secondary)]">
-            New gear shows up here as soon as sellers publish listings.
-          </p>
+          <h2 className="text-lg font-semibold text-ink">{b.emptyNoneTitle}</h2>
+          <p className="max-w-md text-sm text-[var(--color-text-secondary)]">{b.emptyNoneBody}</p>
         </div>
       ) : (
         <div className="grid grid-cols-2 gap-5 md:grid-cols-3 lg:grid-cols-4">

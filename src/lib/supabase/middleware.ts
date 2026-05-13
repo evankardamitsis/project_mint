@@ -38,5 +38,15 @@ export async function updateSession(request: NextRequest) {
 
   await supabase.auth.getUser();
 
+  if (!request.cookies.get("mint_locale")) {
+    const al = request.headers.get("accept-language") ?? "";
+    const locale = /\b(el|el-GR|el_GR)(?:[,;-]|$)/i.test(al) ? "el" : "en";
+    supabaseResponse.cookies.set("mint_locale", locale, {
+      path: "/",
+      maxAge: 60 * 60 * 24 * 365,
+      sameSite: "lax",
+    });
+  }
+
   return supabaseResponse;
 }

@@ -6,18 +6,25 @@ import { LogoutButton } from "@/components/marketing/logout-button";
 import { Button } from "@/components/ui/button";
 import { SITE_CONTAINER } from "@/config/site-layout";
 import { getProfile, getSessionUser } from "@/lib/auth/guards";
+import type { Messages } from "@/i18n/messages";
 import { cn } from "@/lib/utils";
 
-const browseCategoryLinks = [
-  { href: "/browse?category=electric-guitars", label: "Electric Guitars" },
-  { href: "/browse?category=synths-keyboards", label: "Synths & Keyboards" },
-  { href: "/browse?category=effects-pedals", label: "Effects & Pedals" },
-  { href: "/browse?category=pro-audio", label: "Pro Audio" },
-] as const;
-
-export async function SiteHeader({ className }: { className?: string }) {
+export async function SiteHeader({
+  className,
+  messages: m,
+}: {
+  className?: string;
+  messages: Messages;
+}) {
   const user = await getSessionUser();
   const profile = user ? await getProfile() : null;
+
+  const browseCategoryLinks = [
+    { href: "/browse?category=electric-guitars", label: m.nav.electricGuitars },
+    { href: "/browse?category=synths-keyboards", label: m.nav.synthsKeyboards },
+    { href: "/browse?category=effects-pedals", label: m.nav.effectsPedals },
+    { href: "/browse?category=pro-audio", label: m.nav.proAudio },
+  ] as const;
 
   return (
     <header
@@ -27,27 +34,37 @@ export async function SiteHeader({ className }: { className?: string }) {
       )}
     >
       <div className={cn(SITE_CONTAINER, "flex min-h-14 w-full items-center justify-between gap-3 py-3")}>
-        <div className="flex min-w-0 flex-1 items-center gap-6 lg:gap-8">
+        <div className="flex min-w-0 flex-1 items-center gap-4 lg:gap-8">
           <Link href="/" className="shrink-0 text-lg font-bold tracking-tight text-ink">
             mint<span className="text-mint">.</span>
           </Link>
-          <nav className="ml-2 hidden min-w-0 items-center gap-6 text-sm font-medium text-[#6B6B6B] lg:flex lg:ml-8">
+          <nav className="ml-2 hidden min-w-0 flex-1 items-center gap-2 text-xs font-medium text-[#6B6B6B] lg:flex lg:gap-3 lg:text-[13px] xl:text-sm">
             {browseCategoryLinks.map((item) => (
-              <Link key={item.href} href={item.href} className="transition-colors hover:text-[#111111]">
+              <Link key={item.href} href={item.href} className="whitespace-nowrap transition-colors hover:text-[#111111]">
                 {item.label}
               </Link>
             ))}
           </nav>
         </div>
         <div className="flex shrink-0 items-center gap-2 sm:gap-3">
-          <Button variant="ghost" size="icon-sm" className="text-ink-2 hover:text-ink" render={<Link href="/browse" aria-label="Search" />}>
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            className="text-ink-2 hover:text-ink"
+            render={<Link href="/browse" aria-label={m.header.searchAria} />}
+          >
             <Search className="size-5" />
           </Button>
-          <Button variant="ghost" size="icon-sm" className="text-ink-2 hover:text-ink" render={<Link href="/browse" aria-label="Saved" />}>
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            className="text-ink-2 hover:text-ink"
+            render={<Link href="/browse" aria-label={m.header.savedAria} />}
+          >
             <Heart className="size-5" />
           </Button>
           <Button size="sm" className="rounded-full bg-mint px-4 font-semibold text-white hover:bg-mint/90" render={<Link href="/sell" />}>
-            Sell
+            {m.header.sell}
           </Button>
           {user && profile ? (
             <SiteHeaderAccountMenu fullName={profile.full_name} email={profile.email ?? user.email ?? null} role={profile.role} />
@@ -56,10 +73,10 @@ export async function SiteHeader({ className }: { className?: string }) {
           ) : (
             <div className="flex items-center gap-1.5">
               <Button variant="ghost" size="sm" className="text-ink-2 hover:text-ink" render={<Link href="/auth/login" />}>
-                Log in
+                {m.header.logIn}
               </Button>
               <Button size="sm" className="rounded-full bg-ink px-4 font-semibold text-white hover:bg-ink/90" render={<Link href="/auth/register" />}>
-                Join
+                {m.header.join}
               </Button>
             </div>
           )}
