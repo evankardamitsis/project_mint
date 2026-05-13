@@ -5,7 +5,6 @@ import { OrderDisputeLinkCard } from "@/components/disputes/order-dispute-link-c
 import { OrderSummary } from "@/components/orders/order-summary";
 import { ProtectedDeliveryPanelSeller } from "@/components/protected-delivery/protected-delivery-panel-seller";
 import { Button } from "@/components/ui/button";
-import { PageHeader } from "@/components/page-header";
 import { fetchSellerProfileForUser } from "@/lib/listings/queries";
 import { fetchOrderDetailForSeller } from "@/lib/orders/queries";
 import { ensureProtectedDeliveryCheckIfPaymentHeld } from "@/lib/protected-delivery/ensure-check";
@@ -36,22 +35,41 @@ export default async function SellerOrderDetailPage(props: PageProps) {
     (pdBundle?.check.status === "not_started" || pdBundle?.check.status === "in_progress");
 
   return (
-    <div className="space-y-8">
-      <div className="flex flex-wrap gap-2">
-        <Button variant="ghost" size="sm" render={<Link href="/seller/orders" />}>
-          Back to orders
+    <div className="space-y-10">
+      <div className="flex flex-wrap items-center gap-2">
+        <Button variant="ghost" size="sm" className="text-[var(--color-text-secondary)]" render={<Link href="/seller/orders" />}>
+          ← Orders
         </Button>
       </div>
-      <PageHeader title="Order" description={`Buyer: ${buyerLabel}`} />
-      <OrderSummary order={order} listingHref={`/listing/${order.listing_slug}`} partyEmphasis="buyer" />
-      <OrderDisputeLinkCard order={order} href={`/seller/orders/${order.id}/dispute`} />
+
+      <header className="space-y-1">
+        <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[var(--color-text-muted)]">Sale</p>
+        <h1 className="text-2xl font-black uppercase tracking-[-0.04em] text-[#111111]">Fulfill with proof</h1>
+        <p className="text-sm text-[var(--color-text-secondary)]">
+          Buyer <span className="font-semibold text-[#111111]">{buyerLabel}</span> — add photos and tracking so payment can release.
+        </p>
+      </header>
+
+      <section className="space-y-4">
+        <h2 className="sr-only">Order summary</h2>
+        <OrderSummary order={order} listingHref={`/listing/${order.listing_slug}`} partyEmphasis="buyer" />
+      </section>
+
+      <section>
+        <h2 className="sr-only">Case</h2>
+        <OrderDisputeLinkCard order={order} href={`/seller/orders/${order.id}/dispute`} />
+      </section>
+
       {showPdPanel && pdBundle ? (
-        <ProtectedDeliveryPanelSeller
-          orderId={order.id}
-          orderStatus={order.status}
-          bundle={pdBundle}
-          canEditChecklist={Boolean(canEditPd)}
-        />
+        <section className="space-y-3">
+          <h2 className="text-sm font-semibold text-[#111111]">Ship with protected delivery</h2>
+          <ProtectedDeliveryPanelSeller
+            orderId={order.id}
+            orderStatus={order.status}
+            bundle={pdBundle}
+            canEditChecklist={Boolean(canEditPd)}
+          />
+        </section>
       ) : null}
     </div>
   );

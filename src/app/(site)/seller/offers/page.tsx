@@ -32,7 +32,7 @@ export default async function SellerOffersPage() {
     <div className="space-y-8">
       <PageHeader
         title="Offers"
-        description="Accept, reject, or counter offers on your active listings. When you accept, the listing is reserved until checkout ships."
+        description="Negotiations on your listings — counter, accept, or pass. When you accept, the listing stays reserved until checkout."
       />
       {rows.length === 0 ? (
         <EmptyState

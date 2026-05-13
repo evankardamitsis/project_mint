@@ -5,7 +5,11 @@ import { SellerListingRowActions } from "@/components/listings/seller-listing-ro
 import { EmptyState } from "@/components/empty-state";
 import { Price } from "@/components/price";
 import { Button } from "@/components/ui/button";
-import { fetchSellerListings, fetchSellerProfileForUser } from "@/lib/listings/queries";
+import {
+  fetchSellerHubCounts,
+  fetchSellerListings,
+  fetchSellerProfileForUser,
+} from "@/lib/listings/queries";
 import { cn } from "@/lib/utils";
 import { Layers } from "lucide-react";
 
@@ -32,6 +36,7 @@ function statusLabel(status: string) {
 export default async function SellerListingsPage() {
   const seller = await fetchSellerProfileForUser();
   const listings = seller ? await fetchSellerListings(seller.id) : [];
+  const hub = seller ? await fetchSellerHubCounts(seller.id) : { activeOffers: 0, activeOrders: 0 };
 
   const live = listings.filter((l) => l.status === "active").length;
 
@@ -39,18 +44,18 @@ export default async function SellerListingsPage() {
     <div className="space-y-0">
       <div className="-mx-4 -mt-8 mb-8 bg-[#111111] px-6 py-8 text-white sm:-mx-6 sm:rounded-2xl">
         <p className="text-sm font-medium text-white/80">{seller?.display_name ?? "Seller"}</p>
-        <h1 className="mt-1 text-2xl font-bold tracking-tight">Your listings</h1>
+        <h1 className="mt-1 text-2xl font-black uppercase tracking-tight">Listings</h1>
         <div className="mt-5 grid grid-cols-3 gap-3">
           <div className="rounded-xl bg-white/10 p-3 text-center">
             <p className="text-2xl font-extrabold tabular-nums">{live}</p>
             <p className="text-[0.65rem] font-medium uppercase tracking-wide text-white/70">Live</p>
           </div>
           <div className="rounded-xl bg-white/10 p-3 text-center">
-            <p className="text-2xl font-extrabold tabular-nums">—</p>
+            <p className="text-2xl font-extrabold tabular-nums">{hub.activeOffers}</p>
             <p className="text-[0.65rem] font-medium uppercase tracking-wide text-white/70">Offers</p>
           </div>
           <div className="rounded-xl bg-white/10 p-3 text-center">
-            <p className="text-2xl font-extrabold tabular-nums">—</p>
+            <p className="text-2xl font-extrabold tabular-nums">{hub.activeOrders}</p>
             <p className="text-[0.65rem] font-medium uppercase tracking-wide text-white/70">Orders</p>
           </div>
         </div>
@@ -60,7 +65,7 @@ export default async function SellerListingsPage() {
         <p className="text-sm font-medium text-ink-2">
           {listings.length} listing{listings.length === 1 ? "" : "s"}
         </p>
-        <Button className="rounded-full bg-[#111111] px-5 font-semibold text-white hover:bg-ink/90" render={<Link href="/seller/listings/new" />}>
+        <Button className="bg-mint px-6 font-semibold text-white hover:bg-mint/90" render={<Link href="/seller/listings/new" />}>
           + New listing
         </Button>
       </div>
@@ -86,7 +91,7 @@ export default async function SellerListingsPage() {
           {listings.map((row) => (
             <div
               key={row.id}
-              className="flex flex-wrap items-center gap-4 rounded-xl bg-white p-3 shadow-sm sm:flex-nowrap sm:gap-5 sm:p-4"
+              className="flex flex-wrap items-center gap-4 rounded-2xl bg-[var(--color-background-surface)] p-4 shadow-sm ring-1 ring-[#e0ddd8]/60 sm:flex-nowrap sm:gap-5 sm:p-5"
             >
               <div className="relative size-16 shrink-0 overflow-hidden rounded-xl bg-[#F0EEE9] sm:size-20">
                 {row.primary_image_url ? (

@@ -68,7 +68,7 @@ export default async function BrowsePage(props: PageProps) {
 
   return (
     <div className={cn(SITE_CONTAINER, "bg-[var(--color-background-page)] pb-10 pt-0")}>
-      <h1 className="px-5 pb-4 pt-6 text-[clamp(28px,5vw,40px)] font-black uppercase tracking-[-0.03em] text-[#111111]">
+      <h1 className="px-5 pb-4 pt-6 text-[clamp(28px,5vw,40px)] font-black uppercase tracking-[-0.03em] text-[#111111] [font-family:var(--font-display),Helvetica_Neue,sans-serif]">
         {b.title}
       </h1>
 
@@ -129,7 +129,7 @@ export default async function BrowsePage(props: PageProps) {
       ) : (
         <div className="px-5">
           <SectionHeader title={b.listingsSection} seeAllHref="/browse" seeAllLabel={h.seeAll} />
-          <BauhausListingGrid>
+          <BauhausListingGrid className="border-t-0">
             {listings.map((item, index) => (
               <ListingCard
                 key={item.id}
@@ -143,6 +143,7 @@ export default async function BrowsePage(props: PageProps) {
                 imagePriority={index < 3}
                 protectedDeliveryEnabled={item.protected_delivery_enabled}
                 categoryName={item.category_name}
+                categorySlug={item.category_slug ?? null}
                 sellerDisplayName={item.seller_display_name}
               />
             ))}

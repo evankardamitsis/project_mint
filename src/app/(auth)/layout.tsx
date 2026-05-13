@@ -6,22 +6,17 @@ export default function AuthLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-full flex-col bg-background">
+    <div className="flex min-h-full flex-col bg-[var(--color-background-page)]">
       <div className="mx-auto flex w-full max-w-lg flex-1 flex-col px-4 py-12 sm:py-16">
-        <div className="mb-8 text-center">
-          <Link
-            href="/"
-            className="text-lg font-semibold tracking-tight text-foreground"
-          >
+        <div className="mb-10 text-center">
+          <Link href="/" className="inline-block text-2xl font-black uppercase tracking-[-0.06em] text-[#111111]">
             mint<span className="text-mint">.</span>
           </Link>
-          <p className="mt-2 text-xs text-muted-foreground">
-            Protected second-hand gear — sign in to continue.
+          <p className="mt-3 text-sm leading-relaxed text-[var(--color-text-secondary)]">
+            Second-hand gear with protected delivery — sign in to buy or sell.
           </p>
         </div>
-        <div className="flex flex-1 flex-col items-center justify-center">
-          {children}
-        </div>
+        <div className="flex flex-1 flex-col items-center justify-center">{children}</div>
       </div>
     </div>
   );

@@ -11,6 +11,7 @@ import { ListingProtectedDeliveryTrustDetail } from "@/components/listings/listi
 import { ListingStickyCta } from "@/components/listings/listing-sticky-cta";
 import { Button } from "@/components/ui/button";
 import { getProfile } from "@/lib/auth/guards";
+import { SITE_CONTAINER } from "@/config/site-layout";
 import { fetchListingBySlug, fetchSellerProfileForUser } from "@/lib/listings/queries";
 import { cn, formatEuroPrefix } from "@/lib/utils";
 import type { ListingCondition } from "@/types/domain";
@@ -96,10 +97,10 @@ export default async function ListingPage(props: PageProps) {
 
   return (
     <div className={cn("w-full", showMobileSticky && "pb-24 lg:pb-0")}>
-      <div className="mx-auto max-w-[1400px] px-6 py-0 lg:px-10 lg:py-10">
+      <div className={cn(SITE_CONTAINER, "py-0 lg:py-10")}>
         <div className="flex flex-col lg:flex-row lg:items-start lg:gap-12">
           <div className="lg:sticky lg:top-6 lg:w-[55%]">
-            <div className="relative -mx-6 lg:mx-0">
+            <div className="relative -mx-5 sm:-mx-8 lg:mx-0">
               <div className="absolute left-4 top-4 z-20 lg:left-4 lg:top-4">
                 <Button
                   variant="outline"

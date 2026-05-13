@@ -32,33 +32,35 @@ export async function SiteHeader({
         ? ("session_no_profile" as const)
         : null;
 
+  const logo = (
+    <Link
+      href="/"
+      className="flex h-12 shrink-0 items-center justify-center border-r border-[#1e1e1e] px-4 text-[1.125rem] font-black tracking-[-0.04em] text-white sm:px-5 sm:text-[1.35rem] lg:h-14 lg:justify-self-center lg:border-x lg:border-[#1e1e1e] lg:px-10 lg:text-[1.85rem] lg:leading-none"
+    >
+      mint<span className="text-[#1a7a4a]">.</span>
+    </Link>
+  );
+
   return (
     <header
       className={cn(
-        "sticky top-0 z-40 flex h-11 w-full items-stretch border-b-[3px] border-[#1a7a4a] bg-[#111111]",
+        "sticky top-0 z-40 flex min-h-12 w-full items-stretch border-b-[3px] border-[#1a7a4a] bg-[#111111] lg:min-h-14",
         className,
       )}
     >
-      <div className="mx-auto flex h-11 w-full min-w-0 flex-1 items-stretch">
-        <Link
-          href="/"
-          className="flex h-11 shrink-0 items-center border-r border-[#1e1e1e] px-5 text-[15px] font-black tracking-[-0.02em] text-white"
-        >
-          mint<span className="text-[#1a7a4a]">.</span>
-        </Link>
-        <Suspense fallback={<div className="min-w-0 flex-1 bg-[#111111]" aria-hidden />}>
-          <SiteHeaderInner
-            locale={locale}
-            navItems={browseCategoryLinks}
-            sellLabel={m.header.sell}
-            searchAria={m.header.searchAria}
-            savedAria={m.header.savedAria}
-            logIn={m.header.logIn}
-            join={m.header.join}
-            account={account}
-          />
-        </Suspense>
-      </div>
+      <Suspense fallback={<div className="min-h-12 w-full bg-[#111111]" aria-hidden />}>
+        <SiteHeaderInner
+          centerSlot={logo}
+          locale={locale}
+          navItems={browseCategoryLinks}
+          sellLabel={m.header.sell}
+          searchAria={m.header.searchAria}
+          savedAria={m.header.savedAria}
+          logIn={m.header.logIn}
+          join={m.header.join}
+          account={account}
+        />
+      </Suspense>
     </header>
   );
 }

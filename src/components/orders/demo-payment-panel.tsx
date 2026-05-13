@@ -5,7 +5,6 @@ import { useState, useTransition } from "react";
 
 import { demoMarkOrderPaidAction } from "@/lib/orders/actions";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 export function DemoPaymentPanel({ orderId }: { orderId: string }) {
   const router = useRouter();
@@ -13,19 +12,18 @@ export function DemoPaymentPanel({ orderId }: { orderId: string }) {
   const [pending, start] = useTransition();
 
   return (
-    <Card className="border-amber-warn/30 bg-amber-warn/[0.06]">
-      <CardHeader>
-        <CardTitle className="text-base">Payment</CardTitle>
-        <CardDescription>
-          Demo payment only. Stripe will be added later. This simulates a successful checkout and escrow hold.
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-3">
-        {error ? <p className="text-sm text-destructive">{error}</p> : null}
+    <div className="rounded-2xl bg-[var(--color-background-surface)] p-5 shadow-sm ring-1 ring-[#e0ddd8]/80">
+      <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[var(--color-text-muted)]">Checkout</p>
+      <p className="mt-2 text-base font-semibold text-[#111111]">Demo payment</p>
+      <p className="mt-2 text-sm leading-relaxed text-[var(--color-text-secondary)]">
+        Simulates a successful checkout and escrow hold. Stripe will replace this later — nothing is charged in production.
+      </p>
+      <div className="mt-5 space-y-3">
+        {error ? <p className="text-sm text-[var(--color-danger-text)]">{error}</p> : null}
         <Button
           type="button"
-          variant="secondary"
-          className="w-full"
+          variant="outline"
+          className="w-full border-mint/40 bg-mint-tint text-mint-dark hover:bg-mint-tint/80"
           disabled={pending}
           onClick={() =>
             start(async () => {
@@ -39,9 +37,9 @@ export function DemoPaymentPanel({ orderId }: { orderId: string }) {
             })
           }
         >
-          {pending ? "Working…" : "Mark as paid — demo"}
+          {pending ? "Working…" : "Mark as paid (demo)"}
         </Button>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

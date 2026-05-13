@@ -50,12 +50,18 @@ export default async function AdminDisputesPage(props: PageProps) {
         description="Review cases with buyer evidence and seller responses. Refunds and releases are status placeholders until Stripe is live."
       />
 
-      <div className="flex flex-wrap gap-2 border-b border-border pb-3">
+      <div className="flex flex-wrap gap-2 border-b border-[#e0ddd8]/80 pb-4">
         {tabs.map((t) => {
           const active = filter === t.value;
           const href = t.value === "all" ? "/admin/disputes" : `/admin/disputes?status=${t.value}`;
           return (
-            <Button key={t.value} size="sm" variant={active ? "default" : "outline"} render={<Link href={href} />}>
+            <Button
+              key={t.value}
+              size="sm"
+              variant={active ? "default" : "outline"}
+              className={active ? "bg-mint text-white hover:bg-mint/90" : "border-[#e0ddd8]"}
+              render={<Link href={href} />}
+            >
               {t.label}
             </Button>
           );

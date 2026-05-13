@@ -1,5 +1,15 @@
 import Image from "next/image";
 import Link from "next/link";
+import {
+  IconAdjustments,
+  IconDisc,
+  IconGuitarPick,
+  IconMetronome,
+  IconMicrophone,
+  IconPackage,
+  IconPiano,
+  IconSpeakerphone,
+} from "@tabler/icons-react";
 
 import { ListingCardHeartButton } from "@/components/listings/listing-card-heart-button";
 import { cn, formatEuroPrefix } from "@/lib/utils";
@@ -32,6 +42,37 @@ function pillBackground(hex: string): string {
   return "rgba(26, 122, 74, 0.08)";
 }
 
+function ListingCardImagePlaceholder({ categorySlug }: { categorySlug: string | null | undefined }) {
+  const s = (categorySlug ?? "").trim().toLowerCase();
+  const iconClass = "size-8 text-[#bbbbbb]";
+  const stroke = 1.25;
+  if (["electric-guitars", "acoustic-guitars", "bass"].includes(s)) {
+    return <IconGuitarPick className={iconClass} stroke={stroke} aria-hidden />;
+  }
+  if (s === "synths-keyboards") {
+    return <IconPiano className={iconClass} stroke={stroke} aria-hidden />;
+  }
+  if (s === "effects-pedals") {
+    return <IconAdjustments className={iconClass} stroke={stroke} aria-hidden />;
+  }
+  if (s === "amps") {
+    return <IconSpeakerphone className={iconClass} stroke={stroke} aria-hidden />;
+  }
+  if (s === "drums") {
+    return <IconMetronome className={iconClass} stroke={stroke} aria-hidden />;
+  }
+  if (s === "dj-gear") {
+    return <IconDisc className={iconClass} stroke={stroke} aria-hidden />;
+  }
+  if (s === "pro-audio") {
+    return <IconMicrophone className={iconClass} stroke={stroke} aria-hidden />;
+  }
+  if (s === "accessories") {
+    return <IconPackage className={iconClass} stroke={stroke} aria-hidden />;
+  }
+  return <IconPackage className={iconClass} stroke={stroke} aria-hidden />;
+}
+
 export function ListingCard({
   title,
   slug,
@@ -47,6 +88,7 @@ export function ListingCard({
   protectedDeliveryEnabled,
   status = "active",
   categoryName,
+  categorySlug,
   sellerDisplayName,
 }: {
   title: string;
@@ -63,6 +105,7 @@ export function ListingCard({
   protectedDeliveryEnabled?: boolean;
   status?: ListingStatus;
   categoryName?: string | null;
+  categorySlug?: string | null;
   sellerDisplayName?: string | null;
 }) {
   const reserved = status === "reserved";
@@ -71,6 +114,7 @@ export function ListingCard({
   const metaLine =
     shopName && cityLine ? `${shopName} · ${cityLine}` : shopName || cityLine || null;
   const categoryTrimmed = categoryName?.trim() ?? "";
+  const hasImage = Boolean(imageUrl?.trim());
 
   const priceLabel =
     currency === "EUR"
@@ -90,35 +134,33 @@ export function ListingCard({
     <article className={cn("group relative block w-full bg-[var(--color-background-page)]", className)}>
       <Link
         href={href}
-        className="block outline-offset-2 focus-visible:outline-2 focus-visible:outline-ring"
+        className="block focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--ring)]"
         aria-label={`${title}, ${priceLabel}`}
       >
         <div className={cn("relative w-full overflow-hidden", reserved && "opacity-95")}>
-          <div className="relative aspect-3/4 w-full overflow-hidden">
-            <div className="relative h-full w-full overflow-hidden">
-              {imageUrl ? (
-                <Image
-                  src={imageUrl}
-                  alt={imageAlt ?? title}
-                  fill
-                  className={cn(
-                    "object-cover transition-transform duration-300 ease-out group-hover:scale-[1.04]",
-                    reserved && "brightness-[0.97] saturate-[0.85]",
-                  )}
-                  sizes="(max-width: 768px) 50vw, 33vw"
-                  priority={Boolean(imagePriority)}
-                  loading={imagePriority ? "eager" : "lazy"}
-                />
-              ) : (
-                <div className="flex h-full w-full items-center justify-center text-[11px] font-medium text-[#888888]">
-                  Photo soon
-                </div>
-              )}
-            </div>
+          <div className="relative aspect-[3/5] w-full overflow-hidden bg-[#e8e5de]">
+            {hasImage ? (
+              <Image
+                src={imageUrl!.trim()}
+                alt={imageAlt ?? title}
+                fill
+                className={cn(
+                  "object-cover transition-transform duration-300 ease-out group-hover:scale-[1.04]",
+                  reserved && "brightness-[0.97] saturate-[0.85]",
+                )}
+                sizes="(max-width: 768px) 50vw, (max-width: 1280px) 33vw, 25vw"
+                priority={Boolean(imagePriority)}
+                loading={imagePriority ? "eager" : "lazy"}
+              />
+            ) : (
+              <div className="absolute inset-0 flex h-full w-full items-center justify-center bg-[#e8e5de]">
+                <ListingCardImagePlaceholder categorySlug={categorySlug} />
+              </div>
+            )}
 
             {protectedDeliveryEnabled ? (
               <div
-                className="pointer-events-none absolute right-2 top-2 z-10 bg-[#1a7a4a] px-[7px] py-1 text-[8px] font-black uppercase tracking-[0.1em] text-[#ffffff]"
+                className="pointer-events-none absolute right-2 top-2 z-10 bg-[#1a7a4a] px-[7px] py-1 text-[8px] font-black uppercase tracking-widest text-[#ffffff]"
                 aria-label="Protected delivery"
               >
                 PROTECTED
@@ -129,13 +171,13 @@ export function ListingCard({
           </div>
         </div>
 
-        <div className="border-t border-[#111111] px-[10px] pb-[14px] pt-[10px]">
+        <div className="border-t border-[#111111] px-[10px] pb-4 pt-3">
           <p className="mb-[5px] overflow-hidden text-ellipsis whitespace-nowrap text-[13px] font-bold tracking-[-0.01em] text-[#111111]">
             {title}
           </p>
           <p className="mb-[7px] flex min-w-0 items-center gap-[5px]">
             <span
-              className="shrink-0 border px-[5px] py-0.5 text-[9px] font-bold uppercase tracking-[0.07em]"
+              className="mint-condition-pill shrink-0 rounded-none border px-[5px] py-0.5 text-[9px] font-bold uppercase tracking-[0.07em]"
               style={{
                 color: pillColor,
                 borderColor: pillColor,
@@ -149,7 +191,7 @@ export function ListingCard({
                 <span className="shrink-0 select-none text-[9px] text-[#cccccc]" aria-hidden>
                   ·
                 </span>
-                <span className="min-w-0 flex-1 truncate text-[9px] font-bold uppercase tracking-[0.05em] text-[#999999]">
+                <span className="min-w-0 flex-1 truncate text-[9px] font-bold uppercase tracking-wider text-[#999999]">
                   {categoryTrimmed}
                 </span>
               </>
@@ -158,7 +200,7 @@ export function ListingCard({
           <div className="flex items-baseline justify-between gap-1">
             <p className="text-[19px] font-black leading-none tracking-[-0.03em] text-[#111111] tabular-nums">{priceLabel}</p>
             {metaLine ? (
-              <p className="max-w-[110px] shrink-0 overflow-hidden text-ellipsis whitespace-nowrap text-[9px] uppercase tracking-[0.04em] text-[#bbbbbb]">
+              <p className="max-w-[110px] shrink-0 overflow-hidden text-ellipsis whitespace-nowrap text-[9px] uppercase tracking-[0.04em] text-text-muted">
                 {metaLine}
               </p>
             ) : null}

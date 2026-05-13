@@ -12,7 +12,7 @@ export default async function BuyerOffersPage() {
     <div className="space-y-8">
       <PageHeader
         title="Your offers"
-        description="Track pending offers, seller counters, and outcomes. Expired offers are updated when you open this page."
+        description="Negotiations on listings — your price, the seller's counter, and what happens next."
       />
       {rows.length === 0 ? (
         <EmptyState

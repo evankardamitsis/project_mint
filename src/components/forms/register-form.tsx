@@ -27,15 +27,15 @@ export function RegisterForm() {
   const [pending, setPending] = useState(false);
 
   return (
-    <Card size="sm" className="w-full max-w-md">
+    <Card size="sm" className="w-full max-w-md border-0 bg-[var(--color-background-surface)] shadow-md ring-1 ring-[#e0ddd8]/80">
       <CardHeader>
-        <CardTitle>Create an account</CardTitle>
-        <CardDescription>
-          Join mint. to buy and sell gear with protected delivery.
+        <CardTitle className="text-xl font-semibold text-[#111111]">Join mint.</CardTitle>
+        <CardDescription className="text-[var(--color-text-secondary)]">
+          Create an account to buy gear, make offers, or open a seller shop when you are ready.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        {error ? <p className="text-sm text-destructive">{error}</p> : null}
+        {error ? <p className="text-sm text-[var(--color-danger-text)]">{error}</p> : null}
         {info ? <p className="text-sm text-muted-foreground">{info}</p> : null}
         <div className="space-y-2">
           <Label htmlFor="fullName">Full name</Label>

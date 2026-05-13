@@ -4,14 +4,17 @@ function TickerItem({ text }: { text: string }) {
   const sep = " · ";
   const idx = text.indexOf(sep);
   if (idx === -1) {
-    return <span className="whitespace-nowrap text-[9px] uppercase tracking-[0.05em] text-[#555555]">{text}</span>;
+    return (
+      <span className="whitespace-nowrap text-[9px] font-bold uppercase tracking-[0.05em] text-[#d4d4d4]">{text}</span>
+    );
   }
   const head = text.slice(0, idx);
-  const tail = text.slice(idx);
+  const timePart = text.slice(idx + sep.length);
   return (
     <span className="whitespace-nowrap text-[9px] uppercase tracking-[0.05em]">
-      <span className="font-bold text-[#cccccc]">{head}</span>
-      <span className="text-[#555555]">{tail}</span>
+      <span className="font-bold text-[#d4d4d4]">{head}</span>
+      <span className="text-[#333333]"> · </span>
+      <span className="font-normal text-[#666666]">{timePart}</span>
     </span>
   );
 }

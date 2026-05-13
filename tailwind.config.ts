@@ -3,6 +3,9 @@ import type { Config } from "tailwindcss";
 /**
  * Consumer marketplace palette (see also `src/app/globals.css` :root / @theme).
  * Loaded via `@config` in globals for Tailwind v4.
+ *
+ * Classnames: use arbitrary CSS vars in JSX, e.g. `text-[var(--color-text-muted)]`,
+ * not the v4-only `text-(--color-text-muted)` form, so editors and scanners agree.
  */
 export default {
   theme: {

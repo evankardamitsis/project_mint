@@ -452,3 +452,28 @@ export async function fetchOrderDetailForAdmin(orderId: string): Promise<OrderDe
     seller_display_name: coerceSellerName(r.seller_profiles),
   };
 }
+
+/** Headline counts for buyer hub (no heavy joins). */
+export async function fetchBuyerHubCounts(): Promise<{ purchases: number; offers: number }> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    return { purchases: 0, offers: 0 };
+  }
+  const [ordersRes, offersRes] = await Promise.all([
+    supabase.from("orders").select("id", { count: "exact", head: true }).eq("buyer_id", user.id),
+    supabase.from("offers").select("id", { count: "exact", head: true }).eq("buyer_id", user.id),
+  ]);
+  if (ordersRes.error) {
+    console.error("[orders] fetchBuyerHubCounts orders", ordersRes.error.message);
+  }
+  if (offersRes.error) {
+    console.error("[orders] fetchBuyerHubCounts offers", offersRes.error.message);
+  }
+  return {
+    purchases: ordersRes.count ?? 0,
+    offers: offersRes.count ?? 0,
+  };
+}

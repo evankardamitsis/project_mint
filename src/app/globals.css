@@ -162,7 +162,9 @@
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border;
+    /* Ring tint for native outlines (avoids @apply outline-ring/50 tooling noise). */
+    outline-color: color-mix(in srgb, var(--ring) 50%, transparent);
   }
   body {
     @apply antialiased;
@@ -176,6 +178,12 @@
 }
 
 @layer utilities {
+  .mint-condition-pill {
+    border-radius: 0;
+  }
+  [data-mint-browse-chip] {
+    border-radius: 0;
+  }
   .mint-marquee {
     animation: mint-marquee 30s linear infinite;
   }

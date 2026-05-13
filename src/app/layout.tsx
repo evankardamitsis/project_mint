@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Barlow_Condensed, Geist, Geist_Mono } from "next/font/google";
 
 import { getLocale } from "@/i18n/get-locale";
 import "./globals.css";
@@ -12,6 +12,13 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+});
+
+const barlowCondensed = Barlow_Condensed({
+  subsets: ["latin", "latin-ext"],
+  weight: ["800", "900"],
+  variable: "--font-display",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -31,7 +38,10 @@ export default async function RootLayout({
   const locale = await getLocale();
 
   return (
-    <html lang={locale === "el" ? "el" : "en"} className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
+    <html
+      lang={locale === "el" ? "el" : "en"}
+      className={`${geistSans.variable} ${geistMono.variable} ${barlowCondensed.variable} h-full antialiased`}
+    >
       <body className="flex min-h-full flex-col" suppressHydrationWarning>
         {children}
       </body>

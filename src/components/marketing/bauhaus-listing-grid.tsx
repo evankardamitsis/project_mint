@@ -10,7 +10,7 @@ export function BauhausListingGrid({
   return (
     <div
       className={cn(
-        "grid grid-cols-2 gap-px border border-[#111111] bg-[#111111] lg:grid-cols-3",
+        "grid grid-cols-2 gap-px border border-[#111111] bg-[var(--color-background-page)] md:grid-cols-3 xl:grid-cols-4",
         className,
       )}
     >

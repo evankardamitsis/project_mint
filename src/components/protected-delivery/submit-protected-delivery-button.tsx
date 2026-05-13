@@ -30,7 +30,7 @@ export function SubmitProtectedDeliveryButton({ orderId, disabled }: { orderId: 
           })
         }
       >
-        {pending ? "Submitting…" : "Submit checklist & mark shipped"}
+        {pending ? "Submitting…" : "Mark as shipped"}
       </Button>
     </div>
   );

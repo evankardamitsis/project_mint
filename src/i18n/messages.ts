@@ -32,6 +32,7 @@ export type Messages = {
     statActiveShops: string;
     statBuyerProtection: string;
     boostZoneNote: string;
+    heroRecentlyListed: string;
     latest: string;
     sectionSynths: string;
     sectionEffects: string;
@@ -103,7 +104,19 @@ export type Messages = {
     sellerShopFallback: string;
     buyerAccountFallback: string;
   };
-  buyerHome: { title: string; lead: string; emptyDescription: string };
+  buyerHome: {
+    headline: string;
+    lead: string;
+    cardPurchasesTitle: string;
+    cardPurchasesBody: string;
+    cardOffersTitle: string;
+    cardOffersBody: string;
+    cardSavedTitle: string;
+    cardSavedBody: string;
+    cardSavedSoon: string;
+    cardHelpTitle: string;
+    cardHelpBody: string;
+  };
   sellerOrders: { pageTitle: string; pageDescription: string; emptyTitle: string; emptyDescription: string };
 };
 
@@ -147,6 +160,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       statActiveShops: "Active seller shops",
       statBuyerProtection: "Buyer protection",
       boostZoneNote: "Boost zone — featured listings will appear here",
+      heroRecentlyListed: "RECENTLY LISTED",
       latest: "Latest listings",
       sectionSynths: "Synths & Keyboards",
       sectionEffects: "Effects & Pedals",
@@ -188,9 +202,9 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       priceOver1000: "Over €1,000",
     },
     sell: {
-      title: "Sell on mint.",
+      title: "Sell gear with protection built in.",
       subtitle:
-        "List second-hand gear with optional protected delivery: packaging checklist, photos, tracking, and a buyer dispute window after delivery.",
+        "List your gear, accept offers, ship with proof photos and tracking, and get paid after protected delivery — all on mint.",
       newListing: "New listing",
       getStarted: "Get started",
       browseGear: "Browse gear",
@@ -221,9 +235,17 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       buyerAccountFallback: "Your account",
     },
     buyerHome: {
-      title: "Buyer overview",
-      lead: "Track purchases, offers, and any protected-delivery disputes from one place.",
-      emptyDescription: "You haven't made any purchases yet. Browse gear to find something you love.",
+      headline: "Your mint.",
+      lead: "Purchases, offers, and buyer protection — in one calm place.",
+      cardPurchasesTitle: "Purchases",
+      cardPurchasesBody: "Orders you placed with Buy now or an accepted offer. Track delivery and proof photos.",
+      cardOffersTitle: "Offers",
+      cardOffersBody: "Negotiations on listings — counters, acceptances, and expiries stay here.",
+      cardSavedTitle: "Saved",
+      cardSavedBody: "Wishlists and saved searches will live here soon.",
+      cardSavedSoon: "Coming soon",
+      cardHelpTitle: "Protected delivery",
+      cardHelpBody: "Payments can be held until tracking and photos look good. Open a case from an order if you need help.",
     },
     sellerOrders: {
       pageTitle: "Orders",
@@ -271,6 +293,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       statActiveShops: "Ενεργά καταστήματα πωλητών",
       statBuyerProtection: "Προστασία αγοραστή",
       boostZoneNote: "Ζώνη boost — εδώ θα εμφανίζονται προβεβλημένες αγγελίες",
+      heroRecentlyListed: "ΠΡΟΣΦΑΤΕΣ ΑΓΓΕΛΙΕΣ",
       latest: "Νέες αγγελίες",
       sectionSynths: "Συνθεσάιζερ & πλήκτρα",
       sectionEffects: "Εφέ & πετάλια",
@@ -312,9 +335,9 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       priceOver1000: "Πάνω από €1.000",
     },
     sell: {
-      title: "Πούλησε στο mint.",
+      title: "Πούλησε εξοπλισμό με ενσωματωμένη προστασία.",
       subtitle:
-        "Δημοσίευσε μεταχειρισμένο εξοπλισμό με προαιρετική προστατευμένη παράδοση: checklist συσκευασίας, φωτογραφίες, tracking και παράθυρο διαφοράς μετά την παράδοση.",
+        "Ανάρτησε αγγελίες, δέξου προσφορές, στείλε με αποδείξεις και tracking, και πληρώσου μετά την προστατευμένη παράδοση — όλα στο mint.",
       newListing: "Νέα αγγελία",
       getStarted: "Ξεκίνα",
       browseGear: "Δες αγγελίες",
@@ -345,9 +368,17 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       buyerAccountFallback: "Ο λογαριασμός σου",
     },
     buyerHome: {
-      title: "Επισκόπηση αγοραστή",
-      lead: "Παρακολούθησε αγορές, προσφορές και τυχόν διαφορές προστατευμένης παράδοσης από ένα μέρος.",
-      emptyDescription: "Δεν έχεις κάνει ακόμη αγορές. Δες εξοπλισμό και βρες κάτι που σου ταιριάζει.",
+      headline: "Το mint. σου.",
+      lead: "Αγορές, προσφορές και προστασία αγοραστή — σε ένα ήρεμο μέρος.",
+      cardPurchasesTitle: "Αγορές",
+      cardPurchasesBody: "Παραγγελίες με Άμεση αγορά ή αποδεκτή προσφορά. Παρακολούθησε παράδοση και φωτογραφίες απόδειξης.",
+      cardOffersTitle: "Προσφορές",
+      cardOffersBody: "Διαπραγματεύσεις σε αγγελίες — αντιπροσφορές, αποδοχές και λήξεις μένουν εδώ.",
+      cardSavedTitle: "Αποθηκευμένα",
+      cardSavedBody: "Λίστες επιθυμιών και αποθηκευμένες αναζητήσεις θα έρθουν σύντομα εδώ.",
+      cardSavedSoon: "Σύντομα",
+      cardHelpTitle: "Προστατευμένη παράδοση",
+      cardHelpBody: "Οι πληρωμές μπορεί να κρατούνται μέχρι το tracking και οι φωτογραφίες να είναι εντάξει. Άνοιξε υπόθεση από την παραγγελία αν χρειάζεσαι βοήθεια.",
     },
     sellerOrders: {
       pageTitle: "Παραγγελίες",

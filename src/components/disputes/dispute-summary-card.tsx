@@ -18,11 +18,11 @@ export function DisputeSummaryCard({
   openedByLabel?: string;
 }) {
   return (
-    <Card className="border border-border/60 bg-surface shadow-sm">
-      <CardHeader>
+    <Card className="overflow-hidden border-0 border-l-4 border-l-[var(--color-danger-text)]/30 bg-[var(--color-background-surface)] shadow-sm ring-1 ring-[#e0ddd8]/70">
+      <CardHeader className="border-b border-[#e0ddd8]/60 bg-[var(--color-background-page)]/50">
         <div className="flex flex-wrap items-baseline gap-2">
-          <CardTitle className="text-base font-semibold text-ink">Case</CardTitle>
-          <span className="rounded-full bg-warm-bg px-2 py-0.5 text-xs font-medium capitalize text-(--color-text-muted)">
+          <CardTitle className="text-base font-semibold text-[#111111]">Case</CardTitle>
+          <span className="rounded-full bg-[var(--color-background-page)] px-2 py-0.5 text-xs font-medium capitalize text-[var(--color-text-secondary)]">
             {String(dispute.status).replace(/_/g, " ")}
           </span>
         </div>
@@ -37,14 +37,14 @@ export function DisputeSummaryCard({
           {dispute.reason ? (
             <>
               {" "}
-              · <span className="text-(--color-text-muted)">{dispute.reason}</span>
+              · <span className="text-[var(--color-text-muted)]">{dispute.reason}</span>
             </>
           ) : null}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-3 text-sm">
         <p>
-          <span className="text-(--color-text-muted)">Listing:</span>{" "}
+          <span className="text-[var(--color-text-muted)]">Listing:</span>{" "}
           <span className="font-medium text-ink">{listingTitle}</span>
         </p>
         <div className="flex flex-wrap gap-2">

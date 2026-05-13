@@ -1,5 +1,6 @@
 import { IconCamera, IconCurrencyEuro, IconScale, IconTruck } from "@tabler/icons-react";
 
+import { SITE_CONTAINER } from "@/config/site-layout";
 import { getLocale } from "@/i18n/get-locale";
 import { MESSAGES } from "@/i18n/messages";
 
@@ -15,7 +16,7 @@ export async function HomeTrustBand() {
 
   return (
     <div className="w-full border-b border-[#111111] bg-[#ffffff]">
-      <div className="mx-auto max-w-[1400px]">
+      <div className={SITE_CONTAINER}>
         <div className="flex flex-row overflow-x-auto [-ms-overflow-style:none] scrollbar-none sm:grid sm:grid-cols-4 sm:overflow-visible [&::-webkit-scrollbar]:hidden">
           {items.map(({ Icon, label }) => (
             <div

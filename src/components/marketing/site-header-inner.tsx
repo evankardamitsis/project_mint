@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -8,6 +9,7 @@ import { Heart, Menu, Search, X } from "lucide-react";
 import { LocaleSwitcher } from "@/components/i18n/locale-switcher";
 import { LogoutButton } from "@/components/marketing/logout-button";
 import { SiteHeaderAccountMenu } from "@/components/marketing/site-header-account-menu";
+import { SITE_CONTAINER } from "@/config/site-layout";
 import type { AppLocale } from "@/i18n/messages";
 import type { UserRole } from "@/types/domain";
 import { cn } from "@/lib/utils";
@@ -27,6 +29,7 @@ function browseCategoryActive(pathname: string, searchParams: URLSearchParams, h
 type NavItem = { href: string; label: string };
 
 export function SiteHeaderInner({
+  centerSlot,
   locale,
   navItems,
   sellLabel,
@@ -36,6 +39,7 @@ export function SiteHeaderInner({
   join,
   account,
 }: {
+  centerSlot: ReactNode;
   locale: AppLocale;
   navItems: readonly NavItem[];
   sellLabel: string;
@@ -66,17 +70,22 @@ export function SiteHeaderInner({
   const closeDrawer = () => setDrawer(false);
 
   const iconBtn =
-    "flex h-11 w-11 shrink-0 items-center justify-center border-l border-[#1e1e1e] text-[#888888] transition-colors hover:bg-[#1a1a1a] hover:text-white";
+    "flex h-12 w-12 shrink-0 items-center justify-center border-l border-[#1e1e1e] text-[#888888] transition-colors hover:bg-[#1a1a1a] hover:text-white lg:h-14 lg:w-14";
   const sellCls =
-    "flex h-11 shrink-0 items-center border-l border-[#1e1e1e] bg-[#1a7a4a] px-[18px] text-[10px] font-bold uppercase tracking-[0.09em] text-white transition-colors hover:bg-[#15633c]";
+    "flex h-12 shrink-0 items-center border-l border-[#1e1e1e] bg-[#1a7a4a] px-[18px] text-[10px] font-bold uppercase tracking-[0.09em] text-white transition-colors hover:bg-[#15633c] lg:h-14";
 
   const role = account && account !== "session_no_profile" ? account.role : null;
 
   return (
     <>
-      <div className="flex min-w-0 flex-1">
+      <div
+        className={cn(
+          SITE_CONTAINER,
+          "flex min-h-12 min-w-0 items-stretch justify-between gap-1 lg:grid lg:min-h-14 lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]",
+        )}
+      >
         <nav
-          className="hidden h-11 min-w-0 flex-1 items-stretch overflow-x-auto lg:flex"
+          className="hidden min-h-12 min-w-0 items-stretch overflow-x-auto lg:flex lg:h-14 lg:w-full lg:min-w-0"
           aria-label="Categories"
         >
         {navItems.map((item) => {
@@ -86,7 +95,7 @@ export function SiteHeaderInner({
               key={item.href}
               href={item.href}
               className={cn(
-                "flex h-11 shrink-0 items-center border-r border-[#1e1e1e] px-[14px] text-[10px] font-bold uppercase tracking-[0.09em] text-[#666666] transition-colors",
+                "flex h-12 shrink-0 items-center border-r border-border-dark px-[14px] text-[10px] font-bold uppercase tracking-[0.09em] text-[#999999] transition-colors lg:h-14",
                 active ? "text-white" : "hover:bg-[#1a1a1a] hover:text-white",
               )}
             >
@@ -96,7 +105,9 @@ export function SiteHeaderInner({
         })}
       </nav>
 
-      <div className="ml-auto flex h-11 shrink-0 items-stretch lg:ml-0">
+      {centerSlot}
+
+      <div className="ml-auto flex h-12 shrink-0 items-stretch lg:ml-0 lg:h-14 lg:w-full lg:justify-end">
         <Link href="/browse" aria-label={searchAria} className={cn(iconBtn, "hidden lg:flex")}>
           <Search className="size-[18px]" strokeWidth={1.75} />
         </Link>
@@ -106,11 +117,11 @@ export function SiteHeaderInner({
         <Link href="/sell" className={sellCls}>
           {sellLabel}
         </Link>
-        <div className="hidden items-stretch border-l border-[#1e1e1e] lg:flex">
+        <div className="hidden items-stretch border-l border-border-dark lg:flex">
           <div className="flex items-center px-3">
             <LocaleSwitcher locale={locale} variant="dark" />
           </div>
-          <div className="flex items-center border-l border-[#1e1e1e] px-2">
+          <div className="flex items-center border-l border-border-dark px-2">
             {account && account !== "session_no_profile" ? (
               <SiteHeaderAccountMenu
                 tone="dark"
@@ -160,8 +171,8 @@ export function SiteHeaderInner({
             onClick={closeDrawer}
           />
           <div className="absolute right-0 top-0 flex h-full w-[min(100%,22rem)] flex-col bg-[#111111] shadow-xl">
-            <div className="flex h-11 shrink-0 items-center justify-between border-b border-[#1e1e1e] px-4">
-              <span className="text-[15px] font-black tracking-[-0.02em] text-white">
+            <div className="flex h-12 shrink-0 items-center justify-between border-b border-border-dark px-4">
+              <span className="text-[1.25rem] font-black tracking-[-0.03em] text-white">
                 mint<span className="text-[#1a7a4a]">.</span>
               </span>
               <button
@@ -173,10 +184,10 @@ export function SiteHeaderInner({
                 <X className="size-5" />
               </button>
             </div>
-            <div className="border-b border-[#1e1e1e] px-4 py-3">
+            <div className="border-b border-border-dark px-4 py-3">
               <LocaleSwitcher locale={locale} variant="dark" />
             </div>
-            <nav className="flex flex-col overflow-y-auto border-b border-[#1e1e1e] py-2">
+            <nav className="flex flex-col overflow-y-auto border-b border-border-dark py-2">
               {navItems.map((item) => {
                 const active = browseCategoryActive(pathname, searchParams, item.href);
                 return (
@@ -194,7 +205,7 @@ export function SiteHeaderInner({
                 );
               })}
             </nav>
-            <div className="flex border-b border-[#1e1e1e]">
+            <div className="flex border-b border-border-dark">
               <Link
                 href="/browse"
                 onClick={closeDrawer}
@@ -206,7 +217,7 @@ export function SiteHeaderInner({
               <Link
                 href="/browse"
                 onClick={closeDrawer}
-                className="flex h-11 flex-1 items-center justify-center gap-2 border-l border-[#1e1e1e] text-[10px] font-bold uppercase tracking-[0.09em] text-[#888888] hover:bg-[#1a1a1a] hover:text-white"
+                className="flex h-11 flex-1 items-center justify-center gap-2 border-l border-border-dark text-[10px] font-bold uppercase tracking-[0.09em] text-[#888888] hover:bg-[#1a1a1a] hover:text-white"
               >
                 <Heart className="size-[18px]" strokeWidth={1.75} />
                 {savedAria}
@@ -248,7 +259,7 @@ export function SiteHeaderInner({
                   <Link
                     href="/auth/register"
                     onClick={closeDrawer}
-                    className="bg-[#1a7a4a] py-2 text-center text-[10px] font-bold uppercase tracking-[0.09em] text-white hover:bg-[#15633c]"
+                    className="bg-[#1a7a4a] py-2 text-center text-[10px] font-bold uppercase tracking-[0.09em] text-white hover:bg-mint-deep"
                   >
                     {join}
                   </Link>

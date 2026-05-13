@@ -18,7 +18,7 @@ export function ProofImageGrid({
             href={img.src}
             target="_blank"
             rel="noreferrer"
-            className="relative block size-24 overflow-hidden rounded-lg border border-border bg-muted"
+            className="relative block size-24 overflow-hidden rounded-xl bg-[var(--color-background-page)] ring-1 ring-[#e0ddd8]/60"
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={img.src} alt={img.alt} className="size-full object-cover" />

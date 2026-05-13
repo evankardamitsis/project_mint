@@ -28,18 +28,18 @@ export function LoginForm() {
   const [pending, setPending] = useState(false);
 
   return (
-    <Card size="sm" className="w-full max-w-md">
+    <Card size="sm" className="w-full max-w-md border-0 bg-[var(--color-background-surface)] shadow-md ring-1 ring-[#e0ddd8]/80">
       <CardHeader>
-        <CardTitle>Log in</CardTitle>
-        <CardDescription>Access your buyer or seller workspace.</CardDescription>
+        <CardTitle className="text-xl font-semibold text-[#111111]">Welcome back</CardTitle>
+        <CardDescription className="text-[var(--color-text-secondary)]">Sign in to continue shopping or managing your shop.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         {searchParams.get("error") === "auth" ? (
-          <p className="text-sm text-destructive">
+          <p className="text-sm text-[var(--color-danger-text)]">
             Something went wrong while signing you in. Please try again.
           </p>
         ) : null}
-        {error ? <p className="text-sm text-destructive">{error}</p> : null}
+        {error ? <p className="text-sm text-[var(--color-danger-text)]">{error}</p> : null}
         <div className="space-y-2">
           <Label htmlFor="email">Email</Label>
           <Input
@@ -91,7 +91,7 @@ export function LoginForm() {
             setPending(false);
           }}
         >
-          Continue
+          Continue to mint.
         </Button>
       </CardFooter>
     </Card>

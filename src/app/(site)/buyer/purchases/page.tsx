@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Package } from "lucide-react";
 
-import { OrderDashboardCards, OrderDashboardTable } from "@/components/orders/order-dashboard-list";
+import { OrderDashboardCards } from "@/components/orders/order-dashboard-list";
 import { EmptyState } from "@/components/empty-state";
 import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
@@ -14,7 +14,7 @@ export default async function BuyerPurchasesPage() {
     <div className="space-y-8">
       <PageHeader
         title="Purchases"
-        description="Orders you start with Buy now or from an accepted offer. Demo payments only — Stripe later."
+        description="Gear you bought on mint. — track delivery, proof photos, and buyer protection."
       />
       {rows.length === 0 ? (
         <EmptyState
@@ -25,18 +25,12 @@ export default async function BuyerPurchasesPage() {
           <Button render={<Link href="/browse" />}>Browse listings</Button>
         </EmptyState>
       ) : (
-        <>
-          <OrderDashboardTable
-            rows={rows}
-            detailHref={(id) => `/buyer/purchases/${id}`}
-            disputeHref={(id) => `/buyer/purchases/${id}/dispute`}
-          />
-          <OrderDashboardCards
-            rows={rows}
-            detailHref={(id) => `/buyer/purchases/${id}`}
-            disputeHref={(id) => `/buyer/purchases/${id}/dispute`}
-          />
-        </>
+        <OrderDashboardCards
+          stack="always"
+          rows={rows}
+          detailHref={(id) => `/buyer/purchases/${id}`}
+          disputeHref={(id) => `/buyer/purchases/${id}/dispute`}
+        />
       )}
     </div>
   );

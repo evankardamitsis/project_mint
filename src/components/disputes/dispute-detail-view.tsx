@@ -72,9 +72,9 @@ export function DisputeDetailView({
       <OrderSummary order={order} listingHref={listingHref} partyEmphasis={partyEmphasis} />
 
       {shipment?.tracking_number || shipment?.courier_name ? (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Shipment</CardTitle>
+        <Card className="border-0 bg-[var(--color-background-surface)] shadow-sm ring-1 ring-[#e0ddd8]/70">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base text-[#111111]">Shipment</CardTitle>
           </CardHeader>
           <CardContent className="space-y-1 text-sm">
             <p className="text-muted-foreground">
@@ -92,14 +92,14 @@ export function DisputeDetailView({
       ) : null}
 
       {pdBundle && viewer !== "admin" ? (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Protected delivery proof (summary)</CardTitle>
+        <Card className="border-0 bg-[var(--color-background-surface)] shadow-sm ring-1 ring-[#e0ddd8]/70">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base text-[#111111]">Delivery proof</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             <ProofImageGrid items={pdProofItems(pdBundle)} label="Key photos" />
-            <Link href={orderDetailHref} className="text-sm text-foreground underline underline-offset-2">
-              Open full order & delivery timeline
+            <Link href={orderDetailHref} className="text-sm font-medium text-mint underline-offset-4 hover:underline">
+              View full order timeline
             </Link>
           </CardContent>
         </Card>
@@ -121,7 +121,7 @@ export function DisputeDetailView({
       <DisputeEvidenceGrid assets={bundle.assets} title="Buyer evidence" />
 
       {dispute.seller_response ? (
-        <Card>
+        <Card className="border-0 bg-[var(--color-background-surface)] shadow-sm ring-1 ring-[#e0ddd8]/70">
           <CardHeader>
             <CardTitle className="text-base">Seller response</CardTitle>
           </CardHeader>
@@ -137,7 +137,7 @@ export function DisputeDetailView({
       ) : null}
 
       {dispute.admin_notes ? (
-        <Card>
+        <Card className="border-0 bg-[var(--color-background-surface)] shadow-sm ring-1 ring-[#e0ddd8]/70">
           <CardHeader>
             <CardTitle className="text-base">Admin notes</CardTitle>
           </CardHeader>
@@ -148,7 +148,7 @@ export function DisputeDetailView({
       ) : null}
 
       {dispute.resolution_notes ? (
-        <Card>
+        <Card className="border-0 bg-[var(--color-background-surface)] shadow-sm ring-1 ring-[#e0ddd8]/70">
           <CardHeader>
             <CardTitle className="text-base">Resolution notes</CardTitle>
           </CardHeader>

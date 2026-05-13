@@ -26,7 +26,7 @@ function OfferStatusRow({ status, expiresAt }: { status: string; expiresAt: stri
   return (
     <div className="mt-2 flex flex-wrap items-center gap-2">
       <OfferStatusPill status={status} />
-      <span className="text-xs text-(--color-text-muted)">{formatWhen(expiresAt)}</span>
+      <span className="text-xs text-[var(--color-text-muted)]">{formatWhen(expiresAt)}</span>
     </div>
   );
 }
@@ -38,7 +38,7 @@ export function BuyerOfferCards({ rows }: { rows: BuyerOfferRow[] }) {
   return (
     <div className="grid gap-4 sm:grid-cols-2">
       {rows.map((row) => (
-        <div key={row.id} className="flex flex-col gap-4 rounded-2xl bg-surface p-4 shadow-sm">
+        <div key={row.id} className="flex flex-col gap-4 rounded-2xl bg-[var(--color-background-surface)] p-5 shadow-sm ring-1 ring-[#e0ddd8]/60">
           <div className="flex gap-3">
             <div className="relative size-14 shrink-0 overflow-hidden rounded-xl bg-warm-bg">
               {row.listings?.primary_image_url ? (
@@ -83,7 +83,7 @@ export function SellerOfferCards({ rows }: { rows: SellerOfferRow[] }) {
   return (
     <div className="grid gap-4 sm:grid-cols-2">
       {rows.map((row) => (
-        <div key={row.id} className="flex flex-col gap-4 rounded-2xl bg-surface p-4 shadow-sm">
+        <div key={row.id} className="flex flex-col gap-4 rounded-2xl bg-[var(--color-background-surface)] p-5 shadow-sm ring-1 ring-[#e0ddd8]/60">
           <div className="flex gap-3">
             <div className="relative size-14 shrink-0 overflow-hidden rounded-xl bg-warm-bg">
               {row.listings?.primary_image_url ? (
@@ -92,7 +92,7 @@ export function SellerOfferCards({ rows }: { rows: SellerOfferRow[] }) {
             </div>
             <div className="min-w-0 flex-1 space-y-2">
               <p className="font-semibold leading-snug text-ink">{row.listings?.title ?? "Listing"}</p>
-              <p className="text-xs text-(--color-text-muted)">{buyerLabel(row)}</p>
+              <p className="text-xs text-[var(--color-text-muted)]">{buyerLabel(row)}</p>
               <p className="text-[0.65rem] font-medium uppercase tracking-wide text-text-caption">Their offer</p>
               <div className="max-w-[92%] rounded-2xl rounded-tl-sm border border-border bg-warm-bg px-3 py-2">
                 <OfferAmount amountCents={row.amount_cents} currency={row.listings?.currency} className="text-sm font-extrabold text-ink" />

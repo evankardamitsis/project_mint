@@ -32,7 +32,7 @@ export function ListingGallery({
     return (
       <div
         className={cn(
-          "flex min-h-60 items-center justify-center bg-warm-bg text-sm text-(--color-text-muted) sm:min-h-70",
+          "flex min-h-60 items-center justify-center bg-warm-bg text-sm text-[var(--color-text-muted)] sm:min-h-72",
           detailLayout && bleed ? "rounded-none lg:rounded-2xl" : "sm:rounded-2xl",
           bleed && !detailLayout && "rounded-none sm:rounded-2xl",
           className,

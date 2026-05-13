@@ -124,7 +124,7 @@ export async function fetchBrowseListings(
   let query = supabase
     .from("listings")
     .select(
-      "id, title, slug, price_cents, currency, condition, status, location, created_at, protected_delivery_enabled, categories ( name ), listing_images ( id, url, sort_order ), seller_profiles ( display_name )",
+      "id, title, slug, price_cents, currency, condition, status, location, created_at, protected_delivery_enabled, categories ( name, slug ), listing_images ( id, url, sort_order ), seller_profiles ( display_name )",
     )
     .eq("status", "active");
 
@@ -202,8 +202,8 @@ export async function fetchBrowseListings(
   return (data ?? []).map((row) => {
     const images = row.listing_images as ListingImageRow[] | null | undefined;
     const catRaw = row.categories as
-      | { name?: string }
-      | { name?: string }[]
+      | { name?: string; slug?: string }
+      | { name?: string; slug?: string }[]
       | null
       | undefined;
     const cat = Array.isArray(catRaw) ? catRaw[0] : catRaw;
@@ -220,6 +220,7 @@ export async function fetchBrowseListings(
       primary_image_url: primaryImageUrl(images),
       protected_delivery_enabled: Boolean(row.protected_delivery_enabled),
       category_name: cat?.name ?? null,
+      category_slug: cat?.slug ?? null,
       seller_display_name: sellerDisplayNameFromRow(row),
     };
   });
@@ -230,7 +231,7 @@ export async function fetchHomeListings(limit = 8): Promise<ListingCardData[]> {
   const { data, error } = await supabase
     .from("listings")
     .select(
-      "id, title, slug, price_cents, currency, condition, status, location, created_at, protected_delivery_enabled, categories ( name ), listing_images ( id, url, sort_order ), seller_profiles ( display_name )",
+      "id, title, slug, price_cents, currency, condition, status, location, created_at, protected_delivery_enabled, categories ( name, slug ), listing_images ( id, url, sort_order ), seller_profiles ( display_name )",
     )
     .eq("status", "active")
     .order("created_at", { ascending: false })
@@ -242,8 +243,8 @@ export async function fetchHomeListings(limit = 8): Promise<ListingCardData[]> {
   return (data ?? []).map((row) => {
     const images = row.listing_images as ListingImageRow[] | null | undefined;
     const catRaw = row.categories as
-      | { name?: string }
-      | { name?: string }[]
+      | { name?: string; slug?: string }
+      | { name?: string; slug?: string }[]
       | null
       | undefined;
     const cat = Array.isArray(catRaw) ? catRaw[0] : catRaw;
@@ -260,6 +261,7 @@ export async function fetchHomeListings(limit = 8): Promise<ListingCardData[]> {
       primary_image_url: primaryImageUrl(images),
       protected_delivery_enabled: Boolean(row.protected_delivery_enabled),
       category_name: cat?.name ?? null,
+      category_slug: cat?.slug ?? null,
       seller_display_name: sellerDisplayNameFromRow(row),
     };
   });
@@ -304,7 +306,7 @@ export async function fetchHomeListingsByCategorySlug(
   const { data, error } = await supabase
     .from("listings")
     .select(
-      "id, title, slug, price_cents, currency, condition, status, location, created_at, protected_delivery_enabled, categories ( name ), listing_images ( id, url, sort_order ), seller_profiles ( display_name )",
+      "id, title, slug, price_cents, currency, condition, status, location, created_at, protected_delivery_enabled, categories ( name, slug ), listing_images ( id, url, sort_order ), seller_profiles ( display_name )",
     )
     .eq("status", "active")
     .eq("category_id", cat.id)
@@ -317,8 +319,8 @@ export async function fetchHomeListingsByCategorySlug(
   return (data ?? []).map((row) => {
     const images = row.listing_images as ListingImageRow[] | null | undefined;
     const catRaw = row.categories as
-      | { name?: string }
-      | { name?: string }[]
+      | { name?: string; slug?: string }
+      | { name?: string; slug?: string }[]
       | null
       | undefined;
     const c = Array.isArray(catRaw) ? catRaw[0] : catRaw;
@@ -335,6 +337,7 @@ export async function fetchHomeListingsByCategorySlug(
       primary_image_url: primaryImageUrl(images),
       protected_delivery_enabled: Boolean(row.protected_delivery_enabled),
       category_name: c?.name ?? null,
+      category_slug: c?.slug ?? null,
       seller_display_name: sellerDisplayNameFromRow(row),
     };
   });
@@ -347,7 +350,7 @@ export async function fetchSellerListings(
   const { data, error } = await supabase
     .from("listings")
     .select(
-      "id, title, slug, price_cents, currency, condition, status, location, created_at, protected_delivery_enabled, categories ( name ), listing_images ( id, url, sort_order ), seller_profiles ( display_name )",
+      "id, title, slug, price_cents, currency, condition, status, location, created_at, protected_delivery_enabled, categories ( name, slug ), listing_images ( id, url, sort_order ), seller_profiles ( display_name )",
     )
     .eq("seller_id", sellerProfileId)
     .order("created_at", { ascending: false });
@@ -358,8 +361,8 @@ export async function fetchSellerListings(
   return (data ?? []).map((row) => {
     const images = row.listing_images as ListingImageRow[] | null | undefined;
     const catRaw = row.categories as
-      | { name?: string }
-      | { name?: string }[]
+      | { name?: string; slug?: string }
+      | { name?: string; slug?: string }[]
       | null
       | undefined;
     const cat = Array.isArray(catRaw) ? catRaw[0] : catRaw;
@@ -376,6 +379,7 @@ export async function fetchSellerListings(
       primary_image_url: primaryImageUrl(images),
       protected_delivery_enabled: Boolean(row.protected_delivery_enabled),
       category_name: cat?.name ?? null,
+      category_slug: cat?.slug ?? null,
       seller_display_name: sellerDisplayNameFromRow(row),
     };
   });
@@ -518,6 +522,44 @@ export async function fetchSellerListingStats(sellerId: string): Promise<{
     countFor("sold"),
   ]);
   return { total, active, pending_review, sold };
+}
+
+/** Active offers + in-flight orders for seller shop hub (counts only). */
+export async function fetchSellerHubCounts(sellerProfileId: string): Promise<{
+  activeOffers: number;
+  activeOrders: number;
+}> {
+  const supabase = await createClient();
+  const activeOrderStatuses = [
+    "pending_payment",
+    "paid",
+    "cleared_for_shipping",
+    "shipped",
+    "delivered",
+    "disputed",
+  ] as const;
+  const [offersRes, ordersRes] = await Promise.all([
+    supabase
+      .from("offers")
+      .select("id", { count: "exact", head: true })
+      .eq("seller_id", sellerProfileId)
+      .in("status", ["pending", "countered"]),
+    supabase
+      .from("orders")
+      .select("id", { count: "exact", head: true })
+      .eq("seller_id", sellerProfileId)
+      .in("status", [...activeOrderStatuses]),
+  ]);
+  if (offersRes.error) {
+    console.error("[listings] fetchSellerHubCounts offers", offersRes.error.message);
+  }
+  if (ordersRes.error) {
+    console.error("[listings] fetchSellerHubCounts orders", ordersRes.error.message);
+  }
+  return {
+    activeOffers: offersRes.count ?? 0,
+    activeOrders: ordersRes.count ?? 0,
+  };
 }
 
 type SellerListingEditRow = {

@@ -39,6 +39,8 @@ export interface ListingCardData {
   protected_delivery_enabled?: boolean;
   /** Category display name when joined in browse/home queries */
   category_name?: string | null;
+  /** Category slug when joined in browse/home queries */
+  category_slug?: string | null;
   /** Seller shop name from `seller_profiles.display_name` when joined */
   seller_display_name?: string | null;
 }

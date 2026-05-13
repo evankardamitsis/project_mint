@@ -32,10 +32,10 @@ function ChecklistRow({
   return (
     <div
       className={cn(
-        "rounded-xl border px-3 py-3 sm:px-4",
-        done && "border-border/50 bg-muted/15",
-        highlight && !done && "border-mint/40 bg-mint/[0.12]",
-        !done && !highlight && "border-border/40 bg-transparent",
+        "rounded-2xl px-4 py-4 sm:px-5",
+        done && "bg-[var(--color-background-page)]/80 ring-1 ring-[#e0ddd8]/50",
+        highlight && !done && "bg-mint-tint ring-1 ring-mint/30",
+        !done && !highlight && "bg-transparent ring-1 ring-[#e0ddd8]/40",
       )}
     >
       <div className="flex gap-3">
@@ -43,8 +43,8 @@ function ChecklistRow({
           className={cn(
             "mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full border text-xs",
             done
-              ? "border-mint bg-mint text-primary-foreground"
-              : "border-border/70 bg-muted/30 text-muted-foreground",
+              ? "border-mint bg-mint text-white"
+              : "border-[#e0ddd8]/80 bg-[var(--color-background-surface)] text-[var(--color-text-muted)]",
           )}
           aria-hidden
         >
@@ -93,19 +93,19 @@ export function ProtectedDeliveryPanelSeller({
     !check.tracking_added;
 
   return (
-    <Card className="border-0 bg-surface shadow-sm">
-      <CardHeader>
+    <Card className="overflow-hidden border-0 bg-[var(--color-background-surface)] shadow-sm ring-1 ring-[#e0ddd8]/70">
+      <CardHeader className="border-b border-[#e0ddd8]/50 bg-[var(--color-background-page)]/40">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <CardTitle className="text-base font-semibold text-ink">Ship your order</CardTitle>
-          <span className="text-xs capitalize text-(--color-text-muted)">{String(check.status).replace(/_/g, " ")}</span>
+          <CardTitle className="text-lg font-semibold text-[#111111]">Ship this order</CardTitle>
+          <span className="text-xs capitalize text-[var(--color-text-muted)]">{String(check.status).replace(/_/g, " ")}</span>
         </div>
-        <CardDescription className="text-sm text-(--color-text-muted)">
-          Add photos and tracking so the buyer can follow along. Payment stays on hold until you are done.
+        <CardDescription className="text-sm leading-relaxed text-[var(--color-text-secondary)]">
+          Walk through the steps — we keep the buyer updated. Payment stays on hold until you ship with proof.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-3">
         <ChecklistRow
-          title="Add photos"
+          title="Add item photos"
           subtitle="Front, back, or close-ups before you pack (at least one)."
           done={check.condition_photos_uploaded}
           highlight={highlightCondition}
@@ -201,10 +201,9 @@ export function ProtectedDeliveryPanelSeller({
         </ChecklistRow>
 
         {orderStatus === "cleared_for_shipping" && (check.status === "not_started" || check.status === "in_progress") ? (
-          <div className="space-y-2 border-t border-border/60 pt-5">
-            <p className="text-xs text-muted-foreground">
-              Submitting locks the checklist, marks the order shipped, and sets shipment to in transit (demo — no live
-              carrier).
+          <div className="space-y-2 border-t border-[#e0ddd8]/50 pt-5">
+            <p className="text-xs text-[var(--color-text-secondary)]">
+              When you are ready, we lock the checklist and mark the order shipped (demo — no live carrier).
             </p>
             <SubmitProtectedDeliveryButton orderId={orderId} disabled={readOnly || !readyToSubmit} />
           </div>

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Package } from "lucide-react";
 
-import { OrderDashboardCards, OrderDashboardTable } from "@/components/orders/order-dashboard-list";
+import { OrderDashboardCards } from "@/components/orders/order-dashboard-list";
 import { EmptyState } from "@/components/empty-state";
 import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
@@ -30,22 +30,16 @@ export default async function SellerOrdersPage() {
 
   return (
     <div className="space-y-8">
-      <PageHeader title={o.pageTitle} description={o.pageDescription} />
+      <PageHeader title={o.pageTitle} description="Sales you are fulfilling — ship with proof so buyers stay confident." />
       {rows.length === 0 ? (
         <EmptyState icon={Package} title={o.emptyTitle} description={o.emptyDescription} />
       ) : (
-        <>
-          <OrderDashboardTable
-            rows={rows}
-            detailHref={(id) => `/seller/orders/${id}`}
-            disputeHref={(id) => `/seller/orders/${id}/dispute`}
-          />
-          <OrderDashboardCards
-            rows={rows}
-            detailHref={(id) => `/seller/orders/${id}`}
-            disputeHref={(id) => `/seller/orders/${id}/dispute`}
-          />
-        </>
+        <OrderDashboardCards
+          stack="always"
+          rows={rows}
+          detailHref={(id) => `/seller/orders/${id}`}
+          disputeHref={(id) => `/seller/orders/${id}/dispute`}
+        />
       )}
     </div>
   );

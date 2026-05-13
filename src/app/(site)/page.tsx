@@ -27,6 +27,7 @@ function mapListingToCard(item: Awaited<ReturnType<typeof fetchHomeListings>>[nu
       imagePriority={index < 4}
       protectedDeliveryEnabled={item.protected_delivery_enabled}
       categoryName={item.category_name}
+      categorySlug={item.category_slug ?? null}
       sellerDisplayName={item.seller_display_name}
     />
   );
@@ -44,16 +45,23 @@ export default async function HomePage() {
     getRecentActivity(),
   ]);
 
+  const recentPreview = latest.slice(0, 3).map((item) => ({
+    slug: item.slug,
+    title: item.title,
+    price_cents: item.price_cents,
+    currency: item.currency,
+  }));
+
   return (
     <>
-      <HomeHero locale={locale} home={t} stats={stats} />
+      <HomeHero locale={locale} home={t} stats={stats} recentPreview={recentPreview} />
       <HomeTrustBand />
       <LiveTicker items={activity} />
 
-      <section className="px-5 py-6">
+      <section className="px-5 pb-6 pt-5">
         <SectionHeader title={t.latest} seeAllHref="/browse" seeAllLabel={t.seeAll} />
         {latest.length === 0 ? (
-          <p className="border border-[#111111] border-t-0 bg-[var(--color-background-surface)] px-4 py-12 text-center text-[12px] text-[#999999]">
+          <p className="border border-[#111111] border-t-0 bg-(--color-background-surface) px-4 py-12 text-center text-[12px] text-[#999999]">
             {t.listingsWhenLive}
           </p>
         ) : (
@@ -61,14 +69,14 @@ export default async function HomePage() {
         )}
       </section>
 
-      <section className="px-5 py-6">
+      <section className="px-5 pb-6 pt-5">
         <SectionHeader
           title={t.sectionSynths}
           seeAllHref="/browse?category=synths-keyboards"
           seeAllLabel={t.seeAll}
         />
         {synths.length === 0 ? (
-          <p className="border border-[#111111] border-t-0 bg-[var(--color-background-surface)] px-4 py-10 text-center text-[12px] text-[#999999]">
+          <p className="border border-[#111111] border-t-0 bg-(--color-background-surface) px-4 py-10 text-center text-[12px] text-[#999999]">
             {t.listingsWhenLive}
           </p>
         ) : (
@@ -76,14 +84,14 @@ export default async function HomePage() {
         )}
       </section>
 
-      <section className="px-5 py-6">
+      <section className="px-5 pb-6 pt-5">
         <SectionHeader
           title={t.sectionEffects}
           seeAllHref="/browse?category=effects-pedals"
           seeAllLabel={t.seeAll}
         />
         {effects.length === 0 ? (
-          <p className="border border-[#111111] border-t-0 bg-[var(--color-background-surface)] px-4 py-10 text-center text-[12px] text-[#999999]">
+          <p className="border border-[#111111] border-t-0 bg-(--color-background-surface) px-4 py-10 text-center text-[12px] text-[#999999]">
             {t.listingsWhenLive}
           </p>
         ) : (

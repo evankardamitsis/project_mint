@@ -74,8 +74,9 @@ function ChipDetails({
   return (
     <details className="group relative">
       <summary
+        data-mint-browse-chip
         className={cn(
-          "inline-flex cursor-pointer list-none items-center gap-1.25 border border-[#cccccc] bg-white px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.08em] text-[#444444] marker:content-none [&::-webkit-details-marker]:hidden",
+          "inline-flex cursor-pointer list-none items-center gap-1.25 rounded-none border border-[#cccccc] bg-white px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.08em] text-[#444444] marker:content-none [&::-webkit-details-marker]:hidden",
           active && "border-[#111111] bg-[#111111] text-white",
         )}
       >
@@ -84,7 +85,7 @@ function ChipDetails({
           ▾
         </span>
       </summary>
-      <div className="absolute left-0 z-40 mt-1 max-h-[min(70vh,20rem)] min-w-44 overflow-auto border border-[#111111] bg-white py-1 shadow-md">
+      <div className="absolute left-0 z-40 mt-1 max-h-[min(70vh,20rem)] min-w-44 overflow-auto rounded-none border border-[#111111] bg-white py-1 shadow-md">
         {children}
       </div>
     </details>
@@ -95,7 +96,7 @@ function ChipLinkRow({ href, children }: { href: string; children: React.ReactNo
   return (
     <Link
       href={href}
-      className="block px-3 py-2 text-[12px] text-[#444444] hover:bg-[#f5f3ee]"
+      className="block rounded-none px-3 py-2 text-[12px] text-[#444444] hover:bg-[#f5f3ee]"
       onClick={() => {
         document.querySelectorAll("details[open]").forEach((d) => {
           if (d instanceof HTMLDetailsElement) {
@@ -194,7 +195,9 @@ export function ListingFilterChips({
           <ChipLinkRow href={hrefWith(values, { condition: "" })}>{labels.filterAnyCondition}</ChipLinkRow>
           {conditions.map((c) => (
             <ChipLinkRow key={c.value} href={hrefWith(values, { condition: c.value })}>
-              {c.label}
+              <span className="mint-condition-pill inline-block rounded-none border border-[#cccccc] bg-white px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.06em] text-[#444444]">
+                {c.label}
+              </span>
             </ChipLinkRow>
           ))}
         </ChipDetails>

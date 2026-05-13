@@ -28,7 +28,7 @@ export function AdminDisputeResolutionForm({ orderId, disputeId }: { orderId: st
   }, initial);
 
   return (
-    <div className="space-y-6 rounded-2xl border border-border/70 bg-card/95 p-4 shadow-sm shadow-black/15">
+    <div className="space-y-6 rounded-2xl border-0 bg-[var(--color-background-surface)] p-5 shadow-sm ring-1 ring-[#e0ddd8]/80">
       <p className="text-sm font-medium">Admin resolution</p>
       <p className="text-xs text-muted-foreground">
         Payment and refund actions are placeholders only — no Stripe payouts or card refunds yet.
@@ -72,7 +72,7 @@ export function AdminDisputeResolutionForm({ orderId, disputeId }: { orderId: st
           <Label htmlFor="admin_notes_buyer">Admin notes (optional)</Label>
           <textarea id="admin_notes_buyer" name="admin_notes" rows={2} className="w-full max-w-xl rounded-lg border border-input bg-transparent px-3 py-2 text-sm" />
         </div>
-        <SubmitButton label="Resolve in buyer’s favor" />
+        <SubmitButton label="Approve buyer resolution" />
       </form>
 
       <form action={action} className="space-y-4 border-b border-border pb-6">
@@ -94,7 +94,7 @@ export function AdminDisputeResolutionForm({ orderId, disputeId }: { orderId: st
           <Label htmlFor="admin_notes_seller">Admin notes (optional)</Label>
           <textarea id="admin_notes_seller" name="admin_notes" rows={2} className="w-full max-w-xl rounded-lg border border-input bg-transparent px-3 py-2 text-sm" />
         </div>
-        <SubmitButton label="Resolve in seller’s favor (release payment placeholder)" />
+        <SubmitButton label="Approve seller resolution" />
       </form>
 
       <form action={action} className="space-y-4 border-b border-border pb-6">
@@ -109,7 +109,7 @@ export function AdminDisputeResolutionForm({ orderId, disputeId }: { orderId: st
           <Label htmlFor="admin_notes_refund">Admin notes (optional)</Label>
           <textarea id="admin_notes_refund" name="admin_notes" rows={2} className="w-full max-w-xl rounded-lg border border-input bg-transparent px-3 py-2 text-sm" />
         </div>
-        <SubmitButton label="Mark refunded (placeholder)" />
+        <SubmitButton label="Mark refunded (demo)" />
       </form>
 
       <form action={action} className="space-y-4">

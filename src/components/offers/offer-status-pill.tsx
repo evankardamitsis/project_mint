@@ -25,11 +25,11 @@ export function OfferStatusPill({ status }: { status: string }) {
       className={cn(
         "inline-flex max-w-full rounded-[3px] px-2.5 py-0.5 text-xs font-medium capitalize",
         tone === "success" &&
-          "bg-(--color-background-success) text-(--color-text-success)",
+          "bg-[var(--color-background-success)] text-[var(--color-text-success)]",
         tone === "warning" &&
-          "bg-(--color-background-warning) text-(--color-text-warning)",
+          "bg-[var(--color-background-warning)] text-[var(--color-text-warning)]",
         tone === "muted" &&
-          "bg-(--color-background-secondary) text-(--color-text-secondary)",
+          "bg-[var(--color-background-secondary)] text-[var(--color-text-secondary)]",
       )}
     >
       {formatStatusLabel(status)}
