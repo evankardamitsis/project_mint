@@ -15,8 +15,8 @@ type Preview = { name: string; src: string };
 
 export const ListingImageUploader = forwardRef<
   HTMLInputElement,
-  { className?: string; error?: string }
->(function ListingImageUploader({ className, error }, ref) {
+  { className?: string; error?: string; hideLabel?: boolean }
+>(function ListingImageUploader({ className, error, hideLabel }, ref) {
   const [previews, setPreviews] = useState<Preview[]>([]);
 
   const onFiles = useCallback((list: FileList | null) => {
@@ -45,7 +45,9 @@ export const ListingImageUploader = forwardRef<
 
   return (
     <div className={cn("space-y-2", className)}>
-      <Label htmlFor="listing-images">Photos (optional, up to {MAX_LISTING_IMAGES})</Label>
+      {hideLabel ? null : (
+        <Label htmlFor="listing-images">Photos (optional, up to {MAX_LISTING_IMAGES})</Label>
+      )}
       <input
         ref={ref}
         id="listing-images"

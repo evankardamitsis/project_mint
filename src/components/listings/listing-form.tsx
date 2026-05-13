@@ -14,7 +14,6 @@ import {
 
 import { ListingImageUploader } from "@/components/listings/listing-image-uploader";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -27,6 +26,8 @@ import type { BrandOption, CategoryOption } from "@/types/listings";
 import type { ListingCondition } from "@/types/domain";
 
 const conditions = conditionSelectOptions();
+
+const sectionTitle = "text-[14px] font-medium text-[var(--color-text-secondary)]";
 
 function buildListingFormData(
   fields: {
@@ -129,13 +130,11 @@ export function ListingForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-8">
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Basics</CardTitle>
-        </CardHeader>
-        <CardContent className="grid gap-4 sm:grid-cols-2">
-          <div className="space-y-2 sm:col-span-2">
+    <form onSubmit={handleSubmit} className="space-y-0">
+      <section>
+        <h2 className={sectionTitle}>About the gear</h2>
+        <div className="mt-4 space-y-4 rounded-2xl border border-border bg-card p-4 sm:p-6">
+          <div className="space-y-2">
             <Label htmlFor="title">Title</Label>
             <Input
               id="title"
@@ -150,47 +149,59 @@ export function ListingForm({
               <p className="text-xs text-destructive">{fieldErrors.title}</p>
             ) : null}
           </div>
+
           <div className="space-y-2">
-            <Label htmlFor="category_id">Category</Label>
-            <select
-              id="category_id"
-              name="category_id"
-              required
-              className="flex h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/50"
-              value={categoryId}
-              onChange={(ev) => setCategoryId(ev.target.value)}
-            >
-              <option value="" disabled>
-                Select category
-              </option>
-              {categories.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
-            {fieldErrors?.category_id ? (
-              <p className="text-xs text-destructive">{fieldErrors.category_id}</p>
-            ) : null}
+            <Label htmlFor="listing-images">Photos — up to 10 images</Label>
+            <p className="text-xs text-muted-foreground">
+              Listings with photos receive significantly more enquiries. Add at least 3 clear shots.
+            </p>
+            <ListingImageUploader ref={imageInputRef} hideLabel />
           </div>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="category_id">Category</Label>
+              <select
+                id="category_id"
+                name="category_id"
+                required
+                className="flex h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/50"
+                value={categoryId}
+                onChange={(ev) => setCategoryId(ev.target.value)}
+              >
+                <option value="" disabled>
+                  Select category
+                </option>
+                {categories.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+              {fieldErrors?.category_id ? (
+                <p className="text-xs text-destructive">{fieldErrors.category_id}</p>
+              ) : null}
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="brand_id">Brand (optional)</Label>
+              <select
+                id="brand_id"
+                name="brand_id"
+                className="flex h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/50"
+                value={brandId}
+                onChange={(ev) => setBrandId(ev.target.value)}
+              >
+                <option value="">No brand</option>
+                {brands.map((b) => (
+                  <option key={b.id} value={b.id}>
+                    {b.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
           <div className="space-y-2">
-            <Label htmlFor="brand_id">Brand (optional)</Label>
-            <select
-              id="brand_id"
-              name="brand_id"
-              className="flex h-9 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/50"
-              value={brandId}
-              onChange={(ev) => setBrandId(ev.target.value)}
-            >
-              <option value="">No brand</option>
-              {brands.map((b) => (
-                <option key={b.id} value={b.id}>
-                  {b.name}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="space-y-2 sm:col-span-2">
             <Label htmlFor="description">Description</Label>
             <Textarea
               id="description"
@@ -204,7 +215,8 @@ export function ListingForm({
               <p className="text-xs text-destructive">{fieldErrors.description}</p>
             ) : null}
           </div>
-          <div className="space-y-2">
+
+          <div className="space-y-2 sm:max-w-xs">
             <Label htmlFor="condition">Condition</Label>
             <select
               id="condition"
@@ -224,95 +236,104 @@ export function ListingForm({
               <p className="text-xs text-destructive">{fieldErrors.condition}</p>
             ) : null}
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="price_euros">Price (EUR)</Label>
-            <Input
-              id="price_euros"
-              name="price_euros"
-              type="text"
-              inputMode="decimal"
-              required
-              placeholder="e.g. 850 or 1299.50"
-              value={priceEuros}
-              onChange={(ev) => setPriceEuros(ev.target.value)}
-            />
-            {fieldErrors?.price_euros ? (
-              <p className="text-xs text-destructive">{fieldErrors.price_euros}</p>
-            ) : null}
-          </div>
-          <div className="space-y-2 sm:col-span-2">
-            <Label htmlFor="location">Location</Label>
-            <Input
-              id="location"
-              name="location"
-              placeholder="City or region"
-              value={location}
-              onChange={(ev) => setLocation(ev.target.value)}
-            />
-            {fieldErrors?.location ? (
-              <p className="text-xs text-destructive">{fieldErrors.location}</p>
-            ) : null}
-          </div>
-          <div className="flex flex-col gap-3 sm:col-span-2">
-            <div className="flex items-center gap-2">
-              <input
-                id="offers_enabled"
-                name="offers_enabled"
-                type="checkbox"
-                value="on"
-                checked={offersEnabled}
-                onChange={(ev) => setOffersEnabled(ev.target.checked)}
-                className="size-4 rounded border border-input accent-primary"
+        </div>
+      </section>
+
+      <hr className="my-8 border-border/80" />
+
+      <section>
+        <h2 className={sectionTitle}>Pricing & location</h2>
+        <div className="mt-4 space-y-4 rounded-2xl border border-border bg-card p-4 sm:p-6">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="price_euros">Price (EUR)</Label>
+              <Input
+                id="price_euros"
+                name="price_euros"
+                type="text"
+                inputMode="decimal"
+                required
+                placeholder="e.g. 850 or 1299.50"
+                value={priceEuros}
+                onChange={(ev) => setPriceEuros(ev.target.value)}
               />
-              <Label htmlFor="offers_enabled" className="font-normal">
-                Allow offers on this listing
-              </Label>
+              {fieldErrors?.price_euros ? (
+                <p className="text-xs text-destructive">{fieldErrors.price_euros}</p>
+              ) : null}
             </div>
-            <div className="flex items-center gap-2">
-              <input
-                id="protected_delivery_enabled"
-                name="protected_delivery_enabled"
-                type="checkbox"
-                value="on"
-                checked={protectedDeliveryEnabled}
-                onChange={(ev) => setProtectedDeliveryEnabled(ev.target.checked)}
-                className="size-4 rounded border border-input accent-primary"
+            <div className="space-y-2">
+              <Label htmlFor="location">Location</Label>
+              <Input
+                id="location"
+                name="location"
+                placeholder="City or region"
+                value={location}
+                onChange={(ev) => setLocation(ev.target.value)}
               />
-              <Label htmlFor="protected_delivery_enabled" className="font-normal">
-                Offer protected delivery
-              </Label>
+              {fieldErrors?.location ? (
+                <p className="text-xs text-destructive">{fieldErrors.location}</p>
+              ) : null}
             </div>
           </div>
-        </CardContent>
-      </Card>
+          <div className="flex items-center gap-2">
+            <input
+              id="offers_enabled"
+              name="offers_enabled"
+              type="checkbox"
+              value="on"
+              checked={offersEnabled}
+              onChange={(ev) => setOffersEnabled(ev.target.checked)}
+              className="size-4 rounded border border-input accent-primary"
+            />
+            <Label htmlFor="offers_enabled" className="font-normal">
+              Allow offers on this listing
+            </Label>
+          </div>
+        </div>
+      </section>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Photos</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ListingImageUploader ref={imageInputRef} />
-        </CardContent>
-      </Card>
+      <hr className="my-8 border-border/80" />
 
-      {!state.ok && state.error ? (
-        <p className="text-sm text-destructive" role="alert">
-          {state.error}
-        </p>
-      ) : null}
-      {state.ok && "warning" in state && state.warning ? (
-        <p className="text-sm text-amber-warn" role="status">
-          {state.warning}
-        </p>
-      ) : null}
+      <section>
+        <h2 className={sectionTitle}>Delivery</h2>
+        <div className="mt-4 space-y-4 rounded-2xl border border-border bg-card p-4 sm:p-6">
+          <div className="flex items-center gap-2">
+            <input
+              id="protected_delivery_enabled"
+              name="protected_delivery_enabled"
+              type="checkbox"
+              value="on"
+              checked={protectedDeliveryEnabled}
+              onChange={(ev) => setProtectedDeliveryEnabled(ev.target.checked)}
+              className="size-4 rounded border border-input accent-primary"
+            />
+            <Label htmlFor="protected_delivery_enabled" className="font-normal">
+              Offer protected delivery
+            </Label>
+          </div>
+        </div>
+      </section>
 
-      <div className="flex flex-wrap gap-3">
-        <Button type="submit" disabled={pending}>
-          {pending ? "Publishing…" : "Submit for review"}
-        </Button>
-        <Button variant="outline" type="button" render={<Link href="/seller/listings" />}>
-          Cancel
-        </Button>
+      <div className="mt-8 space-y-3">
+        {!state.ok && state.error ? (
+          <p className="text-sm text-destructive" role="alert">
+            {state.error}
+          </p>
+        ) : null}
+        {state.ok && "warning" in state && state.warning ? (
+          <p className="text-sm text-amber-warn" role="status">
+            {state.warning}
+          </p>
+        ) : null}
+
+        <div className="flex flex-wrap gap-3">
+          <Button type="submit" disabled={pending}>
+            {pending ? "Publishing…" : "Submit for review"}
+          </Button>
+          <Button variant="outline" type="button" render={<Link href="/seller/listings" />}>
+            Cancel
+          </Button>
+        </div>
       </div>
     </form>
   );

@@ -1,6 +1,9 @@
+import Link from "next/link";
+import { IconMusicOff } from "@tabler/icons-react";
+
 import { ListingCard } from "@/components/listings/listing-card";
 import { ListingFilters } from "@/components/listings/listing-filters";
-import { EmptyState } from "@/components/empty-state";
+import { Button } from "@/components/ui/button";
 import {
   type BrowseQueryParams,
   fetchBrands,
@@ -9,7 +12,6 @@ import {
 } from "@/lib/listings/queries";
 import { SITE_CONTAINER } from "@/config/site-layout";
 import { cn } from "@/lib/utils";
-import { Search } from "lucide-react";
 
 type PageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -20,6 +22,18 @@ function first(param: string | string[] | undefined): string {
     return param[0] ?? "";
   }
   return param ?? "";
+}
+
+function filtersActive(p: BrowseQueryParams): boolean {
+  return Boolean(
+    p.q?.trim() ||
+      p.category?.trim() ||
+      p.brand?.trim() ||
+      p.condition?.trim() ||
+      p.min_price?.trim() ||
+      p.max_price?.trim() ||
+      (p.sort && p.sort !== "newest"),
+  );
 }
 
 export default async function BrowsePage(props: PageProps) {
@@ -40,6 +54,10 @@ export default async function BrowsePage(props: PageProps) {
     fetchBrowseListings(params),
   ]);
 
+  const active = filtersActive(params);
+  const countLabel =
+    listings.length === 1 ? "1 listing" : `${listings.length} listings`;
+
   return (
     <div className={cn(SITE_CONTAINER, "space-y-6 bg-background py-6 sm:space-y-8 sm:py-8")}>
       <h1 className="heading text-ink">Browse gear</h1>
@@ -58,12 +76,25 @@ export default async function BrowsePage(props: PageProps) {
         }}
       />
 
-      {listings.length === 0 ? (
-        <EmptyState
-          icon={Search}
-          title="No listings match"
-          description="Try different filters or clear search."
-        />
+      <p className="text-[13px] text-[var(--color-text-secondary)]">{countLabel}</p>
+
+      {listings.length === 0 && active ? (
+        <div className="flex flex-col items-center justify-center gap-4 rounded-2xl border border-border bg-surface px-6 py-16 text-center shadow-sm">
+          <IconMusicOff className="size-10 text-[var(--color-text-tertiary)]" stroke={1.5} aria-hidden />
+          <h2 className="text-lg font-semibold text-ink">No listings found</h2>
+          <p className="max-w-md text-sm text-[var(--color-text-secondary)]">
+            Try adjusting your filters or browse all gear.
+          </p>
+          <Button render={<Link href="/browse" />}>Clear filters</Button>
+        </div>
+      ) : listings.length === 0 ? (
+        <div className="flex flex-col items-center justify-center gap-4 rounded-2xl border border-border bg-surface px-6 py-16 text-center shadow-sm">
+          <IconMusicOff className="size-10 text-[var(--color-text-tertiary)]" stroke={1.5} aria-hidden />
+          <h2 className="text-lg font-semibold text-ink">No listings yet</h2>
+          <p className="max-w-md text-sm text-[var(--color-text-secondary)]">
+            New gear shows up here as soon as sellers publish listings.
+          </p>
+        </div>
       ) : (
         <div className="grid grid-cols-2 gap-5 md:grid-cols-3 lg:grid-cols-4">
           {listings.map((item, index) => (
