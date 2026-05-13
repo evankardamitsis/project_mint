@@ -27,13 +27,13 @@ export default async function SellerOrdersPage() {
     <div className="space-y-8">
       <PageHeader
         title="Orders"
-        description="Fulfillment and payouts will connect here. Buyers appear after checkout (demo or real)."
+        description="When a buyer completes checkout on one of your listings, the order will appear here."
       />
       {rows.length === 0 ? (
         <EmptyState
           icon={Package}
           title="No orders yet"
-          description="When a buyer completes checkout on your listings, orders show up here."
+          description="When a buyer completes checkout on one of your listings, the order will appear here."
         />
       ) : (
         <>

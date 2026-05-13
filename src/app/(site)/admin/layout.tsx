@@ -13,7 +13,7 @@ export default async function AdminLayout({
     <div className="dark min-h-full">
       <DashboardShell
         title="Admin"
-        description="Moderation, disputes, and marketplace health — operational tools ship incrementally."
+        description="Moderation, disputes, and marketplace health."
         navItems={adminNav}
       >
         {children}

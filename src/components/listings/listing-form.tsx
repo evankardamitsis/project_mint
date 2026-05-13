@@ -22,19 +22,11 @@ import {
   createListingAction,
   type CreateListingState,
 } from "@/lib/listings/actions";
+import { conditionSelectOptions } from "@/lib/listings/condition-display";
 import type { BrandOption, CategoryOption } from "@/types/listings";
 import type { ListingCondition } from "@/types/domain";
 
-const conditions: { value: ListingCondition; label: string }[] = [
-  { value: "brand_new", label: "Brand new" },
-  { value: "mint", label: "Mint" },
-  { value: "excellent", label: "Excellent" },
-  { value: "very_good", label: "Very good" },
-  { value: "good", label: "Good" },
-  { value: "fair", label: "Fair" },
-  { value: "poor", label: "Poor" },
-  { value: "non_functioning", label: "Non-functioning" },
-];
+const conditions = conditionSelectOptions();
 
 function buildListingFormData(
   fields: {
@@ -287,7 +279,7 @@ export function ListingForm({
                 className="size-4 rounded border border-input accent-primary"
               />
               <Label htmlFor="protected_delivery_enabled" className="font-normal">
-                Offer protected delivery (workflow coming later)
+                Offer protected delivery
               </Label>
             </div>
           </div>

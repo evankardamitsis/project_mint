@@ -12,7 +12,7 @@ export default async function SellerLayout({
   return (
     <DashboardShell
       title="Seller"
-      description="Listings, orders, and offers — wired to Supabase in a later milestone."
+      description="Manage listings, orders, offers, and your shop in one place."
       navItems={sellerNav}
     >
       {children}

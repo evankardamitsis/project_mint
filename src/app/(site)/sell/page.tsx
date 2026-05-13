@@ -14,15 +14,13 @@ export default async function SellPage() {
   return (
     <div className={cn(SITE_CONTAINER, "space-y-8 bg-background py-10")}>
       <PageHeader
-        title="Sell on Project Mint"
+        title="Sell on mint."
         description="List second-hand gear with optional protected delivery: packaging checklist, photos, tracking, and a buyer dispute window after delivery."
         actions={
           profile?.role === "seller" ? (
-            <Button render={<Link href="/seller/listings/new" />}>
-              New listing
-            </Button>
+            <Button render={<Link href="/seller/listings/new" />}>New listing</Button>
           ) : (
-            <Button variant="outline" disabled title="Seller onboarding comes next">
+            <Button variant="outline" disabled title="Create a seller account to list gear">
               Seller access
             </Button>
           )
@@ -30,8 +28,8 @@ export default async function SellPage() {
       />
       <EmptyState
         icon={Package}
-        title="Seller onboarding is coming next"
-        description="You will connect a seller profile, set payout details, and publish listings for review — without payments in this milestone."
+        title="Open your shop on mint."
+        description="Create a seller profile, add payout details when you are ready, and publish listings for review — there is no fee to list."
       >
         {profile?.role === "seller" ? (
           <Button variant="outline" render={<Link href="/seller" />}>

@@ -31,7 +31,7 @@ export function RegisterForm() {
       <CardHeader>
         <CardTitle>Create an account</CardTitle>
         <CardDescription>
-          Join Project Mint to buy and sell gear with protected delivery.
+          Join mint. to buy and sell gear with protected delivery.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">

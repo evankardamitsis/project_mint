@@ -20,7 +20,7 @@ export default async function BuyerPurchasesPage() {
         <EmptyState
           icon={Package}
           title="No purchases yet"
-          description="When you buy a listing or complete checkout from an accepted offer, your orders appear here."
+          description="Your completed purchases will appear here."
         >
           <Button render={<Link href="/browse" />}>Browse listings</Button>
         </EmptyState>

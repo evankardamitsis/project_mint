@@ -25,19 +25,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { conditionSelectOptions } from "@/lib/listings/condition-display";
 import type { BrandOption, CategoryOption, SellerListingEditData } from "@/types/listings";
 import type { ListingCondition } from "@/types/domain";
 
-const conditions: { value: ListingCondition; label: string }[] = [
-  { value: "brand_new", label: "Brand new" },
-  { value: "mint", label: "Mint" },
-  { value: "excellent", label: "Excellent" },
-  { value: "very_good", label: "Very good" },
-  { value: "good", label: "Good" },
-  { value: "fair", label: "Fair" },
-  { value: "poor", label: "Poor" },
-  { value: "non_functioning", label: "Non-functioning" },
-];
+const conditions = conditionSelectOptions();
 
 function buildEditFormData(
   listingId: string,
@@ -299,7 +291,7 @@ export function ListingEditForm({
                 className="size-4 rounded border border-input accent-primary"
               />
               <Label htmlFor="protected_delivery_enabled" className="font-normal">
-                Offer protected delivery (workflow coming later)
+                Offer protected delivery
               </Label>
             </div>
           </div>

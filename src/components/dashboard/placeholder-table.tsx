@@ -9,7 +9,7 @@ import {
 
 export function PlaceholderTable({
   columns,
-  emptyLabel = "Nothing here yet — data will appear once you start using Project Mint.",
+  emptyLabel = "Nothing here yet — your activity on mint. will show up soon.",
 }: {
   columns: string[];
   emptyLabel?: string;

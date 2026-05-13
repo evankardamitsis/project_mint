@@ -12,7 +12,7 @@ export default async function BuyerLayout({
   return (
     <DashboardShell
       title="Buyer"
-      description="Purchases, offers, and post-delivery disputes — data layer coming next."
+      description="Track purchases, offers, and deliveries from one place."
       navItems={buyerNav}
     >
       {children}

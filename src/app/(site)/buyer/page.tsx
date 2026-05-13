@@ -12,7 +12,7 @@ export default function BuyerHomePage() {
       <EmptyState
         icon={ShoppingBag}
         title="Your purchase timeline will appear here"
-        description="Once checkout exists, recent orders and delivery milestones will populate this view."
+        description="You haven't made any purchases yet. Browse gear to find something you love."
       />
     </div>
   );

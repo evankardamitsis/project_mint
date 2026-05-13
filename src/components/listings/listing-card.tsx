@@ -7,7 +7,7 @@ import type { ListingCondition, ListingStatus } from "@/types/domain";
 
 const conditionLabels: Record<ListingCondition, string> = {
   brand_new: "New",
-  mint: "Mint",
+  mint: "Like new",
   excellent: "Excellent",
   very_good: "Very good",
   good: "Good",

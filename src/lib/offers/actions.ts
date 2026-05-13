@@ -198,7 +198,7 @@ export async function acceptCounterOfferAction(offerId: string): Promise<OfferAc
     revalidateOfferPaths(L.slug);
     return {
       ok: true,
-      message: "Offer accepted. Checkout/order flow coming next.",
+      message: "Offer accepted.",
     };
   } catch (e) {
     console.error("[offers] acceptCounterOfferAction", e);
@@ -261,7 +261,7 @@ export async function acceptOfferSellerAction(offerId: string): Promise<OfferAct
     revalidateOfferPaths(L.slug);
     return {
       ok: true,
-      message: "Offer accepted. Checkout/order flow coming next.",
+      message: "Offer accepted.",
     };
   } catch (e) {
     console.error("[offers] acceptOfferSellerAction", e);
