@@ -40,7 +40,7 @@ function Step({
         className={cn(
           "text-sm leading-snug",
           (done || current) && "font-medium text-ink",
-          !done && !current && "text-text-muted",
+          !done && !current && "text-(--color-text-muted)",
         )}
       >
         {label}
@@ -97,7 +97,7 @@ export function ProtectedDeliveryTimelineBuyer({
             <p className="text-xs font-medium uppercase tracking-wide text-text-caption">Order</p>
             <p className="truncate font-semibold text-ink">{listingTitle}</p>
             {orderId ? (
-              <p className="text-xs text-text-muted">Ref · {orderId.slice(0, 8)}…</p>
+              <p className="text-xs text-(--color-text-muted)">Ref · {orderId.slice(0, 8)}…</p>
             ) : null}
           </div>
           <div className="text-right">
@@ -111,7 +111,7 @@ export function ProtectedDeliveryTimelineBuyer({
 
       <div>
         <h3 className="text-sm font-semibold text-ink">Delivery progress</h3>
-        <p className="mt-1 text-xs text-text-muted">We keep payment until tracking and proof look good.</p>
+        <p className="mt-1 text-xs text-(--color-text-muted)">We keep payment until tracking and proof look good.</p>
         <div className="mt-5 space-y-4 border-l border-border/70 pl-1">
           <Step done={paymentHeld} label="Payment held" />
           <Step done={photosDone} current={paymentHeld && !photosDone} label="Seller added photos" />
@@ -128,7 +128,7 @@ export function ProtectedDeliveryTimelineBuyer({
           </a>
         </p>
       ) : shipment?.tracking_number ? (
-        <p className="text-sm text-text-muted">
+        <p className="text-sm text-(--color-text-muted)">
           Tracking: <span className="font-mono text-ink">{shipment.tracking_number}</span>
         </p>
       ) : null}
@@ -136,21 +136,21 @@ export function ProtectedDeliveryTimelineBuyer({
       <div className="space-y-4 rounded-xl bg-warm-bg/80 p-4">
         <p className="text-xs font-semibold uppercase tracking-wide text-text-caption">Photos from seller</p>
         <div>
-          <p className="mb-1 text-xs text-text-muted">Condition</p>
+          <p className="mb-1 text-xs text-(--color-text-muted)">Condition</p>
           <ProofImageGrid items={proofItems(bundle, "condition_photo")} />
         </div>
         <div>
-          <p className="mb-1 text-xs text-text-muted">Packaging</p>
+          <p className="mb-1 text-xs text-(--color-text-muted)">Packaging</p>
           <ProofImageGrid items={proofItems(bundle, "packaging_photo")} />
         </div>
         <div>
-          <p className="mb-1 text-xs text-text-muted">Sealed package</p>
+          <p className="mb-1 text-xs text-(--color-text-muted)">Sealed package</p>
           <ProofImageGrid items={proofItems(bundle, "sealed_package_photo")} />
         </div>
       </div>
 
       {helpHref ? (
-        <p className="text-center text-sm text-text-muted">
+        <p className="text-center text-sm text-(--color-text-muted)">
           <Link href={helpHref} className="text-mint hover:underline">
             Something wrong with your order? Get help →
           </Link>

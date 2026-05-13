@@ -97,9 +97,9 @@ export function ProtectedDeliveryPanelSeller({
       <CardHeader>
         <div className="flex flex-wrap items-center justify-between gap-2">
           <CardTitle className="text-base font-semibold text-ink">Ship your order</CardTitle>
-          <span className="text-xs capitalize text-text-muted">{String(check.status).replace(/_/g, " ")}</span>
+          <span className="text-xs capitalize text-(--color-text-muted)">{String(check.status).replace(/_/g, " ")}</span>
         </div>
-        <CardDescription className="text-sm text-text-muted">
+        <CardDescription className="text-sm text-(--color-text-muted)">
           Add photos and tracking so the buyer can follow along. Payment stays on hold until you are done.
         </CardDescription>
       </CardHeader>

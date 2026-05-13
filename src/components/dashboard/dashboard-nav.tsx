@@ -33,9 +33,9 @@ export function DashboardNav({
             key={item.href}
             href={item.href}
             className={cn(
-              "rounded-r-xl border-l-2 py-2.5 pl-3 pr-3 text-sm transition-colors lg:pl-3",
+              "border-l-2 py-2.5 pl-3 pr-3 text-sm transition-colors lg:pl-3",
               active
-                ? "border-l-mint bg-mint/12 font-medium text-ink"
+                ? "border-l-[#1a7a4a] bg-[#1a7a4a]/10 font-medium text-ink"
                 : "border-l-transparent text-muted-foreground hover:bg-muted/50 hover:text-foreground",
             )}
           >

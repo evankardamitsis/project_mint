@@ -3,16 +3,20 @@
 import { useRouter } from "next/navigation";
 
 import type { AppLocale } from "@/i18n/messages";
+import { writeMintLocaleCookie } from "@/lib/i18n/locale-cookie-client";
 import { cn } from "@/lib/utils";
 
-const COOKIE = "mint_locale";
+const OPTIONS: { locale: AppLocale; countryCode: string; ariaLabel: string }[] = [
+  { locale: "en", countryCode: "US", ariaLabel: "English (US)" },
+  { locale: "el", countryCode: "GR", ariaLabel: "Greek (Greece)" },
+];
 
 export function LocaleSwitcher({
   locale,
-  languageLabel,
+  variant = "light",
 }: {
   locale: AppLocale;
-  languageLabel: string;
+  variant?: "light" | "dark";
 }) {
   const router = useRouter();
 
@@ -20,35 +24,42 @@ export function LocaleSwitcher({
     if (next === locale) {
       return;
     }
-    document.cookie = `${COOKIE}=${next};path=/;max-age=31536000;SameSite=Lax`;
+    writeMintLocaleCookie(next);
     router.refresh();
   }
 
+  const isDark = variant === "dark";
+
   return (
-    <div className="flex flex-col gap-2 border-t border-border/60 pt-6">
-      <p className="text-xs font-semibold uppercase tracking-wide text-ink-3">{languageLabel}</p>
-      <div className="flex gap-2">
+    <div
+      className={cn(
+        "inline-flex p-0.5",
+        isDark ? "border border-[#1e1e1e] bg-[#111111]" : "rounded-md border-[0.5px] border-[#ddd] bg-white",
+      )}
+      role="group"
+      aria-label="Site language"
+    >
+      {OPTIONS.map(({ locale: l, countryCode, ariaLabel }) => (
         <button
+          key={l}
           type="button"
-          onClick={() => pick("en")}
+          onClick={() => pick(l)}
+          aria-label={ariaLabel}
+          aria-pressed={locale === l}
           className={cn(
-            "rounded-full px-3 py-1.5 text-xs font-semibold transition-colors",
-            locale === "en" ? "bg-ink text-white" : "border border-border bg-surface text-ink-2 hover:bg-muted/50",
+            "min-w-8 px-2 py-1 text-[11px] font-semibold tracking-wide transition-colors",
+            isDark
+              ? locale === l
+                ? "bg-[#1a1a1a] text-white"
+                : "text-[#888888] hover:bg-[#1a1a1a] hover:text-white"
+              : locale === l
+                ? "rounded-[4px] bg-[#111] text-white"
+                : "rounded-[4px] text-[#444] hover:bg-[#f5f5f5]",
           )}
         >
-          English
+          {countryCode}
         </button>
-        <button
-          type="button"
-          onClick={() => pick("el")}
-          className={cn(
-            "rounded-full px-3 py-1.5 text-xs font-semibold transition-colors",
-            locale === "el" ? "bg-ink text-white" : "border border-border bg-surface text-ink-2 hover:bg-muted/50",
-          )}
-        >
-          Ελληνικά
-        </button>
-      </div>
+      ))}
     </div>
   );
 }

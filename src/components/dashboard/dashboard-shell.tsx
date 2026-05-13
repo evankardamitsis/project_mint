@@ -13,7 +13,7 @@ export function DashboardShell({
 }) {
   return (
     <div className={cn(SITE_CONTAINER, "flex flex-1 flex-col gap-8 py-8 lg:flex-row lg:gap-10 lg:py-10")}>
-      <aside className="w-full shrink-0 rounded-2xl bg-surface p-4 shadow-sm lg:max-w-xs lg:bg-transparent lg:p-0 lg:shadow-none">
+      <aside className="w-full shrink-0 border border-[#e0ddd8] bg-surface p-4 lg:max-w-xs lg:border-0 lg:bg-transparent lg:p-0 lg:shadow-none">
         <div className="flex items-start gap-3">
           <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-mint-tint text-xs font-bold text-mint-dark">
             {sidebar.initials}
@@ -21,7 +21,7 @@ export function DashboardShell({
           <div className="min-w-0">
             <p className="text-base font-semibold leading-tight text-ink">{sidebar.heading}</p>
             {sidebar.description ? (
-              <p className="mt-1 text-sm leading-relaxed text-text-muted">{sidebar.description}</p>
+              <p className="mt-1 text-sm leading-relaxed text-(--color-text-muted)">{sidebar.description}</p>
             ) : null}
           </div>
         </div>

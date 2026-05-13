@@ -1,18 +1,20 @@
 import Link from "next/link";
-import { IconMusicOff } from "@tabler/icons-react";
+import { IconZoomCancel } from "@tabler/icons-react";
 
+import { BauhausListingGrid } from "@/components/marketing/bauhaus-listing-grid";
+import { SectionHeader } from "@/components/marketing/section-header";
 import { ListingCard } from "@/components/listings/listing-card";
 import { ListingFilters } from "@/components/listings/listing-filters";
 import { Button } from "@/components/ui/button";
+import { SITE_CONTAINER } from "@/config/site-layout";
+import { getLocale } from "@/i18n/get-locale";
+import { MESSAGES } from "@/i18n/messages";
 import {
   type BrowseQueryParams,
   fetchBrands,
   fetchBrowseListings,
   fetchCategories,
 } from "@/lib/listings/queries";
-import { SITE_CONTAINER } from "@/config/site-layout";
-import { getLocale } from "@/i18n/get-locale";
-import { MESSAGES } from "@/i18n/messages";
 import { cn } from "@/lib/utils";
 
 type PageProps = {
@@ -41,6 +43,7 @@ function filtersActive(p: BrowseQueryParams): boolean {
 export default async function BrowsePage(props: PageProps) {
   const locale = await getLocale();
   const b = MESSAGES[locale].browse;
+  const h = MESSAGES[locale].home;
 
   const sp = await props.searchParams;
   const params: BrowseQueryParams = {
@@ -64,56 +67,86 @@ export default async function BrowsePage(props: PageProps) {
     listings.length === 1 ? b.countOne : b.countMany.replace("{n}", String(listings.length));
 
   return (
-    <div className={cn(SITE_CONTAINER, "space-y-6 bg-background py-6 sm:space-y-8 sm:py-8")}>
-      <h1 className="heading text-ink">{b.title}</h1>
+    <div className={cn(SITE_CONTAINER, "bg-[var(--color-background-page)] pb-10 pt-0")}>
+      <h1 className="px-5 pb-4 pt-6 text-[clamp(28px,5vw,40px)] font-black uppercase tracking-[-0.03em] text-[#111111]">
+        {b.title}
+      </h1>
 
-      <ListingFilters
-        categories={categories}
-        brands={brands}
-        values={{
-          q: params.q ?? "",
-          category: params.category ?? "",
-          brand: params.brand ?? "",
-          condition: params.condition ?? "",
-          min_price: params.min_price ?? "",
-          max_price: params.max_price ?? "",
-          sort: params.sort ?? "newest",
-        }}
-      />
+      <div className="px-5 pb-2">
+        <ListingFilters
+          categories={categories}
+          brands={brands}
+          filterLabels={{
+            clearAllLink: b.clearAllLink,
+            filterCategory: b.filterCategory,
+            filterBrand: b.filterBrand,
+            filterCondition: b.filterCondition,
+            filterPrice: b.filterPrice,
+            filterAllCategories: b.filterAllCategories,
+            filterAllBrands: b.filterAllBrands,
+            filterAnyCondition: b.filterAnyCondition,
+            sortNewest: b.sortNewest,
+            sortPriceAsc: b.sortPriceAsc,
+            sortPriceDesc: b.sortPriceDesc,
+            priceAny: b.priceAny,
+            priceUnder250: b.priceUnder250,
+            price250to500: b.price250to500,
+            price500to1000: b.price500to1000,
+            priceOver1000: b.priceOver1000,
+          }}
+          values={{
+            q: params.q ?? "",
+            category: params.category ?? "",
+            brand: params.brand ?? "",
+            condition: params.condition ?? "",
+            min_price: params.min_price ?? "",
+            max_price: params.max_price ?? "",
+            sort: params.sort ?? "newest",
+          }}
+        />
+      </div>
 
-      <p className="text-[13px] text-[var(--color-text-secondary)]">{countLabel}</p>
+      <p className="px-5 py-2 text-[9px] font-bold uppercase tracking-[0.08em] text-[#999999]">{countLabel}</p>
 
       {listings.length === 0 && active ? (
-        <div className="flex flex-col items-center justify-center gap-4 rounded-2xl border border-border bg-surface px-6 py-16 text-center shadow-sm">
-          <IconMusicOff className="size-10 text-[var(--color-text-tertiary)]" stroke={1.5} aria-hidden />
-          <h2 className="text-lg font-semibold text-ink">{b.emptyFilteredTitle}</h2>
-          <p className="max-w-md text-sm text-[var(--color-text-secondary)]">{b.emptyFilteredBody}</p>
-          <Button render={<Link href="/browse" />}>{b.clearFilters}</Button>
+        <div className="mx-5 flex flex-col items-center justify-center gap-4 border border-[#111111] bg-[#ffffff] px-6 py-16 text-center">
+          <IconZoomCancel className="size-8 text-[#cccccc]" stroke={1.25} aria-hidden />
+          <h2 className="text-[14px] font-black uppercase text-[#111111]">{b.emptyFilteredTitle}</h2>
+          <p className="max-w-md text-[12px] text-[#999999]">{b.emptyFilteredBody}</p>
+          <Button
+            className="rounded-none border-0 bg-[#111111] px-5 py-2 text-[10px] font-bold uppercase tracking-[0.09em] text-white hover:bg-[#111111]/90"
+            render={<Link href="/browse" />}
+          >
+            {b.clearFilters}
+          </Button>
         </div>
       ) : listings.length === 0 ? (
-        <div className="flex flex-col items-center justify-center gap-4 rounded-2xl border border-border bg-surface px-6 py-16 text-center shadow-sm">
-          <IconMusicOff className="size-10 text-[var(--color-text-tertiary)]" stroke={1.5} aria-hidden />
-          <h2 className="text-lg font-semibold text-ink">{b.emptyNoneTitle}</h2>
-          <p className="max-w-md text-sm text-[var(--color-text-secondary)]">{b.emptyNoneBody}</p>
+        <div className="mx-5 flex flex-col items-center justify-center gap-4 border border-[#111111] bg-[#ffffff] px-6 py-16 text-center">
+          <IconZoomCancel className="size-8 text-[#cccccc]" stroke={1.25} aria-hidden />
+          <h2 className="text-[14px] font-black uppercase text-[#111111]">{b.emptyNoneTitle}</h2>
+          <p className="max-w-md text-[12px] text-[#999999]">{b.emptyNoneBody}</p>
         </div>
       ) : (
-        <div className="grid grid-cols-2 gap-5 md:grid-cols-3 lg:grid-cols-4">
-          {listings.map((item, index) => (
-            <ListingCard
-              key={item.id}
-              title={item.title}
-              slug={item.slug}
-              priceCents={item.price_cents}
-              currency={item.currency}
-              condition={item.condition}
-              location={item.location}
-              imageUrl={item.primary_image_url}
-              imagePriority={index < 3}
-              protectedDeliveryEnabled={item.protected_delivery_enabled}
-              categoryName={item.category_name}
-              sellerDisplayName={item.seller_display_name}
-            />
-          ))}
+        <div className="px-5">
+          <SectionHeader title={b.listingsSection} seeAllHref="/browse" seeAllLabel={h.seeAll} />
+          <BauhausListingGrid>
+            {listings.map((item, index) => (
+              <ListingCard
+                key={item.id}
+                title={item.title}
+                slug={item.slug}
+                priceCents={item.price_cents}
+                currency={item.currency}
+                condition={item.condition}
+                location={item.location}
+                imageUrl={item.primary_image_url}
+                imagePriority={index < 3}
+                protectedDeliveryEnabled={item.protected_delivery_enabled}
+                categoryName={item.category_name}
+                sellerDisplayName={item.seller_display_name}
+              />
+            ))}
+          </BauhausListingGrid>
         </div>
       )}
     </div>

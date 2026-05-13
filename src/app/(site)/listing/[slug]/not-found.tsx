@@ -11,7 +11,7 @@ export default async function ListingNotFound() {
 
   return (
     <div className="mx-auto flex min-h-[50vh] w-full max-w-lg flex-col items-center justify-center gap-4 px-4 py-16 text-center">
-      <IconMoodSad className="size-10 text-[var(--color-text-tertiary)]" stroke={1.5} aria-hidden />
+      <IconMoodSad className="size-10 text-(--color-text-tertiary)" stroke={1.5} aria-hidden />
       <h1 className="text-lg font-semibold tracking-tight">{n.title}</h1>
       <p className="text-sm text-muted-foreground">{n.body}</p>
       <Button render={<Link href="/browse" />}>{n.back}</Button>

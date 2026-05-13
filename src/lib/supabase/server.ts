@@ -1,4 +1,5 @@
 import { createServerClient } from "@supabase/ssr";
+import { createClient as createSupabaseJsClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
 
 const cookieAdapter = (cookieStore: Awaited<ReturnType<typeof cookies>>) => ({
@@ -15,6 +16,18 @@ const cookieAdapter = (cookieStore: Awaited<ReturnType<typeof cookies>>) => ({
     }
   },
 });
+
+/**
+ * Publishable (anon) Supabase client with no Next.js `cookies()` — safe inside `unstable_cache`.
+ * RLS runs as anonymous; use only for public reads allowed to anon.
+ */
+export function createPublishableServerClient() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
+  const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? "";
+  return createSupabaseJsClient(url, key, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+}
 
 /**
  * Server client bound to the caller's cookies (publishable key, RLS applies).

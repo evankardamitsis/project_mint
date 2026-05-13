@@ -10,6 +10,7 @@ export type Messages = {
   header: { sell: string; logIn: string; join: string; searchAria: string; savedAria: string };
   footer: {
     tagline: string;
+    copyrightLine: string;
     company: string;
     legal: string;
     about: string;
@@ -20,19 +21,27 @@ export type Messages = {
     language: string;
   };
   home: {
-    heroLine1: string;
-    heroLine2: string;
+    heroKicker: string;
+    heroHeadline1: string;
+    heroHeadline2: string;
+    heroHeadline3: string;
     heroSubtitle: string;
     browseGear: string;
     startSelling: string;
+    statActiveListings: string;
+    statActiveShops: string;
+    statBuyerProtection: string;
+    boostZoneNote: string;
     latest: string;
+    sectionSynths: string;
+    sectionEffects: string;
     seeAll: string;
     listingsWhenLive: string;
   };
   trust: {
     protectedPayments: string;
     paymentHeld: string;
-    sellerProof: string;
+    proofPhotos: string;
     trackingVerified: string;
     disputeSupport: string;
   };
@@ -45,6 +54,23 @@ export type Messages = {
     clearFilters: string;
     emptyNoneTitle: string;
     emptyNoneBody: string;
+    listingsSection: string;
+    clearAllLink: string;
+    filterCategory: string;
+    filterBrand: string;
+    filterCondition: string;
+    filterPrice: string;
+    filterAllCategories: string;
+    filterAllBrands: string;
+    filterAnyCondition: string;
+    sortNewest: string;
+    sortPriceAsc: string;
+    sortPriceDesc: string;
+    priceAny: string;
+    priceUnder250: string;
+    price250to500: string;
+    price500to1000: string;
+    priceOver1000: string;
   };
   sell: {
     title: string;
@@ -98,6 +124,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
     },
     footer: {
       tagline: "Music gear & collectibles — buy and sell with confidence.",
+      copyrightLine: "© 2026 mint. — Athens, Greece",
       company: "Company",
       legal: "Legal",
       about: "About",
@@ -108,20 +135,28 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       language: "Language",
     },
     home: {
-      heroLine1: "Buy and sell",
-      heroLine2: "protected gear.",
+      heroKicker: "Second-hand gear marketplace",
+      heroHeadline1: "Buy.",
+      heroHeadline2: "Sell.",
+      heroHeadline3: "Protected.",
       heroSubtitle:
         "Second-hand music gear and collectibles — with payment protection, proof photos, and tracked delivery.",
       browseGear: "Browse gear",
       startSelling: "Start selling",
+      statActiveListings: "Active listings",
+      statActiveShops: "Active seller shops",
+      statBuyerProtection: "Buyer protection",
+      boostZoneNote: "Boost zone — featured listings will appear here",
       latest: "Latest listings",
+      sectionSynths: "Synths & Keyboards",
+      sectionEffects: "Effects & Pedals",
       seeAll: "See all",
       listingsWhenLive: "Listings will show up here once sellers go live.",
     },
     trust: {
       protectedPayments: "Protected payments",
       paymentHeld: "Payment held",
-      sellerProof: "Seller uploads proof",
+      proofPhotos: "Proof photos",
       trackingVerified: "Tracking verified",
       disputeSupport: "Dispute support",
     },
@@ -134,6 +169,23 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       clearFilters: "Clear filters",
       emptyNoneTitle: "No listings yet",
       emptyNoneBody: "New gear shows up here as soon as sellers publish listings.",
+      listingsSection: "Listings",
+      clearAllLink: "Clear all",
+      filterCategory: "Category",
+      filterBrand: "Brand",
+      filterCondition: "Condition",
+      filterPrice: "Price",
+      filterAllCategories: "All categories",
+      filterAllBrands: "All brands",
+      filterAnyCondition: "Any condition",
+      sortNewest: "Newest",
+      sortPriceAsc: "Price: low",
+      sortPriceDesc: "Price: high",
+      priceAny: "Any price",
+      priceUnder250: "Under €250",
+      price250to500: "€250 – €500",
+      price500to1000: "€500 – €1,000",
+      priceOver1000: "Over €1,000",
     },
     sell: {
       title: "Sell on mint.",
@@ -196,6 +248,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
     },
     footer: {
       tagline: "Μουσικός εξοπλισμός & συλλεκτικά — αγορά και πώληση με ασφάλεια.",
+      copyrightLine: "© 2026 mint. — Αθήνα, Ελλάδα",
       company: "Εταιρεία",
       legal: "Νομικά",
       about: "Σχετικά",
@@ -206,20 +259,28 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       language: "Γλώσσα",
     },
     home: {
-      heroLine1: "Αγόρασε και πούλησε",
-      heroLine2: "με προστασία.",
+      heroKicker: "Αγορά μεταχειρισμένου εξοπλισμού",
+      heroHeadline1: "Αγόρασε.",
+      heroHeadline2: "Πούλησε.",
+      heroHeadline3: "Προστατευμένα.",
       heroSubtitle:
         "Μεταχειρισμένος μουσικός εξοπλισμός και συλλεκτικά — με προστασία πληρωμής, φωτογραφίες απόδειξης και ιχνηλάτηση αποστολής.",
       browseGear: "Δες αγγελίες",
       startSelling: "Ξεκίνα πωλήσεις",
+      statActiveListings: "Ενεργές αγγελίες",
+      statActiveShops: "Ενεργά καταστήματα πωλητών",
+      statBuyerProtection: "Προστασία αγοραστή",
+      boostZoneNote: "Ζώνη boost — εδώ θα εμφανίζονται προβεβλημένες αγγελίες",
       latest: "Νέες αγγελίες",
+      sectionSynths: "Συνθεσάιζερ & πλήκτρα",
+      sectionEffects: "Εφέ & πετάλια",
       seeAll: "Όλες",
       listingsWhenLive: "Οι αγγελίες θα εμφανίζονται εδώ μόλις οι πωλητές ξεκινήσουν.",
     },
     trust: {
       protectedPayments: "Προστατευμένες πληρωμές",
       paymentHeld: "Κράτηση πληρωμής",
-      sellerProof: "Αποδεικτικά από τον πωλητή",
+      proofPhotos: "Φωτογραφίες απόδειξης",
       trackingVerified: "Επιβεβαίωση αποστολής",
       disputeSupport: "Υποστήριξη διαφορών",
     },
@@ -232,6 +293,23 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       clearFilters: "Καθαρισμός φίλτρων",
       emptyNoneTitle: "Δεν υπάρχουν αγγελίες ακόμη",
       emptyNoneBody: "Νέες αγγελίες εμφανίζονται εδώ μόλις τις δημοσιεύσουν οι πωλητές.",
+      listingsSection: "Αγγελίες",
+      clearAllLink: "Καθαρισμός",
+      filterCategory: "Κατηγορία",
+      filterBrand: "Μάρκα",
+      filterCondition: "Κατάσταση",
+      filterPrice: "Τιμή",
+      filterAllCategories: "Όλες οι κατηγορίες",
+      filterAllBrands: "Όλες οι μάρκες",
+      filterAnyCondition: "Οποιαδήποτε",
+      sortNewest: "Νεότερα",
+      sortPriceAsc: "Τιμή: χαμηλά",
+      sortPriceDesc: "Τιμή: ψηλά",
+      priceAny: "Οποιαδήποτε τιμή",
+      priceUnder250: "Κάτω από €250",
+      price250to500: "€250 – €500",
+      price500to1000: "€500 – €1.000",
+      priceOver1000: "Πάνω από €1.000",
     },
     sell: {
       title: "Πούλησε στο mint.",

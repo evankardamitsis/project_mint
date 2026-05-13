@@ -22,7 +22,7 @@ export function DisputeSummaryCard({
       <CardHeader>
         <div className="flex flex-wrap items-baseline gap-2">
           <CardTitle className="text-base font-semibold text-ink">Case</CardTitle>
-          <span className="rounded-full bg-warm-bg px-2 py-0.5 text-xs font-medium capitalize text-text-muted">
+          <span className="rounded-full bg-warm-bg px-2 py-0.5 text-xs font-medium capitalize text-(--color-text-muted)">
             {String(dispute.status).replace(/_/g, " ")}
           </span>
         </div>
@@ -37,14 +37,14 @@ export function DisputeSummaryCard({
           {dispute.reason ? (
             <>
               {" "}
-              · <span className="text-text-muted">{dispute.reason}</span>
+              · <span className="text-(--color-text-muted)">{dispute.reason}</span>
             </>
           ) : null}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-3 text-sm">
         <p>
-          <span className="text-text-muted">Listing:</span>{" "}
+          <span className="text-(--color-text-muted)">Listing:</span>{" "}
           <span className="font-medium text-ink">{listingTitle}</span>
         </p>
         <div className="flex flex-wrap gap-2">

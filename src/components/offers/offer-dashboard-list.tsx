@@ -26,7 +26,7 @@ function OfferStatusRow({ status, expiresAt }: { status: string; expiresAt: stri
   return (
     <div className="mt-2 flex flex-wrap items-center gap-2">
       <OfferStatusPill status={status} />
-      <span className="text-xs text-text-muted">{formatWhen(expiresAt)}</span>
+      <span className="text-xs text-(--color-text-muted)">{formatWhen(expiresAt)}</span>
     </div>
   );
 }
@@ -92,7 +92,7 @@ export function SellerOfferCards({ rows }: { rows: SellerOfferRow[] }) {
             </div>
             <div className="min-w-0 flex-1 space-y-2">
               <p className="font-semibold leading-snug text-ink">{row.listings?.title ?? "Listing"}</p>
-              <p className="text-xs text-text-muted">{buyerLabel(row)}</p>
+              <p className="text-xs text-(--color-text-muted)">{buyerLabel(row)}</p>
               <p className="text-[0.65rem] font-medium uppercase tracking-wide text-text-caption">Their offer</p>
               <div className="max-w-[92%] rounded-2xl rounded-tl-sm border border-border bg-warm-bg px-3 py-2">
                 <OfferAmount amountCents={row.amount_cents} currency={row.listings?.currency} className="text-sm font-extrabold text-ink" />

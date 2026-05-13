@@ -8,18 +8,18 @@ export default {
   theme: {
     extend: {
       colors: {
-        background: "#F7F6F3",
+        background: "#f5f3ee",
         surface: "#FFFFFF",
-        border: "#EEECE8",
+        border: "#e0ddd8",
         ink: {
           DEFAULT: "#111111",
           2: "#6B6B6B",
           3: "#ABABAB",
         },
         mint: {
-          DEFAULT: "#1D9E75",
-          tint: "#E8F7F1",
-          dark: "#0A5C43",
+          DEFAULT: "#1a7a4a",
+          tint: "#1a7a4a14",
+          dark: "#15633c",
         },
         amber: {
           DEFAULT: "#C47A15",

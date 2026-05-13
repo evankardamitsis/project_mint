@@ -30,7 +30,7 @@ export async function BuyerDisputeSection({ order }: { order: OrderDetail }) {
       <CardContent className="space-y-3">
         {activeExists && active ? (
           <div className="flex flex-wrap items-center gap-3">
-            <span className="text-sm capitalize text-text-muted">Case · {String(active.status).replace(/_/g, " ")}</span>
+            <span className="text-sm capitalize text-(--color-text-muted)">Case · {String(active.status).replace(/_/g, " ")}</span>
             <Button size="sm" render={<Link href={`/buyer/purchases/${order.id}/dispute`} />}>
               View case
             </Button>
@@ -38,7 +38,7 @@ export async function BuyerDisputeSection({ order }: { order: OrderDetail }) {
         ) : null}
         {!activeExists && hasDisputeHistory ? (
           <div className="flex flex-wrap items-center gap-3">
-            <span className="text-sm text-text-muted">You have a case on file</span>
+            <span className="text-sm text-(--color-text-muted)">You have a case on file</span>
             <Button size="sm" variant="outline" render={<Link href={`/buyer/purchases/${order.id}/dispute`} />}>
               View case
             </Button>
@@ -48,15 +48,15 @@ export async function BuyerDisputeSection({ order }: { order: OrderDetail }) {
           <Button render={<Link href={`/buyer/purchases/${order.id}/dispute/new`} />}>Get help with this order</Button>
         ) : null}
         {!activeExists && !canOpen && order.status === "pending_payment" ? (
-          <p className="text-xs text-text-muted">Help is available after checkout and shipment.</p>
+          <p className="text-xs text-(--color-text-muted)">Help is available after checkout and shipment.</p>
         ) : null}
         {showPaymentHint ? (
-          <p className="text-xs text-text-muted">
+          <p className="text-xs text-(--color-text-muted)">
             Complete checkout so payment can be held — then you can reach out if needed.
           </p>
         ) : null}
         {!activeExists && !canOpen && (order.status === "cancelled" || order.status === "refunded") ? (
-          <p className="text-xs text-text-muted">This order is closed — help is not available.</p>
+          <p className="text-xs text-(--color-text-muted)">This order is closed — help is not available.</p>
         ) : null}
       </CardContent>
     </Card>

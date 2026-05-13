@@ -13,9 +13,9 @@ export default async function SiteLayout({
 
   return (
     <>
-      <SiteHeader messages={messages} />
+      <SiteHeader locale={locale} messages={messages} />
       <div className="flex-1 bg-background">{children}</div>
-      <SiteFooter locale={locale} messages={messages} />
+      <SiteFooter messages={messages} />
     </>
   );
 }

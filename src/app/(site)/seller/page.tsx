@@ -45,15 +45,15 @@ export default async function SellerHomePage() {
         <p className="text-sm font-medium text-white/80">{seller.display_name}</p>
         <h1 className="mt-1 text-2xl font-bold tracking-tight">Your listings</h1>
         <div className="mt-5 grid grid-cols-3 gap-3">
-          <div className="rounded-xl bg-white/10 p-3 text-center">
+          <div className="rounded-[4px] bg-white/10 p-3 text-center">
             <p className="text-2xl font-extrabold tabular-nums">{stats.active}</p>
             <p className="text-[0.65rem] font-medium uppercase tracking-wide text-white/70">Live</p>
           </div>
-          <div className="rounded-xl bg-white/10 p-3 text-center">
+          <div className="rounded-[4px] bg-white/10 p-3 text-center">
             <p className="text-2xl font-extrabold tabular-nums">{stats.total}</p>
             <p className="text-[0.65rem] font-medium uppercase tracking-wide text-white/70">Total</p>
           </div>
-          <div className="rounded-xl bg-white/10 p-3 text-center">
+          <div className="rounded-[4px] bg-white/10 p-3 text-center">
             <p className="text-2xl font-extrabold tabular-nums">{stats.pending_review}</p>
             <p className="text-[0.65rem] font-medium uppercase tracking-wide text-white/70">In review</p>
           </div>

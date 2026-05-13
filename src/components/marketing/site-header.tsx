@@ -1,19 +1,18 @@
 import Link from "next/link";
-import { Heart, Search } from "lucide-react";
+import { Suspense } from "react";
 
-import { SiteHeaderAccountMenu } from "@/components/marketing/site-header-account-menu";
-import { LogoutButton } from "@/components/marketing/logout-button";
-import { Button } from "@/components/ui/button";
-import { SITE_CONTAINER } from "@/config/site-layout";
+import { SiteHeaderInner } from "@/components/marketing/site-header-inner";
 import { getProfile, getSessionUser } from "@/lib/auth/guards";
-import type { Messages } from "@/i18n/messages";
+import type { AppLocale, Messages } from "@/i18n/messages";
 import { cn } from "@/lib/utils";
 
 export async function SiteHeader({
   className,
+  locale,
   messages: m,
 }: {
   className?: string;
+  locale: AppLocale;
   messages: Messages;
 }) {
   const user = await getSessionUser();
@@ -26,61 +25,39 @@ export async function SiteHeader({
     { href: "/browse?category=pro-audio", label: m.nav.proAudio },
   ] as const;
 
+  const account =
+    user && profile
+      ? { fullName: profile.full_name, email: profile.email ?? user.email ?? null, role: profile.role }
+      : user
+        ? ("session_no_profile" as const)
+        : null;
+
   return (
     <header
       className={cn(
-        "sticky top-0 z-40 border-b border-border bg-white",
+        "sticky top-0 z-40 flex h-11 w-full items-stretch border-b-[3px] border-[#1a7a4a] bg-[#111111]",
         className,
       )}
     >
-      <div className={cn(SITE_CONTAINER, "flex min-h-14 w-full items-center justify-between gap-3 py-3")}>
-        <div className="flex min-w-0 flex-1 items-center gap-4 lg:gap-8">
-          <Link href="/" className="shrink-0 text-lg font-bold tracking-tight text-ink">
-            mint<span className="text-mint">.</span>
-          </Link>
-          <nav className="ml-2 hidden min-w-0 flex-1 items-center gap-2 text-xs font-medium text-[#6B6B6B] lg:flex lg:gap-3 lg:text-[13px] xl:text-sm">
-            {browseCategoryLinks.map((item) => (
-              <Link key={item.href} href={item.href} className="whitespace-nowrap transition-colors hover:text-[#111111]">
-                {item.label}
-              </Link>
-            ))}
-          </nav>
-        </div>
-        <div className="flex shrink-0 items-center gap-2 sm:gap-3">
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            className="text-ink-2 hover:text-ink"
-            render={<Link href="/browse" aria-label={m.header.searchAria} />}
-          >
-            <Search className="size-5" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            className="text-ink-2 hover:text-ink"
-            render={<Link href="/browse" aria-label={m.header.savedAria} />}
-          >
-            <Heart className="size-5" />
-          </Button>
-          <Button size="sm" className="rounded-full bg-mint px-4 font-semibold text-white hover:bg-mint/90" render={<Link href="/sell" />}>
-            {m.header.sell}
-          </Button>
-          {user && profile ? (
-            <SiteHeaderAccountMenu fullName={profile.full_name} email={profile.email ?? user.email ?? null} role={profile.role} />
-          ) : user ? (
-            <LogoutButton />
-          ) : (
-            <div className="flex items-center gap-1.5">
-              <Button variant="ghost" size="sm" className="text-ink-2 hover:text-ink" render={<Link href="/auth/login" />}>
-                {m.header.logIn}
-              </Button>
-              <Button size="sm" className="rounded-full bg-ink px-4 font-semibold text-white hover:bg-ink/90" render={<Link href="/auth/register" />}>
-                {m.header.join}
-              </Button>
-            </div>
-          )}
-        </div>
+      <div className="mx-auto flex h-11 w-full min-w-0 flex-1 items-stretch">
+        <Link
+          href="/"
+          className="flex h-11 shrink-0 items-center border-r border-[#1e1e1e] px-5 text-[15px] font-black tracking-[-0.02em] text-white"
+        >
+          mint<span className="text-[#1a7a4a]">.</span>
+        </Link>
+        <Suspense fallback={<div className="min-w-0 flex-1 bg-[#111111]" aria-hidden />}>
+          <SiteHeaderInner
+            locale={locale}
+            navItems={browseCategoryLinks}
+            sellLabel={m.header.sell}
+            searchAria={m.header.searchAria}
+            savedAria={m.header.savedAria}
+            logIn={m.header.logIn}
+            join={m.header.join}
+            account={account}
+          />
+        </Suspense>
       </div>
     </header>
   );

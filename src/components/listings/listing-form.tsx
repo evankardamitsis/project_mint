@@ -27,7 +27,7 @@ import type { ListingCondition } from "@/types/domain";
 
 const conditions = conditionSelectOptions();
 
-const sectionTitle = "text-[14px] font-medium text-[var(--color-text-secondary)]";
+const sectionTitle = "text-[14px] font-medium text-(--color-text-secondary)";
 
 function buildListingFormData(
   fields: {

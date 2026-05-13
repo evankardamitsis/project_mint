@@ -265,6 +265,81 @@ export async function fetchHomeListings(limit = 8): Promise<ListingCardData[]> {
   });
 }
 
+export type HomeMarketStats = {
+  activeListings: number;
+  activeSellerShops: number;
+};
+
+export async function fetchHomeMarketStats(): Promise<HomeMarketStats> {
+  const supabase = await createClient();
+  const { count, error } = await supabase
+    .from("listings")
+    .select("id", { count: "exact", head: true })
+    .eq("status", "active");
+  if (error) {
+    console.error("[listings] fetchHomeMarketStats count", error.message);
+    return { activeListings: 0, activeSellerShops: 0 };
+  }
+  const { data: rows, error: rowErr } = await supabase
+    .from("listings")
+    .select("seller_id")
+    .eq("status", "active");
+  if (rowErr) {
+    console.error("[listings] fetchHomeMarketStats sellers", rowErr.message);
+    return { activeListings: count ?? 0, activeSellerShops: 0 };
+  }
+  const activeSellerShops = new Set((rows ?? []).map((r) => r.seller_id as string)).size;
+  return { activeListings: count ?? 0, activeSellerShops };
+}
+
+export async function fetchHomeListingsByCategorySlug(
+  categorySlug: string,
+  limit: number,
+): Promise<ListingCardData[]> {
+  const supabase = await createClient();
+  const { data: cat } = await supabase.from("categories").select("id").eq("slug", categorySlug).maybeSingle();
+  if (!cat?.id) {
+    return [];
+  }
+  const { data, error } = await supabase
+    .from("listings")
+    .select(
+      "id, title, slug, price_cents, currency, condition, status, location, created_at, protected_delivery_enabled, categories ( name ), listing_images ( id, url, sort_order ), seller_profiles ( display_name )",
+    )
+    .eq("status", "active")
+    .eq("category_id", cat.id)
+    .order("created_at", { ascending: false })
+    .limit(limit);
+  if (error) {
+    console.error("[listings] fetchHomeListingsByCategorySlug", error.message);
+    return [];
+  }
+  return (data ?? []).map((row) => {
+    const images = row.listing_images as ListingImageRow[] | null | undefined;
+    const catRaw = row.categories as
+      | { name?: string }
+      | { name?: string }[]
+      | null
+      | undefined;
+    const c = Array.isArray(catRaw) ? catRaw[0] : catRaw;
+    return {
+      id: row.id as string,
+      title: row.title as string,
+      slug: row.slug as string,
+      price_cents: row.price_cents as number,
+      currency: (row.currency as string) ?? "EUR",
+      condition: row.condition as ListingCondition,
+      location: (row.location as string | null) ?? null,
+      status: row.status as ListingCardData["status"],
+      created_at: row.created_at as string,
+      primary_image_url: primaryImageUrl(images),
+      protected_delivery_enabled: Boolean(row.protected_delivery_enabled),
+      category_name: c?.name ?? null,
+      seller_display_name: sellerDisplayNameFromRow(row),
+    };
+  });
+}
+
 export async function fetchSellerListings(
   sellerProfileId: string,
 ): Promise<ListingCardData[]> {

@@ -32,7 +32,7 @@ export function ListingGallery({
     return (
       <div
         className={cn(
-          "flex min-h-[240px] items-center justify-center bg-warm-bg text-sm text-text-muted sm:min-h-[280px]",
+          "flex min-h-60 items-center justify-center bg-warm-bg text-sm text-(--color-text-muted) sm:min-h-70",
           detailLayout && bleed ? "rounded-none lg:rounded-2xl" : "sm:rounded-2xl",
           bleed && !detailLayout && "rounded-none sm:rounded-2xl",
           className,
@@ -46,8 +46,8 @@ export function ListingGallery({
   const mainFrame = cn(
     "relative w-full overflow-hidden bg-warm-bg",
     detailLayout
-      ? "aspect-[4/3] lg:aspect-[3/2] rounded-none lg:rounded-2xl"
-      : "aspect-[4/3] sm:rounded-2xl",
+      ? "aspect-4/3 lg:aspect-3/2 rounded-none lg:rounded-2xl"
+      : "aspect-4/3 sm:rounded-2xl",
     bleed && !detailLayout && "rounded-none sm:rounded-2xl",
   );
 
