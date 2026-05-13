@@ -59,6 +59,13 @@
   --color-mint-deep: #0a5c43;
   --color-surface-elevated: #fafaf8;
   --color-info: #3b8ddb;
+  --color-text-secondary: #6b6b6b;
+  --color-text-tertiary: #ababab;
+  --color-text-success: #0a5c43;
+  --color-background-success: #e8f7f1;
+  --color-text-warning: #7a5a00;
+  --color-background-warning: #fff7e6;
+  --color-background-secondary: #f0efeb;
 }
 
 :root {

@@ -9,10 +9,10 @@ import { getProfile, getSessionUser } from "@/lib/auth/guards";
 import { cn } from "@/lib/utils";
 
 const browseCategoryLinks = [
-  { href: "/browse?category=electric-guitars", label: "Guitars" },
-  { href: "/browse?category=synths-keyboards", label: "Synths" },
-  { href: "/browse?category=effects-pedals", label: "Effects" },
-  { href: "/browse?category=pro-audio", label: "Studio" },
+  { href: "/browse?category=electric-guitars", label: "Electric Guitars" },
+  { href: "/browse?category=synths-keyboards", label: "Synths & Keyboards" },
+  { href: "/browse?category=effects-pedals", label: "Effects & Pedals" },
+  { href: "/browse?category=pro-audio", label: "Pro Audio" },
 ] as const;
 
 export async function SiteHeader({ className }: { className?: string }) {

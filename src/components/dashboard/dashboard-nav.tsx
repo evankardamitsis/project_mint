@@ -25,7 +25,7 @@ export function DashboardNav({
   const pathname = usePathname();
 
   return (
-    <nav className="flex flex-row flex-wrap gap-2 lg:flex-col lg:gap-1">
+    <nav className="flex flex-row flex-wrap gap-2 lg:flex-col lg:gap-0.5">
       {items.map((item) => {
         const active = isActive(pathname, item.href);
         return (
@@ -33,10 +33,10 @@ export function DashboardNav({
             key={item.href}
             href={item.href}
             className={cn(
-              "rounded-xl px-3 py-2 text-sm transition-colors",
+              "rounded-r-xl border-l-2 py-2.5 pl-3 pr-3 text-sm transition-colors lg:pl-3",
               active
-                ? "border border-mint/30 bg-mint/10 font-medium text-mint-muted"
-                : "border border-transparent text-muted-foreground hover:border-border/60 hover:bg-muted/40 hover:text-foreground",
+                ? "border-l-mint bg-mint/12 font-medium text-ink"
+                : "border-l-transparent text-muted-foreground hover:bg-muted/50 hover:text-foreground",
             )}
           >
             {item.label}

@@ -7,12 +7,26 @@ import { SITE_CONTAINER } from "@/config/site-layout";
 import { fetchHomeListings } from "@/lib/listings/queries";
 import { cn } from "@/lib/utils";
 
+const HERO_GUITAR_IMAGE =
+  "https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=900&q=80&auto=format&fit=crop";
+
+const HERO_LISTING_SLUGS = [
+  "demo-pm-chase-bliss-mood",
+  "demo-pm-vox-ac15",
+  "demo-pm-pioneer-djm750",
+] as const;
+
 export default async function HomePage() {
-  const listings = await fetchHomeListings(12);
-  const collageItems = listings.slice(0, 4).map((l) => ({
-    imageUrl: l.primary_image_url,
-    title: l.title,
-  }));
+  const listings = await fetchHomeListings(36);
+  const bySlug = new Map(listings.map((l) => [l.slug, l.primary_image_url]));
+
+  const heroCells = [
+    { imageUrl: HERO_GUITAR_IMAGE, title: "Featured musician" },
+    ...HERO_LISTING_SLUGS.map((slug) => ({
+      imageUrl: bySlug.get(slug) ?? null,
+      title: listings.find((l) => l.slug === slug)?.title ?? "",
+    })),
+  ];
 
   return (
     <>
@@ -25,23 +39,23 @@ export default async function HomePage() {
             <p className="mt-4 max-w-sm text-base leading-relaxed text-[#6B6B6B]">
               Second-hand music gear and collectibles — with payment protection, proof photos, and tracked delivery.
             </p>
-            <div className="mt-8 flex flex-wrap gap-3">
+            <div className="mt-8 flex flex-wrap items-center gap-3">
               <Link
                 href="/browse"
-                className="inline-flex rounded-full bg-[#111111] px-8 py-4 text-base font-bold text-white transition-opacity hover:opacity-90"
+                className="inline-flex h-14 min-w-[10rem] items-center justify-center rounded-full bg-[#111111] px-8 text-base font-bold text-white transition-opacity hover:opacity-90"
               >
                 Browse gear
               </Link>
               <Link
                 href="/sell"
-                className="inline-flex px-8 py-4 text-base font-semibold text-[#111111] transition-opacity hover:opacity-80"
+                className="inline-flex h-14 min-w-[10rem] items-center justify-center rounded-full border-2 border-[#111111] bg-transparent px-8 text-base font-semibold text-[#111111] transition-colors hover:bg-[#111111]/5"
               >
                 Start selling
               </Link>
             </div>
           </div>
           <div className="w-full lg:w-1/2">
-            <HomeHeroCollage items={collageItems} />
+            <HomeHeroCollage cells={heroCells} />
           </div>
         </div>
       </section>

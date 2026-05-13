@@ -3,6 +3,7 @@ import Image from "next/image";
 import { OfferAmount } from "@/components/offers/offer-amount";
 import { OfferRowActionsBuyer } from "@/components/offers/offer-row-actions-buyer";
 import { OfferRowActionsSeller } from "@/components/offers/offer-row-actions-seller";
+import { OfferStatusPill } from "@/components/offers/offer-status-pill";
 import { Price } from "@/components/price";
 import type { BuyerOfferRow, SellerOfferRow } from "@/types/offers";
 
@@ -21,9 +22,13 @@ function buyerLabel(row: SellerOfferRow) {
   return row.buyer_full_name?.trim() || row.buyer_email?.trim() || "Buyer";
 }
 
-function statusLine(status: string, expiresAt: string | null) {
-  const s = status.replace(/_/g, " ");
-  return `${s} · ${formatWhen(expiresAt)}`;
+function OfferStatusRow({ status, expiresAt }: { status: string; expiresAt: string | null }) {
+  return (
+    <div className="mt-2 flex flex-wrap items-center gap-2">
+      <OfferStatusPill status={status} />
+      <span className="text-xs text-text-muted">{formatWhen(expiresAt)}</span>
+    </div>
+  );
 }
 
 export function BuyerOfferCards({ rows }: { rows: BuyerOfferRow[] }) {
@@ -54,7 +59,7 @@ export function BuyerOfferCards({ rows }: { rows: BuyerOfferRow[] }) {
                   "—"
                 )}
               </div>
-              <p className="mt-2 text-xs text-text-muted">{statusLine(row.status, row.expires_at)}</p>
+              <OfferStatusRow status={row.status} expiresAt={row.expires_at} />
             </div>
           </div>
           <OfferRowActionsBuyer
@@ -100,7 +105,7 @@ export function SellerOfferCards({ rows }: { rows: SellerOfferRow[] }) {
                   "—"
                 )}
               </div>
-              <p className="text-xs text-text-muted">{statusLine(row.status, row.expires_at)}</p>
+              <OfferStatusRow status={row.status} expiresAt={row.expires_at} />
             </div>
           </div>
           <OfferRowActionsSeller

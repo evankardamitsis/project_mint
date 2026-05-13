@@ -117,6 +117,9 @@ export function SellerProfileForm({
           {fieldErrors?.phone ? (
             <p className="text-xs text-destructive">{fieldErrors.phone}</p>
           ) : null}
+          <p className="text-xs text-muted-foreground">
+            Your phone number is only shared with buyers after a sale is confirmed.
+          </p>
         </div>
       </FormSection>
 

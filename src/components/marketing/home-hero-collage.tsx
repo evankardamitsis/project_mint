@@ -9,19 +9,19 @@ const cellRotate = [
 ] as const;
 
 export function HomeHeroCollage({
-  items,
+  cells,
 }: {
-  items: { imageUrl: string | null; title: string }[];
+  cells: { imageUrl: string | null; title: string }[];
 }) {
-  const cells = [...items];
-  while (cells.length < 4) {
-    cells.push({ imageUrl: null, title: "" });
+  const list = [...cells];
+  while (list.length < 4) {
+    list.push({ imageUrl: null, title: "" });
   }
-  const four = cells.slice(0, 4);
+  const four = list.slice(0, 4);
 
   return (
     <div className="relative w-full max-w-xl lg:max-w-none">
-      <div className="grid w-full grid-cols-2 gap-3 lg:gap-4">
+      <div className="relative grid w-full grid-cols-2 gap-3 lg:gap-4">
         {four.map((cell, i) => (
           <div
             key={i}
@@ -31,7 +31,13 @@ export function HomeHeroCollage({
             )}
           >
             {cell.imageUrl ? (
-              <Image src={cell.imageUrl} alt="" fill className="object-cover" sizes="(max-width: 1024px) 45vw, 320px" />
+              <Image
+                src={cell.imageUrl}
+                alt={cell.title || "Listing"}
+                fill
+                className="object-cover"
+                sizes="(max-width: 1024px) 45vw, 320px"
+              />
             ) : null}
           </div>
         ))}
