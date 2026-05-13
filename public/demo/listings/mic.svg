@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600" role="img" aria-label="Microphone placeholder">
+  <rect width="800" height="600" fill="#0F1110"/>
+  <rect x="360" y="140" width="80" height="200" rx="40" fill="#242624" stroke="rgba(29,158,117,0.4)" stroke-width="2"/>
+  <path d="M320 340 Q400 420 480 340" fill="none" stroke="#5FC9AA" stroke-width="5" stroke-linecap="round"/>
+  <rect x="340" y="400" width="120" height="24" rx="8" fill="#2E302E" stroke="#1D9E75" stroke-width="1"/>
+  <text x="400" y="540" text-anchor="middle" fill="rgba(255,255,255,0.62)" font-family="system-ui,sans-serif" font-size="22">Microphone</text>
+</svg>

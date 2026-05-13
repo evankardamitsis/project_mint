@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import type { OrderDetail } from "@/types/orders";
 
 export function OrderDisputeLinkCard({ order, href }: { order: OrderDetail; href: string }) {
-  const show = order.status === "disputed" || order.active_dispute != null;
+  const show = order.has_dispute || order.status === "disputed" || order.active_dispute != null;
   if (!show) {
     return null;
   }

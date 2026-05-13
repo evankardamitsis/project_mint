@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600" role="img" aria-label="Case placeholder">
+  <rect width="800" height="600" fill="#0F1110"/>
+  <path d="M180 380 L400 220 L620 380 L400 460 Z" fill="#242624" stroke="rgba(29,158,117,0.4)" stroke-width="3"/>
+  <path d="M220 360 L400 240 L580 360" fill="none" stroke="#5FC9AA" stroke-width="4" stroke-linecap="round"/>
+  <text x="400" y="540" text-anchor="middle" fill="rgba(255,255,255,0.62)" font-family="system-ui,sans-serif" font-size="22">Case</text>
+</svg>

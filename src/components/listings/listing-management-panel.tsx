@@ -28,7 +28,7 @@ export function ListingManagementPanel({
   }
 
   return (
-    <Card className="border-primary/20 bg-primary/5">
+    <Card className="border-amber-warn/30 bg-surface-elevated/80 ring-1 ring-amber-warn/15">
       <CardHeader className="pb-2">
         <CardTitle className="text-sm font-medium">Listing management</CardTitle>
       </CardHeader>

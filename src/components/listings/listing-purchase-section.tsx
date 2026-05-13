@@ -20,13 +20,13 @@ export function ListingPurchaseSection({
 
   if (status === "sold") {
     return (
-      <Card>
+      <Card className="border-0 bg-transparent shadow-none">
         <CardHeader>
           <CardTitle className="text-base">Sold</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
           <Price amountCents={listing.price_cents} currency={listing.currency} className="text-2xl line-through opacity-60" />
-          <p className="text-sm text-muted-foreground">This listing has been sold.</p>
+          <p className="text-sm text-ink-2">This listing has been sold.</p>
         </CardContent>
       </Card>
     );
@@ -34,15 +34,15 @@ export function ListingPurchaseSection({
 
   if (status === "reserved") {
     return (
-      <Card>
+      <Card className="border-0 bg-transparent shadow-none">
         <CardHeader>
           <CardTitle className="text-base">Reserved</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
           <Price amountCents={listing.price_cents} currency={listing.currency} className="text-2xl" />
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-ink-2">
             This item is reserved pending checkout. If you have an accepted offer, finish payment from{" "}
-            <Link href="/buyer/offers" className="text-foreground underline underline-offset-2">
+            <Link href="/buyer/offers" className="font-medium text-ink underline underline-offset-2">
               your offers
             </Link>
             .
@@ -54,13 +54,13 @@ export function ListingPurchaseSection({
 
   if (status !== "active") {
     return (
-      <Card>
+      <Card className="border-0 bg-transparent shadow-none">
         <CardHeader>
           <CardTitle className="text-base">Price</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
           <Price amountCents={listing.price_cents} currency={listing.currency} className="text-2xl" />
-          <p className="text-sm text-muted-foreground">This listing is not available for purchase.</p>
+          <p className="text-sm text-ink-2">This listing is not available for purchase.</p>
         </CardContent>
       </Card>
     );
@@ -68,13 +68,13 @@ export function ListingPurchaseSection({
 
   if (isOwnerSeller) {
     return (
-      <Card>
+      <Card className="border-0 bg-transparent shadow-none">
         <CardHeader>
           <CardTitle className="text-base">Price</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <Price amountCents={listing.price_cents} currency={listing.currency} className="text-2xl" />
-          <p className="text-xs text-muted-foreground">Buyers can use Buy now while your listing is active.</p>
+          <p className="text-xs text-ink-2">Buyers can use Buy now while your listing is active.</p>
           <Button variant="outline" className="w-full" render={<Link href="/seller/orders" />}>
             View your orders
           </Button>
@@ -85,18 +85,18 @@ export function ListingPurchaseSection({
 
   if (!viewer) {
     return (
-      <Card>
+      <Card className="border-0 bg-transparent shadow-none">
         <CardHeader>
           <CardTitle className="text-base">Buy now</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <Price amountCents={listing.price_cents} currency={listing.currency} className="text-2xl" />
-          <p className="text-xs text-muted-foreground">Sign in to purchase at the listed price (demo checkout — no real payments yet).</p>
+          <p className="text-xs text-ink-2">Sign in to purchase at the listed price (demo checkout — no real payments yet).</p>
           <div className="flex flex-wrap gap-2">
-            <Button className="flex-1" render={<Link href={`/auth/login?next=${encodeURIComponent(`/listing/${listing.slug}`)}`} />}>
+            <Button variant="ghost" className="flex-1" render={<Link href={`/auth/login?next=${encodeURIComponent(`/listing/${listing.slug}`)}`} />}>
               Log in
             </Button>
-            <Button className="flex-1" variant="outline" render={<Link href={`/auth/register?next=${encodeURIComponent(`/listing/${listing.slug}`)}`} />}>
+            <Button className="flex-1" render={<Link href={`/auth/register?next=${encodeURIComponent(`/listing/${listing.slug}`)}`} />}>
               Register
             </Button>
           </div>
@@ -106,19 +106,19 @@ export function ListingPurchaseSection({
   }
 
   return (
-    <Card>
+    <Card className="border-0 bg-transparent shadow-none">
       <CardHeader>
         <CardTitle className="text-base">Buy now</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <Price amountCents={listing.price_cents} currency={listing.currency} className="text-2xl" />
-        <p className="text-xs text-muted-foreground">
+        <p className="text-xs text-ink-2">
           Demo checkout only — no card charges. A 5% platform fee is shown on the order summary.
         </p>
         <form action={buyNowOrderAction} className="space-y-2">
           <input type="hidden" name="listing_id" value={listing.id} />
           <input type="hidden" name="listing_slug" value={listing.slug} />
-          <Button type="submit" className="w-full">
+          <Button type="submit" className="w-full bg-[#111111] font-bold text-white hover:bg-ink/90">
             Buy now
           </Button>
         </form>

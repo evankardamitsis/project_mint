@@ -28,7 +28,7 @@ export function AdminDisputeResolutionForm({ orderId, disputeId }: { orderId: st
   }, initial);
 
   return (
-    <div className="space-y-6 rounded-xl border border-border/80 bg-card p-4">
+    <div className="space-y-6 rounded-2xl border border-border/70 bg-card/95 p-4 shadow-sm shadow-black/15">
       <p className="text-sm font-medium">Admin resolution</p>
       <p className="text-xs text-muted-foreground">
         Payment and refund actions are placeholders only — no Stripe payouts or card refunds yet.

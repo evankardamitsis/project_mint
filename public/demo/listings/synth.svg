@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600" role="img" aria-label="Synth placeholder">
+  <rect width="800" height="600" fill="#0F1110"/>
+  <rect x="120" y="160" width="560" height="280" rx="16" fill="#242624" stroke="rgba(29,158,117,0.35)" stroke-width="2"/>
+  <rect x="160" y="200" width="72" height="72" rx="8" fill="#2E302E" stroke="#1D9E75" stroke-width="2"/>
+  <rect x="260" y="200" width="72" height="72" rx="8" fill="#2E302E" stroke="#1D9E75" stroke-width="2"/>
+  <rect x="360" y="200" width="72" height="72" rx="8" fill="#2E302E" stroke="#1D9E75" stroke-width="2"/>
+  <rect x="460" y="200" width="72" height="72" rx="8" fill="#2E302E" stroke="#1D9E75" stroke-width="2"/>
+  <rect x="200" y="320" width="400" height="36" rx="8" fill="#064E3B" opacity="0.5"/>
+  <text x="400" y="540" text-anchor="middle" fill="rgba(255,255,255,0.62)" font-family="system-ui,sans-serif" font-size="22">Synth</text>
+</svg>

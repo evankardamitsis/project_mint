@@ -110,6 +110,11 @@ export function DisputeDetailView({
           bundle={pdBundle}
           orderStatus={order.status}
           paymentStatus={order.payment_status}
+          listingImageUrl={order.listing_image_url}
+          listingTitle={order.listing_title}
+          amountCents={order.amount_cents}
+          currency={order.currency}
+          orderId={order.id}
         />
       ) : null}
 

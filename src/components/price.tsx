@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils";
+import { cn, formatEuroPrefix } from "@/lib/utils";
 
 export function Price({
   amountCents,
@@ -9,12 +9,15 @@ export function Price({
   currency?: string;
   className?: string;
 }) {
-  const formatted = new Intl.NumberFormat("el-GR", {
-    style: "currency",
-    currency,
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 2,
-  }).format(amountCents / 100);
+  const formatted =
+    currency === "EUR"
+      ? formatEuroPrefix(amountCents)
+      : new Intl.NumberFormat("en-US", {
+          style: "currency",
+          currency,
+          minimumFractionDigits: amountCents % 100 === 0 ? 0 : 2,
+          maximumFractionDigits: 2,
+        }).format(amountCents / 100);
 
   return (
     <span

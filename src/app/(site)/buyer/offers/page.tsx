@@ -1,7 +1,4 @@
-import {
-  BuyerOfferCards,
-  BuyerOfferDashboardList,
-} from "@/components/offers/offer-dashboard-list";
+import { BuyerOfferDashboardList } from "@/components/offers/offer-dashboard-list";
 import { EmptyState } from "@/components/empty-state";
 import { PageHeader } from "@/components/page-header";
 import { fetchBuyerOffers, syncExpiredOffersForUser } from "@/lib/offers/queries";
@@ -24,10 +21,7 @@ export default async function BuyerOffersPage() {
           description="Browse active listings and submit an offer below the asking price when the seller allows it."
         />
       ) : (
-        <>
-          <BuyerOfferDashboardList rows={rows} />
-          <BuyerOfferCards rows={rows} />
-        </>
+        <BuyerOfferDashboardList rows={rows} />
       )}
     </div>
   );

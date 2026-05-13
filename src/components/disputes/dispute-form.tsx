@@ -2,10 +2,10 @@
 
 import { useFormState, useFormStatus } from "react-dom";
 
+import { DisputeEvidenceUploader } from "@/components/disputes/dispute-evidence-uploader";
 import { createDisputeAction, type DisputeFormState } from "@/lib/disputes/actions";
 import { DISPUTE_DESCRIPTION_MIN_LEN } from "@/lib/disputes/constants";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { DisputeReason } from "@/types/domain";
 
@@ -62,13 +62,7 @@ export function DisputeForm({ orderId }: { orderId: string }) {
           placeholder={`At least ${DISPUTE_DESCRIPTION_MIN_LEN} characters…`}
         />
       </div>
-      <div className="space-y-2">
-        <Label htmlFor="evidence">Evidence (photos or PDF)</Label>
-        <p className="text-xs text-muted-foreground">
-          Required for damaged, not as described, or counterfeit. Optional for not received. Up to 8 files, 5 MB each.
-        </p>
-        <Input id="evidence" name="evidence" type="file" multiple accept="image/jpeg,image/png,image/webp,image/gif,application/pdf" />
-      </div>
+      <DisputeEvidenceUploader />
       <p className="text-xs text-muted-foreground">
         Refunds are placeholder only — no money moves until Stripe is integrated.
       </p>

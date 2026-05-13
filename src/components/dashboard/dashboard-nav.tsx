@@ -33,10 +33,10 @@ export function DashboardNav({
             key={item.href}
             href={item.href}
             className={cn(
-              "rounded-lg px-3 py-2 text-sm transition-colors",
+              "rounded-xl px-3 py-2 text-sm transition-colors",
               active
-                ? "bg-muted font-medium text-foreground"
-                : "text-muted-foreground hover:bg-muted/60 hover:text-foreground",
+                ? "border border-mint/30 bg-mint/10 font-medium text-mint-muted"
+                : "border border-transparent text-muted-foreground hover:border-border/60 hover:bg-muted/40 hover:text-foreground",
             )}
           >
             {item.label}

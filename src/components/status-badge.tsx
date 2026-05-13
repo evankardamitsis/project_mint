@@ -5,91 +5,91 @@ import { Badge, badgeVariants } from "@/components/ui/badge";
 type BadgeVariant = NonNullable<VariantProps<typeof badgeVariants>["variant"]>;
 
 const listingStatus: Record<string, BadgeVariant> = {
-  draft: "secondary",
-  pending_review: "outline",
-  active: "default",
-  reserved: "secondary",
-  sold: "secondary",
+  draft: "subtle",
+  pending_review: "amber",
+  active: "mint",
+  reserved: "amber",
+  sold: "subtle",
   rejected: "destructive",
-  archived: "outline",
+  archived: "subtle",
 };
 
 const orderStatus: Record<string, BadgeVariant> = {
-  pending_payment: "outline",
-  paid: "default",
-  cleared_for_shipping: "secondary",
-  shipped: "secondary",
-  delivered: "secondary",
-  completed: "default",
-  disputed: "destructive",
-  cancelled: "outline",
-  refunded: "outline",
+  pending_payment: "amber",
+  paid: "mint",
+  cleared_for_shipping: "info",
+  shipped: "info",
+  delivered: "mint",
+  completed: "mint",
+  disputed: "dispute",
+  cancelled: "subtle",
+  refunded: "subtle",
 };
 
 const offerStatus: Record<string, BadgeVariant> = {
-  pending: "outline",
-  accepted: "default",
+  pending: "amber",
+  accepted: "mint",
   rejected: "destructive",
-  countered: "secondary",
-  expired: "outline",
-  cancelled: "outline",
+  countered: "info",
+  expired: "subtle",
+  cancelled: "subtle",
 };
 
 const paymentStatus: Record<string, BadgeVariant> = {
-  unpaid: "outline",
-  authorized: "secondary",
-  paid: "default",
-  held: "secondary",
-  released: "default",
-  refunded: "outline",
+  unpaid: "subtle",
+  authorized: "info",
+  paid: "mint",
+  held: "mint",
+  released: "mint",
+  refunded: "subtle",
 };
 
 const disputeStatus: Record<string, BadgeVariant> = {
-  open: "destructive",
-  awaiting_seller: "secondary",
-  awaiting_buyer: "secondary",
-  under_review: "outline",
-  resolved_buyer: "default",
-  resolved_seller: "default",
-  refunded: "outline",
-  closed: "secondary",
+  open: "dispute",
+  awaiting_seller: "amber",
+  awaiting_buyer: "amber",
+  under_review: "info",
+  resolved_buyer: "mint",
+  resolved_seller: "mint",
+  refunded: "subtle",
+  closed: "subtle",
 };
 
 const disputeReasonMap: Record<string, BadgeVariant> = {
-  damaged: "destructive",
-  not_as_described: "secondary",
-  not_received: "outline",
-  counterfeit: "destructive",
-  other: "outline",
+  damaged: "dispute",
+  not_as_described: "amber",
+  not_received: "info",
+  counterfeit: "dispute",
+  other: "subtle",
 };
 
 const shipmentStatus: Record<string, BadgeVariant> = {
-  pending: "outline",
-  in_transit: "secondary",
-  delivered: "default",
+  pending: "amber",
+  in_transit: "info",
+  delivered: "mint",
   failed: "destructive",
-  returned: "outline",
+  returned: "subtle",
 };
 
 const pdCheckStatus: Record<string, BadgeVariant> = {
-  not_started: "outline",
-  in_progress: "secondary",
-  submitted: "secondary",
-  approved: "default",
+  not_started: "subtle",
+  in_progress: "amber",
+  submitted: "info",
+  approved: "mint",
   rejected: "destructive",
 };
 
 const sellerVerificationStatus: Record<string, BadgeVariant> = {
-  unverified: "outline",
-  pending: "secondary",
-  verified: "default",
+  unverified: "subtle",
+  pending: "amber",
+  verified: "mint",
   rejected: "destructive",
 };
 
 const sellerPayoutStatus: Record<string, BadgeVariant> = {
-  not_started: "outline",
-  pending: "secondary",
-  active: "default",
+  not_started: "subtle",
+  pending: "amber",
+  active: "mint",
   disabled: "destructive",
 };
 
@@ -125,7 +125,7 @@ export function StatusBadge({
   label?: string;
 }) {
   const variant =
-    (maps[domain] as Record<string, BadgeVariant>)[value] ?? "outline";
+    (maps[domain] as Record<string, BadgeVariant>)[value] ?? "subtle";
   return (
     <Badge variant={variant}>
       {label ?? humanize(value)}

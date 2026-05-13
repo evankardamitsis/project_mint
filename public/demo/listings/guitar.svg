@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600" role="img" aria-label="Guitar placeholder">
+  <rect width="800" height="600" fill="#0F1110"/>
+  <rect x="40" y="40" width="720" height="520" rx="24" fill="#242624" stroke="rgba(29,158,117,0.35)" stroke-width="2"/>
+  <path d="M400 140 L400 380 M340 200 Q400 160 460 200 Q400 240 340 200" fill="none" stroke="#1D9E75" stroke-width="6" stroke-linecap="round"/>
+  <circle cx="400" cy="420" r="48" fill="none" stroke="#5FC9AA" stroke-width="5"/>
+  <text x="400" y="540" text-anchor="middle" fill="rgba(255,255,255,0.62)" font-family="system-ui,sans-serif" font-size="22">Guitar</text>
+</svg>

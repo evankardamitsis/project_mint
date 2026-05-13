@@ -39,7 +39,7 @@ export function OrderDashboardTable({
     return null;
   }
   return (
-    <div className="hidden rounded-xl border border-border/80 md:block">
+    <div className="hidden overflow-x-auto rounded-2xl border border-border/70 md:block">
       <Table>
         <TableHeader>
           <TableRow>
@@ -58,7 +58,7 @@ export function OrderDashboardTable({
         <TableBody>
           {rows.map((row) => {
             const total = orderTotalCents(row.amount_cents, row.platform_fee_cents, row.protected_delivery_fee_cents);
-            const showDispute = row.status === "disputed" || row.active_dispute != null;
+            const showDispute = row.has_dispute || row.status === "disputed" || row.active_dispute != null;
             const dHref = showDispute && disputeHref ? disputeHref(row.id) : null;
             return (
               <TableRow key={row.id}>
@@ -136,10 +136,10 @@ export function OrderDashboardCards({
     <div className="space-y-4 md:hidden">
       {rows.map((row) => {
         const total = orderTotalCents(row.amount_cents, row.platform_fee_cents, row.protected_delivery_fee_cents);
-        const showDispute = row.status === "disputed" || row.active_dispute != null;
+        const showDispute = row.has_dispute || row.status === "disputed" || row.active_dispute != null;
         const dHref = showDispute && disputeHref ? disputeHref(row.id) : null;
         return (
-          <div key={row.id} className="space-y-3 rounded-xl border border-border/80 bg-card p-4">
+          <div key={row.id} className="space-y-3 rounded-2xl border border-border/70 bg-card/90 p-4">
             <div className="flex gap-3">
               <div className="relative size-14 shrink-0 overflow-hidden rounded-md bg-muted">
                 {row.listing_image_url ? (

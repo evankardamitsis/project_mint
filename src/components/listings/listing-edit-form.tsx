@@ -346,7 +346,7 @@ export function ListingEditForm({
         </p>
       ) : null}
       {state.ok && "warning" in state && state.warning ? (
-        <p className="text-sm text-amber-700 dark:text-amber-400" role="status">
+        <p className="text-sm text-amber-warn" role="status">
           {state.warning}
         </p>
       ) : null}

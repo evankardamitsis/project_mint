@@ -9,7 +9,7 @@ export default function SiteLayout({
   return (
     <>
       <SiteHeader />
-      <div className="flex-1">{children}</div>
+      <div className="flex-1 bg-background">{children}</div>
       <SiteFooter />
     </>
   );

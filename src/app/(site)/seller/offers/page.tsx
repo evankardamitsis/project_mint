@@ -1,10 +1,7 @@
 import Link from "next/link";
 import { Handshake } from "lucide-react";
 
-import {
-  SellerOfferCards,
-  SellerOfferDashboardList,
-} from "@/components/offers/offer-dashboard-list";
+import { SellerOfferDashboardList } from "@/components/offers/offer-dashboard-list";
 import { EmptyState } from "@/components/empty-state";
 import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
@@ -44,10 +41,7 @@ export default async function SellerOffersPage() {
           description="When buyers submit offers on your active listings, they will appear here."
         />
       ) : (
-        <>
-          <SellerOfferDashboardList rows={rows} />
-          <SellerOfferCards rows={rows} />
-        </>
+        <SellerOfferDashboardList rows={rows} />
       )}
     </div>
   );

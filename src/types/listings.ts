@@ -37,6 +37,10 @@ export interface ListingCardData {
   created_at: string;
   primary_image_url: string | null;
   protected_delivery_enabled?: boolean;
+  /** Category display name when joined in browse/home queries */
+  category_name?: string | null;
+  /** Seller shop name from `seller_profiles.display_name` when joined */
+  seller_display_name?: string | null;
 }
 
 export interface ListingDetailData {
@@ -58,6 +62,10 @@ export interface ListingDetailData {
   category: { id: string; name: string; slug: string } | null;
   brand: { id: string; name: string; slug: string } | null;
   seller_display_name: string;
+  /** From `seller_profiles` when present; used for listing detail subline. */
+  seller_sales_count?: number | null;
+  /** From `seller_profiles` when present (e.g. 4.8). */
+  seller_rating?: number | null;
   images: ListingImageRow[];
 }
 

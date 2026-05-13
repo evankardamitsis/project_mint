@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600" role="img" aria-label="Pedal placeholder">
+  <rect width="800" height="600" fill="#0F1110"/>
+  <rect x="220" y="200" width="360" height="220" rx="28" fill="#242624" stroke="rgba(29,158,117,0.4)" stroke-width="3"/>
+  <circle cx="400" cy="310" r="56" fill="#2E302E" stroke="#1D9E75" stroke-width="4"/>
+  <circle cx="400" cy="310" r="18" fill="#1D9E75" opacity="0.85"/>
+  <text x="400" y="540" text-anchor="middle" fill="rgba(255,255,255,0.62)" font-family="system-ui,sans-serif" font-size="22">Pedal</text>
+</svg>

@@ -1,9 +1,11 @@
+import { Check } from "lucide-react";
+
 import { ProofImageGrid } from "@/components/protected-delivery/proof-image-grid";
 import { ProtectedDeliveryAssetUploader } from "@/components/protected-delivery/protected-delivery-asset-uploader";
-import { ProtectedDeliveryStatusBadge } from "@/components/protected-delivery/protected-delivery-status-badge";
 import { ShipmentTrackingForm } from "@/components/protected-delivery/shipment-tracking-form";
 import { SubmitProtectedDeliveryButton } from "@/components/protected-delivery/submit-protected-delivery-button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 import type { ProtectedDeliveryBundle } from "@/types/protected-delivery";
 import type { ProtectedDeliveryAssetType } from "@/types/domain";
 
@@ -11,6 +13,53 @@ function proofItems(bundle: ProtectedDeliveryBundle, type: ProtectedDeliveryAsse
   return bundle.assets
     .filter((a) => a.type === type && a.signedUrl)
     .map((a, i) => ({ src: a.signedUrl as string, alt: `${type} ${i + 1}` }));
+}
+
+function ChecklistRow({
+  title,
+  subtitle,
+  done,
+  highlight,
+  children,
+}: {
+  title: string;
+  subtitle?: string;
+  done: boolean;
+  /** Current focus step — mint-tinted row */
+  highlight?: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <div
+      className={cn(
+        "rounded-xl border px-3 py-3 sm:px-4",
+        done && "border-border/50 bg-muted/15",
+        highlight && !done && "border-mint/40 bg-mint/[0.12]",
+        !done && !highlight && "border-border/40 bg-transparent",
+      )}
+    >
+      <div className="flex gap-3">
+        <div
+          className={cn(
+            "mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full border text-xs",
+            done
+              ? "border-mint bg-mint text-primary-foreground"
+              : "border-border/70 bg-muted/30 text-muted-foreground",
+          )}
+          aria-hidden
+        >
+          {done ? <Check className="size-3.5 stroke-[2.5]" /> : null}
+        </div>
+        <div className="min-w-0 flex-1 space-y-3">
+          <div>
+            <p className="text-sm font-medium text-foreground">{title}</p>
+            {subtitle ? <p className="text-xs text-muted-foreground">{subtitle}</p> : null}
+          </div>
+          {children}
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export function ProtectedDeliveryPanelSeller({
@@ -33,97 +82,129 @@ export function ProtectedDeliveryPanelSeller({
     check.sealed_package_photo_uploaded &&
     check.tracking_added;
 
+  const highlightCondition = !check.condition_photos_uploaded;
+  const highlightPackaging = check.condition_photos_uploaded && !check.packaging_photos_uploaded;
+  const highlightSealed =
+    check.condition_photos_uploaded && check.packaging_photos_uploaded && !check.sealed_package_photo_uploaded;
+  const highlightTracking =
+    check.condition_photos_uploaded &&
+    check.packaging_photos_uploaded &&
+    check.sealed_package_photo_uploaded &&
+    !check.tracking_added;
+
   return (
-    <Card>
+    <Card className="border-0 bg-surface shadow-sm">
       <CardHeader>
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <CardTitle className="text-base">Protected Delivery</CardTitle>
-          <ProtectedDeliveryStatusBadge status={check.status} />
+          <CardTitle className="text-base font-semibold text-ink">Ship your order</CardTitle>
+          <span className="text-xs capitalize text-text-muted">{String(check.status).replace(/_/g, " ")}</span>
         </div>
-        <CardDescription>
-          Upload packing and condition proof, then save tracking. Insurance and courier APIs are not wired yet — this is an
-          MVP checklist.
+        <CardDescription className="text-sm text-text-muted">
+          Add photos and tracking so the buyer can follow along. Payment stays on hold until you are done.
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-8">
-        <section className="space-y-3">
-          <h3 className="text-sm font-semibold">A. Item condition proof</h3>
-          <p className="text-xs text-muted-foreground">Front, back, or close-ups before packing (at least one photo).</p>
+      <CardContent className="space-y-3">
+        <ChecklistRow
+          title="Add photos"
+          subtitle="Front, back, or close-ups before you pack (at least one)."
+          done={check.condition_photos_uploaded}
+          highlight={highlightCondition}
+        >
           <ProofImageGrid items={proofItems(bundle, "condition_photo")} />
           <ProtectedDeliveryAssetUploader
             orderId={orderId}
             checkId={check.id}
             assetType="condition_photo"
-            label="Upload condition photo"
+            label="Add photos"
             disabled={readOnly}
           />
-        </section>
+        </ChecklistRow>
 
-        <section className="space-y-3">
-          <h3 className="text-sm font-semibold">B. Serial number / identifier</h3>
-          <p className="text-xs text-muted-foreground">Optional for items without a serial.</p>
+        <ChecklistRow
+          title="Serial number (optional)"
+          subtitle="Snap it if your item has one."
+          done={Boolean(proofItems(bundle, "serial_number_photo").length)}
+          highlight={false}
+        >
           <ProofImageGrid items={proofItems(bundle, "serial_number_photo")} />
           <ProtectedDeliveryAssetUploader
             orderId={orderId}
             checkId={check.id}
             assetType="serial_number_photo"
-            label="Upload serial photo"
+            label="Add serial photo"
             disabled={readOnly}
           />
-        </section>
+        </ChecklistRow>
 
-        <section className="space-y-3">
-          <h3 className="text-sm font-semibold">C. Packaging proof</h3>
-          <p className="text-xs text-muted-foreground">Photos while packing (at least one).</p>
+        <ChecklistRow
+          title="Add packaging proof"
+          subtitle="Show how you packed it (at least one photo)."
+          done={check.packaging_photos_uploaded}
+          highlight={highlightPackaging}
+        >
           <ProofImageGrid items={proofItems(bundle, "packaging_photo")} />
           <ProtectedDeliveryAssetUploader
             orderId={orderId}
             checkId={check.id}
             assetType="packaging_photo"
-            label="Upload packaging photo"
+            label="Add packaging proof"
             disabled={readOnly}
           />
-        </section>
+        </ChecklistRow>
 
-        <section className="space-y-3">
-          <h3 className="text-sm font-semibold">D. Sealed package proof</h3>
-          <p className="text-xs text-muted-foreground">Final sealed parcel (required).</p>
+        <ChecklistRow
+          title="Add sealed package photo"
+          subtitle="The parcel ready to ship."
+          done={check.sealed_package_photo_uploaded}
+          highlight={highlightSealed}
+        >
           <ProofImageGrid items={proofItems(bundle, "sealed_package_photo")} />
           <ProtectedDeliveryAssetUploader
             orderId={orderId}
             checkId={check.id}
             assetType="sealed_package_photo"
-            label="Upload sealed package photo"
+            label="Add sealed package photo"
             disabled={readOnly}
           />
-        </section>
+        </ChecklistRow>
 
-        <section className="space-y-3">
-          <h3 className="text-sm font-semibold">E. Receipt / extras</h3>
-          <p className="text-xs text-muted-foreground">Optional drop-off receipt or label photo.</p>
+        <ChecklistRow
+          title="Receipt or label (optional)"
+          subtitle="Handy if you dropped it off at a counter."
+          done={Boolean(proofItems(bundle, "receipt_photo").length)}
+          highlight={false}
+        >
           <ProofImageGrid items={proofItems(bundle, "receipt_photo")} />
           <ProtectedDeliveryAssetUploader
             orderId={orderId}
             checkId={check.id}
             assetType="receipt_photo"
-            label="Upload receipt photo (optional)"
+            label="Add receipt or label photo"
             disabled={readOnly}
           />
-        </section>
+        </ChecklistRow>
 
-        <ShipmentTrackingForm
-          key={`${orderId}-${shipment?.id ?? "none"}-${shipment?.tracking_number ?? ""}-${shipment?.courier_name ?? ""}-${check.updated_at}`}
-          orderId={orderId}
-          initialCourierName={shipment?.courier_name ?? ""}
-          initialTrackingNumber={shipment?.tracking_number ?? ""}
-          initialTrackingUrl={shipment?.tracking_url ?? ""}
-          disabled={readOnly}
-        />
+        <ChecklistRow
+          title="Add tracking"
+          subtitle="Courier and link so the buyer can follow the parcel."
+          done={check.tracking_added}
+          highlight={highlightTracking}
+        >
+          <ShipmentTrackingForm
+            key={`${orderId}-${shipment?.id ?? "none"}-${shipment?.tracking_number ?? ""}-${shipment?.courier_name ?? ""}-${check.updated_at}`}
+            orderId={orderId}
+            initialCourierName={shipment?.courier_name ?? ""}
+            initialTrackingNumber={shipment?.tracking_number ?? ""}
+            initialTrackingUrl={shipment?.tracking_url ?? ""}
+            disabled={readOnly}
+          />
+        </ChecklistRow>
 
         {orderStatus === "cleared_for_shipping" && (check.status === "not_started" || check.status === "in_progress") ? (
-          <div className="space-y-2 border-t border-border pt-6">
+          <div className="space-y-2 border-t border-border/60 pt-5">
             <p className="text-xs text-muted-foreground">
-              Submitting locks the checklist, marks the order shipped, and sets shipment to in transit (demo — no live carrier).
+              Submitting locks the checklist, marks the order shipped, and sets shipment to in transit (demo — no live
+              carrier).
             </p>
             <SubmitProtectedDeliveryButton orderId={orderId} disabled={readOnly || !readyToSubmit} />
           </div>

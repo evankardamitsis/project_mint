@@ -6,7 +6,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/client";
 
-export function LogoutButton() {
+export function LogoutButton({ className }: { className?: string }) {
   const router = useRouter();
   const [pending, setPending] = useState(false);
 
@@ -14,6 +14,7 @@ export function LogoutButton() {
     <Button
       variant="outline"
       size="sm"
+      className={className}
       disabled={pending}
       onClick={async () => {
         setPending(true);

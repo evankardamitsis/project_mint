@@ -1,13 +1,14 @@
 import { ListingCard } from "@/components/listings/listing-card";
 import { ListingFilters } from "@/components/listings/listing-filters";
 import { EmptyState } from "@/components/empty-state";
-import { PageHeader } from "@/components/page-header";
 import {
   type BrowseQueryParams,
   fetchBrands,
   fetchBrowseListings,
   fetchCategories,
 } from "@/lib/listings/queries";
+import { SITE_CONTAINER } from "@/config/site-layout";
+import { cn } from "@/lib/utils";
 import { Search } from "lucide-react";
 
 type PageProps = {
@@ -40,11 +41,9 @@ export default async function BrowsePage(props: PageProps) {
   ]);
 
   return (
-    <div className="mx-auto w-full max-w-6xl space-y-8 px-4 py-10 sm:px-6">
-      <PageHeader
-        title="Browse gear"
-        description="Active listings from sellers across Greece. Use filters to narrow results — URL updates are shareable."
-      />
+    <div className={cn(SITE_CONTAINER, "space-y-6 bg-background py-6 sm:space-y-8 sm:py-8")}>
+      <h1 className="heading text-ink">Browse gear</h1>
+
       <ListingFilters
         categories={categories}
         brands={brands}
@@ -58,14 +57,15 @@ export default async function BrowsePage(props: PageProps) {
           sort: params.sort ?? "newest",
         }}
       />
+
       {listings.length === 0 ? (
         <EmptyState
           icon={Search}
           title="No listings match"
-          description="Try clearing filters or searching with different keywords."
+          description="Try different filters or clear search."
         />
       ) : (
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-2 gap-5 md:grid-cols-3 lg:grid-cols-4">
           {listings.map((item, index) => (
             <ListingCard
               key={item.id}
@@ -77,6 +77,9 @@ export default async function BrowsePage(props: PageProps) {
               location={item.location}
               imageUrl={item.primary_image_url}
               imagePriority={index < 3}
+              protectedDeliveryEnabled={item.protected_delivery_enabled}
+              categoryName={item.category_name}
+              sellerDisplayName={item.seller_display_name}
             />
           ))}
         </div>

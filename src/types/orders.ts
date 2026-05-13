@@ -18,6 +18,8 @@ export interface OrderListRow {
   pd_check_status: ProtectedDeliveryCheckStatus | null;
   /** Active dispute (open pipeline), if any. */
   active_dispute: { id: string; status: DisputeStatus } | null;
+  /** True if this order has at least one dispute row (any status). */
+  has_dispute: boolean;
 }
 
 export interface OrderDetail extends OrderListRow {

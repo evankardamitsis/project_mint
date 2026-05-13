@@ -86,6 +86,19 @@ function coerceActiveDispute(raw: unknown): { id: string; status: DisputeStatus 
   return { id: a.id, status: a.status as DisputeStatus };
 }
 
+function hasDisputeRecords(raw: unknown): boolean {
+  if (raw == null) {
+    return false;
+  }
+  if (Array.isArray(raw)) {
+    return raw.length > 0;
+  }
+  if (typeof raw === "object" && "id" in (raw as object)) {
+    return true;
+  }
+  return false;
+}
+
 function mapOrderRow(
   row: Record<string, unknown>,
   counterpartyLabel: string,
@@ -109,6 +122,7 @@ function mapOrderRow(
     counterparty_label: counterpartyLabel,
     pd_check_status: coercePdCheckStatus(row.protected_delivery_checks, orderStatus, paymentStatus),
     active_dispute: coerceActiveDispute(row.disputes),
+    has_dispute: hasDisputeRecords(row.disputes),
   };
 }
 

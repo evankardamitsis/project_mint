@@ -14,11 +14,11 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Project Mint",
-    template: "%s · Project Mint",
+    default: "mint.",
+    template: "%s · mint.",
   },
   description:
-    "Protected marketplace for second-hand music gear in Greece — with optional protected delivery.",
+    "Protected marketplace for music gear & collectibles — with optional protected delivery and payment hold.",
 };
 
 export default function RootLayout({
@@ -27,10 +27,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
+    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col" suppressHydrationWarning>
         {children}
       </body>

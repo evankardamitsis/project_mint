@@ -32,7 +32,7 @@ export function OfferCounterForm({ offerId }: { offerId: string }) {
       </Button>
       {state.error ? <p className="w-full text-xs text-destructive sm:order-last">{state.error}</p> : null}
       {state.ok && state.message ? (
-        <p className="w-full text-xs text-emerald-600 dark:text-emerald-400 sm:order-last">{state.message}</p>
+        <p className="w-full text-xs text-mint-muted sm:order-last">{state.message}</p>
       ) : null}
     </form>
   );

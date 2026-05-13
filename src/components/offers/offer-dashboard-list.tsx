@@ -3,16 +3,7 @@ import Image from "next/image";
 import { OfferAmount } from "@/components/offers/offer-amount";
 import { OfferRowActionsBuyer } from "@/components/offers/offer-row-actions-buyer";
 import { OfferRowActionsSeller } from "@/components/offers/offer-row-actions-seller";
-import { OfferStatusBadge } from "@/components/offers/offer-status-badge";
 import { Price } from "@/components/price";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import type { BuyerOfferRow, SellerOfferRow } from "@/types/offers";
 
 function formatWhen(iso: string | null) {
@@ -30,79 +21,9 @@ function buyerLabel(row: SellerOfferRow) {
   return row.buyer_full_name?.trim() || row.buyer_email?.trim() || "Buyer";
 }
 
-export function BuyerOfferDashboardList({ rows }: { rows: BuyerOfferRow[] }) {
-  if (rows.length === 0) {
-    return null;
-  }
-  return (
-    <div className="hidden rounded-xl border border-border/80 md:block">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="w-14" />
-            <TableHead>Listing</TableHead>
-            <TableHead>Your offer</TableHead>
-            <TableHead>List price</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Expires</TableHead>
-            <TableHead>Created</TableHead>
-            <TableHead className="text-right">Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {rows.map((row) => (
-            <TableRow key={row.id}>
-              <TableCell>
-                <div className="relative size-10 overflow-hidden rounded-md bg-muted">
-                  {row.listings?.primary_image_url ? (
-                    <Image
-                      src={row.listings.primary_image_url}
-                      alt=""
-                      fill
-                      className="object-cover"
-                      sizes="40px"
-                    />
-                  ) : null}
-                </div>
-              </TableCell>
-              <TableCell className="max-w-[200px] font-medium">
-                {row.listings?.title ?? "Listing unavailable"}
-              </TableCell>
-              <TableCell>
-                <OfferAmount amountCents={row.amount_cents} currency={row.listings?.currency} />
-              </TableCell>
-              <TableCell>
-                {row.listings ? (
-                  <Price amountCents={row.listings.price_cents} currency={row.listings.currency} className="text-sm" />
-                ) : (
-                  "—"
-                )}
-              </TableCell>
-              <TableCell>
-                <OfferStatusBadge status={row.status} expiresAt={row.expires_at} />
-              </TableCell>
-              <TableCell className="whitespace-nowrap text-xs text-muted-foreground">
-                {formatWhen(row.expires_at)}
-              </TableCell>
-              <TableCell className="whitespace-nowrap text-xs text-muted-foreground">
-                {formatWhen(row.created_at)}
-              </TableCell>
-              <TableCell className="text-right">
-                <OfferRowActionsBuyer
-                  offerId={row.id}
-                  listingSlug={row.listings?.slug ?? null}
-                  status={row.status}
-                  expiresAt={row.expires_at}
-                  parentOfferId={row.parent_offer_id}
-                  linkedOrderId={row.order_id}
-                />
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </div>
-  );
+function statusLine(status: string, expiresAt: string | null) {
+  const s = status.replace(/_/g, " ");
+  return `${s} · ${formatWhen(expiresAt)}`;
 }
 
 export function BuyerOfferCards({ rows }: { rows: BuyerOfferRow[] }) {
@@ -110,37 +31,30 @@ export function BuyerOfferCards({ rows }: { rows: BuyerOfferRow[] }) {
     return null;
   }
   return (
-    <div className="space-y-4 md:hidden">
+    <div className="grid gap-4 sm:grid-cols-2">
       {rows.map((row) => (
-        <div key={row.id} className="space-y-3 rounded-xl border border-border/80 bg-card p-4">
+        <div key={row.id} className="flex flex-col gap-4 rounded-2xl bg-surface p-4 shadow-sm">
           <div className="flex gap-3">
-            <div className="relative size-14 shrink-0 overflow-hidden rounded-md bg-muted">
+            <div className="relative size-14 shrink-0 overflow-hidden rounded-xl bg-warm-bg">
               {row.listings?.primary_image_url ? (
-                <Image
-                  src={row.listings.primary_image_url}
-                  alt=""
-                  fill
-                  className="object-cover"
-                  sizes="56px"
-                />
+                <Image src={row.listings.primary_image_url} alt="" fill className="object-cover" sizes="56px" />
               ) : null}
             </div>
-            <div className="min-w-0 flex-1 space-y-1">
-              <p className="font-medium leading-snug">{row.listings?.title ?? "Listing unavailable"}</p>
-              <div className="flex flex-wrap items-center gap-2 text-sm">
-                <span className="text-muted-foreground">Offer</span>
-                <OfferAmount amountCents={row.amount_cents} currency={row.listings?.currency} />
-                <span className="text-muted-foreground">· List</span>
+            <div className="min-w-0 flex-1">
+              <p className="font-semibold leading-snug text-ink">{row.listings?.title ?? "Listing"}</p>
+              <p className="mt-2 text-[0.65rem] font-medium uppercase tracking-wide text-text-caption">Your offer</p>
+              <div className="mt-1 max-w-[92%] self-end rounded-2xl rounded-tr-sm bg-ink px-3 py-2 text-right text-surface">
+                <OfferAmount amountCents={row.amount_cents} currency={row.listings?.currency} className="text-sm font-extrabold text-surface" />
+              </div>
+              <p className="mt-2 text-[0.65rem] font-medium uppercase tracking-wide text-text-caption">List price</p>
+              <div className="mt-1 max-w-[92%] rounded-2xl rounded-tl-sm border border-border bg-warm-bg px-3 py-2 text-sm text-ink">
                 {row.listings ? (
-                  <Price amountCents={row.listings.price_cents} currency={row.listings.currency} className="text-sm" />
+                  <Price amountCents={row.listings.price_cents} currency={row.listings.currency} className="font-bold" />
                 ) : (
                   "—"
                 )}
               </div>
-              <OfferStatusBadge status={row.status} expiresAt={row.expires_at} />
-              <p className="text-xs text-muted-foreground">
-                Expires {formatWhen(row.expires_at)} · Sent {formatWhen(row.created_at)}
-              </p>
+              <p className="mt-2 text-xs text-text-muted">{statusLine(row.status, row.expires_at)}</p>
             </div>
           </div>
           <OfferRowActionsBuyer
@@ -157,119 +71,36 @@ export function BuyerOfferCards({ rows }: { rows: BuyerOfferRow[] }) {
   );
 }
 
-export function SellerOfferDashboardList({ rows }: { rows: SellerOfferRow[] }) {
-  if (rows.length === 0) {
-    return null;
-  }
-  return (
-    <div className="hidden rounded-xl border border-border/80 md:block">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="w-14" />
-            <TableHead>Listing</TableHead>
-            <TableHead>Buyer</TableHead>
-            <TableHead>Offer</TableHead>
-            <TableHead>List price</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Expires</TableHead>
-            <TableHead>Created</TableHead>
-            <TableHead className="text-right">Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {rows.map((row) => (
-            <TableRow key={row.id}>
-              <TableCell>
-                <div className="relative size-10 overflow-hidden rounded-md bg-muted">
-                  {row.listings?.primary_image_url ? (
-                    <Image
-                      src={row.listings.primary_image_url}
-                      alt=""
-                      fill
-                      className="object-cover"
-                      sizes="40px"
-                    />
-                  ) : null}
-                </div>
-              </TableCell>
-              <TableCell className="max-w-[180px] font-medium">
-                {row.listings?.title ?? "Listing unavailable"}
-              </TableCell>
-              <TableCell className="text-sm text-muted-foreground">{buyerLabel(row)}</TableCell>
-              <TableCell>
-                <OfferAmount amountCents={row.amount_cents} currency={row.listings?.currency} />
-              </TableCell>
-              <TableCell>
-                {row.listings ? (
-                  <Price amountCents={row.listings.price_cents} currency={row.listings.currency} className="text-sm" />
-                ) : (
-                  "—"
-                )}
-              </TableCell>
-              <TableCell>
-                <OfferStatusBadge status={row.status} expiresAt={row.expires_at} />
-              </TableCell>
-              <TableCell className="whitespace-nowrap text-xs text-muted-foreground">
-                {formatWhen(row.expires_at)}
-              </TableCell>
-              <TableCell className="whitespace-nowrap text-xs text-muted-foreground">
-                {formatWhen(row.created_at)}
-              </TableCell>
-              <TableCell className="text-right align-top">
-                <OfferRowActionsSeller
-                  offerId={row.id}
-                  listingSlug={row.listings?.slug ?? null}
-                  status={row.status}
-                  expiresAt={row.expires_at}
-                  parentOfferId={row.parent_offer_id}
-                />
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </div>
-  );
-}
-
 export function SellerOfferCards({ rows }: { rows: SellerOfferRow[] }) {
   if (rows.length === 0) {
     return null;
   }
   return (
-    <div className="space-y-4 md:hidden">
+    <div className="grid gap-4 sm:grid-cols-2">
       {rows.map((row) => (
-        <div key={row.id} className="space-y-3 rounded-xl border border-border/80 bg-card p-4">
+        <div key={row.id} className="flex flex-col gap-4 rounded-2xl bg-surface p-4 shadow-sm">
           <div className="flex gap-3">
-            <div className="relative size-14 shrink-0 overflow-hidden rounded-md bg-muted">
+            <div className="relative size-14 shrink-0 overflow-hidden rounded-xl bg-warm-bg">
               {row.listings?.primary_image_url ? (
-                <Image
-                  src={row.listings.primary_image_url}
-                  alt=""
-                  fill
-                  className="object-cover"
-                  sizes="56px"
-                />
+                <Image src={row.listings.primary_image_url} alt="" fill className="object-cover" sizes="56px" />
               ) : null}
             </div>
-            <div className="min-w-0 flex-1 space-y-1">
-              <p className="font-medium leading-snug">{row.listings?.title ?? "Listing unavailable"}</p>
-              <p className="text-sm text-muted-foreground">{buyerLabel(row)}</p>
-              <div className="flex flex-wrap items-center gap-2 text-sm">
-                <span className="text-muted-foreground">Offer</span>
-                <OfferAmount amountCents={row.amount_cents} currency={row.listings?.currency} />
-                <span className="text-muted-foreground">· List</span>
+            <div className="min-w-0 flex-1 space-y-2">
+              <p className="font-semibold leading-snug text-ink">{row.listings?.title ?? "Listing"}</p>
+              <p className="text-xs text-text-muted">{buyerLabel(row)}</p>
+              <p className="text-[0.65rem] font-medium uppercase tracking-wide text-text-caption">Their offer</p>
+              <div className="max-w-[92%] rounded-2xl rounded-tl-sm border border-border bg-warm-bg px-3 py-2">
+                <OfferAmount amountCents={row.amount_cents} currency={row.listings?.currency} className="text-sm font-extrabold text-ink" />
+              </div>
+              <p className="text-[0.65rem] font-medium uppercase tracking-wide text-text-caption">Your price</p>
+              <div className="max-w-[92%] self-end rounded-2xl rounded-tr-sm bg-ink px-3 py-2 text-right text-surface">
                 {row.listings ? (
-                  <Price amountCents={row.listings.price_cents} currency={row.listings.currency} className="text-sm" />
+                  <Price amountCents={row.listings.price_cents} currency={row.listings.currency} className="font-bold text-surface" />
                 ) : (
                   "—"
                 )}
               </div>
-              <OfferStatusBadge status={row.status} expiresAt={row.expires_at} />
-              <p className="text-xs text-muted-foreground">
-                Expires {formatWhen(row.expires_at)} · {formatWhen(row.created_at)}
-              </p>
+              <p className="text-xs text-text-muted">{statusLine(row.status, row.expires_at)}</p>
             </div>
           </div>
           <OfferRowActionsSeller
@@ -283,4 +114,14 @@ export function SellerOfferCards({ rows }: { rows: SellerOfferRow[] }) {
       ))}
     </div>
   );
+}
+
+/** @deprecated Tables removed — use BuyerOfferCards only */
+export function BuyerOfferDashboardList({ rows }: { rows: BuyerOfferRow[] }) {
+  return <BuyerOfferCards rows={rows} />;
+}
+
+/** @deprecated Tables removed — use SellerOfferCards only */
+export function SellerOfferDashboardList({ rows }: { rows: SellerOfferRow[] }) {
+  return <SellerOfferCards rows={rows} />;
 }

@@ -12,20 +12,50 @@ import type {
 } from "@/types/listings";
 import type { ListingCondition, ListingStatus } from "@/types/domain";
 
-function sortImages(images: ListingImageRow[] | null | undefined): ListingImageRow[] {
+function sortImages(
+  images: ListingImageRow[] | null | undefined,
+): ListingImageRow[] {
   if (!images?.length) {
     return [];
   }
   return [...images].sort((a, b) => a.sort_order - b.sort_order);
 }
 
-function primaryImageUrl(images: ListingImageRow[] | null | undefined): string | null {
+function primaryImageUrl(
+  images: ListingImageRow[] | null | undefined,
+): string | null {
   const sorted = sortImages(images);
   return sorted[0]?.url ?? null;
 }
 
 function escapeIlike(value: string): string {
   return value.replace(/\\/g, "\\\\").replace(/%/g, "\\%").replace(/_/g, "\\_");
+}
+
+function sellerDisplayNameFromRow(row: {
+  seller_profiles: unknown;
+}): string | null {
+  const raw = row.seller_profiles as
+    | { display_name?: string }
+    | { display_name?: string }[]
+    | null
+    | undefined;
+  const one = Array.isArray(raw) ? raw[0] : raw;
+  const name = one?.display_name?.trim();
+  return name || null;
+}
+
+function parseFiniteNumber(value: unknown): number | null {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return value;
+  }
+  if (typeof value === "string" && value.trim() !== "") {
+    const n = Number(value);
+    if (Number.isFinite(n)) {
+      return n;
+    }
+  }
+  return null;
 }
 
 export async function fetchCategories(): Promise<CategoryOption[]> {
@@ -94,7 +124,7 @@ export async function fetchBrowseListings(
   let query = supabase
     .from("listings")
     .select(
-      "id, title, slug, price_cents, currency, condition, status, location, created_at, listing_images ( id, url, sort_order )",
+      "id, title, slug, price_cents, currency, condition, status, location, created_at, protected_delivery_enabled, categories ( name ), listing_images ( id, url, sort_order ), seller_profiles ( display_name )",
     )
     .eq("status", "active");
 
@@ -171,69 +201,12 @@ export async function fetchBrowseListings(
 
   return (data ?? []).map((row) => {
     const images = row.listing_images as ListingImageRow[] | null | undefined;
-    return {
-      id: row.id as string,
-      title: row.title as string,
-      slug: row.slug as string,
-      price_cents: row.price_cents as number,
-      currency: (row.currency as string) ?? "EUR",
-      condition: row.condition as ListingCondition,
-      location: (row.location as string | null) ?? null,
-      status: row.status as ListingCardData["status"],
-      created_at: row.created_at as string,
-      primary_image_url: primaryImageUrl(images),
-    };
-  });
-}
-
-export async function fetchHomeListings(limit = 8): Promise<ListingCardData[]> {
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("listings")
-    .select(
-      "id, title, slug, price_cents, currency, condition, status, location, created_at, listing_images ( id, url, sort_order )",
-    )
-    .eq("status", "active")
-    .order("created_at", { ascending: false })
-    .limit(limit);
-  if (error) {
-    console.error("[listings] fetchHomeListings", error.message);
-    return [];
-  }
-  return (data ?? []).map((row) => {
-    const images = row.listing_images as ListingImageRow[] | null | undefined;
-    return {
-      id: row.id as string,
-      title: row.title as string,
-      slug: row.slug as string,
-      price_cents: row.price_cents as number,
-      currency: (row.currency as string) ?? "EUR",
-      condition: row.condition as ListingCondition,
-      location: (row.location as string | null) ?? null,
-      status: row.status as ListingCardData["status"],
-      created_at: row.created_at as string,
-      primary_image_url: primaryImageUrl(images),
-    };
-  });
-}
-
-export async function fetchSellerListings(
-  sellerProfileId: string,
-): Promise<ListingCardData[]> {
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("listings")
-    .select(
-      "id, title, slug, price_cents, currency, condition, status, location, created_at, protected_delivery_enabled, listing_images ( id, url, sort_order )",
-    )
-    .eq("seller_id", sellerProfileId)
-    .order("created_at", { ascending: false });
-  if (error) {
-    console.error("[listings] fetchSellerListings", error.message);
-    return [];
-  }
-  return (data ?? []).map((row) => {
-    const images = row.listing_images as ListingImageRow[] | null | undefined;
+    const catRaw = row.categories as
+      | { name?: string }
+      | { name?: string }[]
+      | null
+      | undefined;
+    const cat = Array.isArray(catRaw) ? catRaw[0] : catRaw;
     return {
       id: row.id as string,
       title: row.title as string,
@@ -246,6 +219,89 @@ export async function fetchSellerListings(
       created_at: row.created_at as string,
       primary_image_url: primaryImageUrl(images),
       protected_delivery_enabled: Boolean(row.protected_delivery_enabled),
+      category_name: cat?.name ?? null,
+      seller_display_name: sellerDisplayNameFromRow(row),
+    };
+  });
+}
+
+export async function fetchHomeListings(limit = 8): Promise<ListingCardData[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("listings")
+    .select(
+      "id, title, slug, price_cents, currency, condition, status, location, created_at, protected_delivery_enabled, categories ( name ), listing_images ( id, url, sort_order ), seller_profiles ( display_name )",
+    )
+    .eq("status", "active")
+    .order("created_at", { ascending: false })
+    .limit(limit);
+  if (error) {
+    console.error("[listings] fetchHomeListings", error.message);
+    return [];
+  }
+  return (data ?? []).map((row) => {
+    const images = row.listing_images as ListingImageRow[] | null | undefined;
+    const catRaw = row.categories as
+      | { name?: string }
+      | { name?: string }[]
+      | null
+      | undefined;
+    const cat = Array.isArray(catRaw) ? catRaw[0] : catRaw;
+    return {
+      id: row.id as string,
+      title: row.title as string,
+      slug: row.slug as string,
+      price_cents: row.price_cents as number,
+      currency: (row.currency as string) ?? "EUR",
+      condition: row.condition as ListingCondition,
+      location: (row.location as string | null) ?? null,
+      status: row.status as ListingCardData["status"],
+      created_at: row.created_at as string,
+      primary_image_url: primaryImageUrl(images),
+      protected_delivery_enabled: Boolean(row.protected_delivery_enabled),
+      category_name: cat?.name ?? null,
+      seller_display_name: sellerDisplayNameFromRow(row),
+    };
+  });
+}
+
+export async function fetchSellerListings(
+  sellerProfileId: string,
+): Promise<ListingCardData[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("listings")
+    .select(
+      "id, title, slug, price_cents, currency, condition, status, location, created_at, protected_delivery_enabled, categories ( name ), listing_images ( id, url, sort_order ), seller_profiles ( display_name )",
+    )
+    .eq("seller_id", sellerProfileId)
+    .order("created_at", { ascending: false });
+  if (error) {
+    console.error("[listings] fetchSellerListings", error.message);
+    return [];
+  }
+  return (data ?? []).map((row) => {
+    const images = row.listing_images as ListingImageRow[] | null | undefined;
+    const catRaw = row.categories as
+      | { name?: string }
+      | { name?: string }[]
+      | null
+      | undefined;
+    const cat = Array.isArray(catRaw) ? catRaw[0] : catRaw;
+    return {
+      id: row.id as string,
+      title: row.title as string,
+      slug: row.slug as string,
+      price_cents: row.price_cents as number,
+      currency: (row.currency as string) ?? "EUR",
+      condition: row.condition as ListingCondition,
+      location: (row.location as string | null) ?? null,
+      status: row.status as ListingCardData["status"],
+      created_at: row.created_at as string,
+      primary_image_url: primaryImageUrl(images),
+      protected_delivery_enabled: Boolean(row.protected_delivery_enabled),
+      category_name: cat?.name ?? null,
+      seller_display_name: sellerDisplayNameFromRow(row),
     };
   });
 }
@@ -268,7 +324,11 @@ type ListingDetailRow = {
   rejection_reason: string | null;
   categories: { id: string; name: string; slug: string } | null;
   brands: { id: string; name: string; slug: string } | null;
-  seller_profiles: { display_name: string } | null;
+  seller_profiles: {
+    display_name: string;
+    completed_sales_count?: number | null;
+    average_rating?: number | null;
+  } | null;
   listing_images: ListingImageRow[] | null;
 };
 
@@ -297,7 +357,7 @@ export async function fetchListingBySlug(
       rejection_reason,
       categories ( id, name, slug ),
       brands ( id, name, slug ),
-      seller_profiles ( display_name ),
+      seller_profiles ( display_name, completed_sales_count, average_rating ),
       listing_images ( id, listing_id, url, sort_order, created_at )
     `,
     )
@@ -316,12 +376,17 @@ export async function fetchListingBySlug(
   const images = sortImages(row.listing_images ?? undefined);
 
   const category = Array.isArray(row.categories)
-    ? row.categories[0] ?? null
+    ? (row.categories[0] ?? null)
     : row.categories;
-  const brand = Array.isArray(row.brands) ? row.brands[0] ?? null : row.brands;
+  const brand = Array.isArray(row.brands)
+    ? (row.brands[0] ?? null)
+    : row.brands;
   const seller = Array.isArray(row.seller_profiles)
-    ? row.seller_profiles[0] ?? null
+    ? (row.seller_profiles[0] ?? null)
     : row.seller_profiles;
+
+  const sellerSales = parseFiniteNumber(seller?.completed_sales_count);
+  const sellerRating = parseFiniteNumber(seller?.average_rating);
 
   return {
     id: row.id,
@@ -342,6 +407,9 @@ export async function fetchListingBySlug(
     category,
     brand,
     seller_display_name: seller?.display_name ?? "Seller",
+    seller_sales_count:
+      sellerSales != null ? Math.max(0, Math.floor(sellerSales)) : null,
+    seller_rating: sellerRating,
     images,
   };
 }
@@ -495,7 +563,9 @@ export async function fetchAdminListings(
   }
   return (data ?? []).map((raw) => {
     const row = raw as unknown as AdminListingQueryRow;
-    const cat = Array.isArray(row.categories) ? row.categories[0] : row.categories;
+    const cat = Array.isArray(row.categories)
+      ? row.categories[0]
+      : row.categories;
     const seller = Array.isArray(row.seller_profiles)
       ? row.seller_profiles[0]
       : row.seller_profiles;

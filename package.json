@@ -16,7 +16,10 @@
     "db:diff": "supabase db diff",
     "db:link": "supabase link",
     "db:types": "supabase gen types typescript --linked > src/types/database.types.ts",
-    "db:types:local": "supabase gen types typescript --local > src/types/database.types.ts"
+    "db:types:local": "supabase gen types typescript --local > src/types/database.types.ts",
+    "seed:demo": "tsx scripts/seed-demo-listings.ts",
+    "seed:demo:clear": "tsx scripts/clear-demo-listings.ts",
+    "promote:admin": "tsx scripts/promote-admin.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.4.1",
@@ -39,11 +42,14 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/ws": "^8.18.1",
     "babel-plugin-react-compiler": "1.0.0",
     "eslint": "^9",
     "eslint-config-next": "16.2.6",
     "supabase": "^2.62.10",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "tsx": "^4.19.4",
+    "typescript": "^5",
+    "ws": "^8.18.0"
   }
 }

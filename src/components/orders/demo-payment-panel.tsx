@@ -13,7 +13,7 @@ export function DemoPaymentPanel({ orderId }: { orderId: string }) {
   const [pending, start] = useTransition();
 
   return (
-    <Card>
+    <Card className="border-amber-warn/30 bg-amber-warn/[0.06]">
       <CardHeader>
         <CardTitle className="text-base">Payment</CardTitle>
         <CardDescription>
@@ -24,6 +24,7 @@ export function DemoPaymentPanel({ orderId }: { orderId: string }) {
         {error ? <p className="text-sm text-destructive">{error}</p> : null}
         <Button
           type="button"
+          variant="secondary"
           className="w-full"
           disabled={pending}
           onClick={() =>

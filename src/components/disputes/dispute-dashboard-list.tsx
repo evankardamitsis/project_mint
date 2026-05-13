@@ -33,11 +33,11 @@ export function DisputeDashboardList({ rows, statusFilter }: { rows: DisputeList
 
   return (
     <>
-      <div className="hidden rounded-xl border border-border/80 md:block">
+      <div className="hidden overflow-x-auto rounded-2xl border border-border/70 md:block">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-14" />
+              <TableHead className="w-14">Photo</TableHead>
               <TableHead>Listing</TableHead>
               <TableHead>Buyer</TableHead>
               <TableHead>Seller</TableHead>
@@ -57,14 +57,18 @@ export function DisputeDashboardList({ rows, statusFilter }: { rows: DisputeList
                     ) : null}
                   </div>
                 </TableCell>
-                <TableCell className="max-w-[180px] font-medium">{row.listing_title ?? "—"}</TableCell>
+                <TableCell className="max-w-[180px] truncate font-medium">{row.listing_title ?? "—"}</TableCell>
                 <TableCell className="text-sm text-muted-foreground">{row.buyer_label}</TableCell>
                 <TableCell className="text-sm text-muted-foreground">{row.seller_label}</TableCell>
                 <TableCell>
-                  <DisputeReasonBadge reason={row.reason} />
+                  <div className="flex flex-wrap items-center gap-2">
+                    <DisputeReasonBadge reason={row.reason} />
+                  </div>
                 </TableCell>
                 <TableCell>
-                  <DisputeStatusBadge status={row.status} />
+                  <div className="flex flex-wrap items-center gap-2">
+                    <DisputeStatusBadge status={row.status} />
+                  </div>
                 </TableCell>
                 <TableCell className="whitespace-nowrap text-xs text-muted-foreground">{formatWhen(row.created_at)}</TableCell>
                 <TableCell className="text-right">
@@ -79,7 +83,7 @@ export function DisputeDashboardList({ rows, statusFilter }: { rows: DisputeList
       </div>
       <div className="space-y-4 md:hidden">
         {rows.map((row) => (
-          <div key={row.id} className="space-y-3 rounded-xl border border-border/80 bg-card p-4">
+          <div key={row.id} className="space-y-3 rounded-2xl border border-border/70 bg-card/90 p-4">
             <div className="flex gap-3">
               <div className="relative size-14 shrink-0 overflow-hidden rounded-md bg-muted">
                 {row.listing_image_url ? (
@@ -87,11 +91,11 @@ export function DisputeDashboardList({ rows, statusFilter }: { rows: DisputeList
                 ) : null}
               </div>
               <div className="min-w-0 flex-1 space-y-1">
-                <p className="font-medium leading-snug">{row.listing_title ?? "—"}</p>
+                <p className="truncate font-medium leading-snug">{row.listing_title ?? "—"}</p>
                 <p className="text-xs text-muted-foreground">
                   {row.buyer_label} · {row.seller_label}
                 </p>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <DisputeReasonBadge reason={row.reason} />
                   <DisputeStatusBadge status={row.status} />
                 </div>

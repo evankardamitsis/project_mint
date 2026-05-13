@@ -1,11 +1,9 @@
 import Link from "next/link";
 
-import { DisputeStatusBadge } from "@/components/disputes/dispute-status-badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { createClient } from "@/lib/supabase/server";
 import { orderAllowsNewDispute, pickActiveDispute } from "@/lib/disputes/eligibility";
-import type { DisputeStatus } from "@/types/domain";
 import type { OrderDetail } from "@/types/orders";
 
 export async function BuyerDisputeSection({ order }: { order: OrderDetail }) {
@@ -24,41 +22,41 @@ export async function BuyerDisputeSection({ order }: { order: OrderDetail }) {
     order.payment_status !== "paid";
 
   return (
-    <Card>
+    <Card id="get-help" className="border-0 shadow-sm">
       <CardHeader>
-        <CardTitle className="text-base">Dispute</CardTitle>
-        <CardDescription>Report an issue after delivery. Refunds are placeholder until Stripe is connected.</CardDescription>
+        <CardTitle className="text-base font-semibold text-ink">Get help</CardTitle>
+        <CardDescription>Something not right after delivery? Open a case and we will review it.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-3">
         {activeExists && active ? (
           <div className="flex flex-wrap items-center gap-3">
-            <DisputeStatusBadge status={active.status as DisputeStatus} />
+            <span className="text-sm capitalize text-text-muted">Case · {String(active.status).replace(/_/g, " ")}</span>
             <Button size="sm" render={<Link href={`/buyer/purchases/${order.id}/dispute`} />}>
-              View dispute
+              View case
             </Button>
           </div>
         ) : null}
         {!activeExists && hasDisputeHistory ? (
           <div className="flex flex-wrap items-center gap-3">
-            <span className="text-sm text-muted-foreground">Dispute case on file</span>
+            <span className="text-sm text-text-muted">You have a case on file</span>
             <Button size="sm" variant="outline" render={<Link href={`/buyer/purchases/${order.id}/dispute`} />}>
               View case
             </Button>
           </div>
         ) : null}
         {canOpen ? (
-          <Button render={<Link href={`/buyer/purchases/${order.id}/dispute/new`} />}>Report an issue</Button>
+          <Button render={<Link href={`/buyer/purchases/${order.id}/dispute/new`} />}>Get help with this order</Button>
         ) : null}
         {!activeExists && !canOpen && order.status === "pending_payment" ? (
-          <p className="text-xs text-muted-foreground">Disputes are available after checkout and shipment.</p>
+          <p className="text-xs text-text-muted">Help is available after checkout and shipment.</p>
         ) : null}
         {showPaymentHint ? (
-          <p className="text-xs text-muted-foreground">
-            Disputes require payment to be held or marked paid. Complete demo checkout first if you have not.
+          <p className="text-xs text-text-muted">
+            Complete checkout so payment can be held — then you can reach out if needed.
           </p>
         ) : null}
         {!activeExists && !canOpen && (order.status === "cancelled" || order.status === "refunded") ? (
-          <p className="text-xs text-muted-foreground">This order cannot be disputed.</p>
+          <p className="text-xs text-text-muted">This order is closed — help is not available.</p>
         ) : null}
       </CardContent>
     </Card>

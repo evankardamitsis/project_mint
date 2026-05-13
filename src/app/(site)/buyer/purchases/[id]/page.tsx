@@ -38,7 +38,17 @@ export default async function BuyerPurchaseDetailPage(props: PageProps) {
       <BuyerDisputeSection order={order} />
       {showDemoPay ? <DemoPaymentPanel orderId={order.id} /> : null}
       {showPdTimeline && pdBundle ? (
-        <ProtectedDeliveryTimelineBuyer bundle={pdBundle} orderStatus={order.status} paymentStatus={order.payment_status} />
+        <ProtectedDeliveryTimelineBuyer
+          bundle={pdBundle}
+          orderStatus={order.status}
+          paymentStatus={order.payment_status}
+          listingImageUrl={order.listing_image_url}
+          listingTitle={order.listing_title}
+          amountCents={order.amount_cents}
+          currency={order.currency}
+          orderId={order.id}
+          helpHref={`/buyer/purchases/${order.id}#get-help`}
+        />
       ) : null}
     </div>
   );

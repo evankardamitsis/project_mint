@@ -10,12 +10,14 @@ export default async function AdminLayout({
   await requireRole(["admin"], { nextAfterLogin: "/admin" });
 
   return (
-    <DashboardShell
-      title="Admin"
-      description="Moderation, disputes, and marketplace health — operational tools ship incrementally."
-      navItems={adminNav}
-    >
-      {children}
-    </DashboardShell>
+    <div className="dark min-h-full">
+      <DashboardShell
+        title="Admin"
+        description="Moderation, disputes, and marketplace health — operational tools ship incrementally."
+        navItems={adminNav}
+      >
+        {children}
+      </DashboardShell>
+    </div>
   );
 }

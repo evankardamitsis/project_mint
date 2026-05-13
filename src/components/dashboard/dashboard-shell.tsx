@@ -1,4 +1,6 @@
 import { DashboardNav } from "@/components/dashboard/dashboard-nav";
+import { SITE_CONTAINER } from "@/config/site-layout";
+import { cn } from "@/lib/utils";
 
 export function DashboardShell({
   title,
@@ -12,19 +14,17 @@ export function DashboardShell({
   children: React.ReactNode;
 }) {
   return (
-    <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-8 px-4 py-8 sm:px-6 lg:flex-row lg:gap-10">
-      <aside className="w-full shrink-0 lg:max-w-xs lg:border-r lg:border-border/80 lg:pr-8">
-        <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
-          {title}
-        </p>
+    <div className={cn(SITE_CONTAINER, "flex flex-1 flex-col gap-8 py-8 lg:flex-row lg:gap-10 lg:py-10")}>
+      <aside className="w-full shrink-0 rounded-2xl bg-surface p-4 shadow-sm lg:max-w-xs lg:bg-transparent lg:p-0 lg:shadow-none">
+        <p className="text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-text-caption">{title}</p>
         {description ? (
-          <p className="mt-1 text-sm text-muted-foreground">{description}</p>
+          <p className="mt-1 text-sm leading-relaxed text-text-muted">{description}</p>
         ) : null}
         <div className="mt-4">
           <DashboardNav items={navItems} />
         </div>
       </aside>
-      <main className="min-w-0 flex-1">{children}</main>
+      <main className="min-w-0 flex-1 space-y-8">{children}</main>
     </div>
   );
 }

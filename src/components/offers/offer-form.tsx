@@ -43,8 +43,8 @@ export function OfferForm({
         <p className="text-xs text-muted-foreground">Must be below the listed price. Offer expires in 48 hours.</p>
       </div>
       {state.error ? <p className="text-sm text-destructive">{state.error}</p> : null}
-      {state.ok && state.message ? <p className="text-sm text-emerald-600 dark:text-emerald-400">{state.message}</p> : null}
-      <Button type="submit" className="w-full" disabled={pending}>
+      {state.ok && state.message ? <p className="text-sm text-mint-muted">{state.message}</p> : null}
+      <Button type="submit" variant="offer" className="w-full" disabled={pending}>
         {pending ? "Sending…" : "Submit offer"}
       </Button>
     </form>

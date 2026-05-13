@@ -3,14 +3,16 @@ import Link from "next/link";
 import { EmptyState } from "@/components/empty-state";
 import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
+import { SITE_CONTAINER } from "@/config/site-layout";
 import { getProfile } from "@/lib/auth/guards";
+import { cn } from "@/lib/utils";
 import { Package } from "lucide-react";
 
 export default async function SellPage() {
   const profile = await getProfile();
 
   return (
-    <div className="mx-auto w-full max-w-6xl space-y-8 px-4 py-10 sm:px-6">
+    <div className={cn(SITE_CONTAINER, "space-y-8 bg-background py-10")}>
       <PageHeader
         title="Sell on Project Mint"
         description="List second-hand gear with optional protected delivery: packaging checklist, photos, tracking, and a buyer dispute window after delivery."
