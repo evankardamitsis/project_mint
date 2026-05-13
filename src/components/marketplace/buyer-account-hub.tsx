@@ -14,7 +14,7 @@ type HubCopy = {
   cardOffersBody: string;
   cardSavedTitle: string;
   cardSavedBody: string;
-  cardSavedSoon: string;
+  cardSavedCta: string;
   cardHelpTitle: string;
   cardHelpBody: string;
 };
@@ -75,10 +75,12 @@ export function BuyerAccountHub({
   copy,
   purchaseCount,
   offerCount,
+  watchlistCount,
 }: {
   copy: HubCopy;
   purchaseCount: number;
   offerCount: number;
+  watchlistCount: number;
 }) {
   return (
     <div className="space-y-8">
@@ -113,14 +115,14 @@ export function BuyerAccountHub({
           }
         />
         <HubTile
+          href="/buyer/watchlist"
           icon={Heart}
           title={copy.cardSavedTitle}
           body={copy.cardSavedBody}
-          muted
           footer={
-            <span className="mt-3 inline-flex rounded-md bg-[var(--color-background-page)] px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-[var(--color-text-muted)]">
-              {copy.cardSavedSoon}
-            </span>
+            <p className="mt-3 text-xs font-medium uppercase tracking-wide text-[var(--color-text-muted)]">
+              {watchlistCount === 1 ? "1 saved" : `${watchlistCount} saved`}
+            </p>
           }
         />
         <HubTile

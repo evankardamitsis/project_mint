@@ -12,12 +12,6 @@ export const sellerNav = [
   { href: "/seller/offers", label: "Offers" },
 ] as const;
 
-export const buyerNav = [
-  { href: "/buyer", label: "Overview" },
-  { href: "/buyer/purchases", label: "Purchases" },
-  { href: "/buyer/offers", label: "Offers" },
-] as const;
-
 export const adminNav = [
   { href: "/admin", label: "Overview" },
   { href: "/admin/listings", label: "Listings" },

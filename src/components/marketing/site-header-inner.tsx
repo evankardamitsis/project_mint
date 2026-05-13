@@ -35,6 +35,7 @@ export function SiteHeaderInner({
   sellLabel,
   searchAria,
   savedAria,
+  savedHref,
   logIn,
   join,
   account,
@@ -45,6 +46,7 @@ export function SiteHeaderInner({
   sellLabel: string;
   searchAria: string;
   savedAria: string;
+  savedHref: string;
   logIn: string;
   join: string;
   account:
@@ -111,7 +113,7 @@ export function SiteHeaderInner({
         <Link href="/browse" aria-label={searchAria} className={cn(iconBtn, "hidden lg:flex")}>
           <Search className="size-[18px]" strokeWidth={1.75} />
         </Link>
-        <Link href="/browse" aria-label={savedAria} className={cn(iconBtn, "hidden lg:flex")}>
+        <Link href={savedHref} aria-label={savedAria} className={cn(iconBtn, "hidden lg:flex")}>
           <Heart className="size-[18px]" strokeWidth={1.75} />
         </Link>
         <Link href="/sell" className={sellCls}>
@@ -215,7 +217,7 @@ export function SiteHeaderInner({
                 {searchAria}
               </Link>
               <Link
-                href="/browse"
+                href={savedHref}
                 onClick={closeDrawer}
                 className="flex h-11 flex-1 items-center justify-center gap-2 border-l border-border-dark text-[10px] font-bold uppercase tracking-[0.09em] text-[#888888] hover:bg-[#1a1a1a] hover:text-white"
               >

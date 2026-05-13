@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import type { ReactNode } from "react";
 import {
   IconAdjustments,
   IconDisc,
@@ -90,6 +91,11 @@ export function ListingCard({
   categoryName,
   categorySlug,
   sellerDisplayName,
+  listingId,
+  viewerUserId = null,
+  sellerOwnerUserId = null,
+  isSaved = false,
+  isGuest = true,
 }: {
   title: string;
   slug: string;
@@ -101,12 +107,17 @@ export function ListingCard({
   imageAlt?: string;
   imagePriority?: boolean;
   className?: string;
-  footer?: React.ReactNode;
+  footer?: ReactNode;
   protectedDeliveryEnabled?: boolean;
   status?: ListingStatus;
   categoryName?: string | null;
   categorySlug?: string | null;
   sellerDisplayName?: string | null;
+  listingId?: string;
+  viewerUserId?: string | null;
+  sellerOwnerUserId?: string | null;
+  isSaved?: boolean;
+  isGuest?: boolean;
 }) {
   const reserved = status === "reserved";
   const shopName = sellerDisplayName?.trim() ?? "";
@@ -115,6 +126,9 @@ export function ListingCard({
     shopName && cityLine ? `${shopName} · ${cityLine}` : shopName || cityLine || null;
   const categoryTrimmed = categoryName?.trim() ?? "";
   const hasImage = Boolean(imageUrl?.trim());
+  const isOwnerSeller = Boolean(
+    viewerUserId && sellerOwnerUserId && viewerUserId === sellerOwnerUserId,
+  );
 
   const priceLabel =
     currency === "EUR"
@@ -160,7 +174,7 @@ export function ListingCard({
 
             {protectedDeliveryEnabled ? (
               <div
-                className="pointer-events-none absolute right-2 top-2 z-10 bg-[#1a7a4a] px-[7px] py-1 text-[8px] font-black uppercase tracking-widest text-[#ffffff]"
+                className="pointer-events-none absolute right-2 top-10 z-10 bg-[#1a7a4a] px-[7px] py-1 text-[8px] font-black uppercase tracking-widest text-[#ffffff]"
                 aria-label="Protected delivery"
               >
                 PROTECTED
@@ -208,7 +222,15 @@ export function ListingCard({
         </div>
       </Link>
 
-      <ListingCardHeartButton className="absolute left-2 top-2 z-20 flex size-[26px] items-center justify-center bg-[rgba(255,255,255,0.88)] text-[#333333]" />
+      {listingId ? (
+        <ListingCardHeartButton
+          listingId={listingId}
+          initialSaved={isSaved}
+          isGuest={isGuest}
+          isOwner={isOwnerSeller}
+          className="absolute right-2 top-2 z-30 flex size-[26px] items-center justify-center bg-[rgba(255,255,255,0.88)] text-[#333333] shadow-sm"
+        />
+      ) : null}
 
       {footer ? <div className="mt-2">{footer}</div> : null}
     </article>

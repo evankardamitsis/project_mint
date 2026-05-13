@@ -104,6 +104,18 @@ export type Messages = {
     sellerShopFallback: string;
     buyerAccountFallback: string;
   };
+  buyerNav: {
+    overview: string;
+    purchases: string;
+    offers: string;
+    watchlist: string;
+  };
+  buyerWatchlist: {
+    title: string;
+    emptyTitle: string;
+    emptyDescription: string;
+    browseCta: string;
+  };
   buyerHome: {
     headline: string;
     lead: string;
@@ -113,7 +125,7 @@ export type Messages = {
     cardOffersBody: string;
     cardSavedTitle: string;
     cardSavedBody: string;
-    cardSavedSoon: string;
+    cardSavedCta: string;
     cardHelpTitle: string;
     cardHelpBody: string;
   };
@@ -234,6 +246,18 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       sellerShopFallback: "Your shop",
       buyerAccountFallback: "Your account",
     },
+    buyerNav: {
+      overview: "Overview",
+      purchases: "Purchases",
+      offers: "Offers",
+      watchlist: "Watchlist",
+    },
+    buyerWatchlist: {
+      title: "Watchlist",
+      emptyTitle: "Nothing saved yet",
+      emptyDescription: "Save gear you're interested in and come back to it later.",
+      browseCta: "Browse gear",
+    },
     buyerHome: {
       headline: "Your mint.",
       lead: "Purchases, offers, and buyer protection — in one calm place.",
@@ -241,9 +265,9 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       cardPurchasesBody: "Orders you placed with Buy now or an accepted offer. Track delivery and proof photos.",
       cardOffersTitle: "Offers",
       cardOffersBody: "Negotiations on listings — counters, acceptances, and expiries stay here.",
-      cardSavedTitle: "Saved",
-      cardSavedBody: "Wishlists and saved searches will live here soon.",
-      cardSavedSoon: "Coming soon",
+      cardSavedTitle: "Watchlist",
+      cardSavedBody: "Save listings while you browse — your shortlist stays here.",
+      cardSavedCta: "Open watchlist",
       cardHelpTitle: "Protected delivery",
       cardHelpBody: "Payments can be held until tracking and photos look good. Open a case from an order if you need help.",
     },
@@ -367,6 +391,18 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       sellerShopFallback: "Το κατάστημά σου",
       buyerAccountFallback: "Ο λογαριασμός σου",
     },
+    buyerNav: {
+      overview: "Επισκόπηση",
+      purchases: "Αγορές",
+      offers: "Προσφορές",
+      watchlist: "Αποθηκευμένα",
+    },
+    buyerWatchlist: {
+      title: "Αποθηκευμένα",
+      emptyTitle: "Δεν έχεις αποθηκεύσει ακόμη",
+      emptyDescription: "Αποθήκευσε αγγελίες που σε ενδιαφέρουν και επέστρεψε αργότερα.",
+      browseCta: "Περιήγηση",
+    },
     buyerHome: {
       headline: "Το mint. σου.",
       lead: "Αγορές, προσφορές και προστασία αγοραστή — σε ένα ήρεμο μέρος.",
@@ -375,8 +411,8 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       cardOffersTitle: "Προσφορές",
       cardOffersBody: "Διαπραγματεύσεις σε αγγελίες — αντιπροσφορές, αποδοχές και λήξεις μένουν εδώ.",
       cardSavedTitle: "Αποθηκευμένα",
-      cardSavedBody: "Λίστες επιθυμιών και αποθηκευμένες αναζητήσεις θα έρθουν σύντομα εδώ.",
-      cardSavedSoon: "Σύντομα",
+      cardSavedBody: "Αποθήκευσε αγγελίες ενώ περιηγείσαι — η λίστα σου μένει εδώ.",
+      cardSavedCta: "Άνοιξε τα αποθηκευμένα",
       cardHelpTitle: "Προστατευμένη παράδοση",
       cardHelpBody: "Οι πληρωμές μπορεί να κρατούνται μέχρι το tracking και οι φωτογραφίες να είναι εντάξει. Άνοιξε υπόθεση από την παραγγελία αν χρειάζεσαι βοήθεια.",
     },

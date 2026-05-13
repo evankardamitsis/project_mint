@@ -4,6 +4,7 @@ import { HomeTrustBand } from "@/components/marketing/home-trust-band";
 import { LiveTicker } from "@/components/marketing/live-ticker";
 import { SectionHeader } from "@/components/marketing/section-header";
 import { ListingCard } from "@/components/listings/listing-card";
+import { getSessionUser } from "@/lib/auth/guards";
 import { getLocale } from "@/i18n/get-locale";
 import { MESSAGES } from "@/i18n/messages";
 import { getRecentActivity } from "@/lib/activity/get-recent-activity";
@@ -13,10 +14,20 @@ import {
   fetchHomeMarketStats,
 } from "@/lib/listings/queries";
 
-function mapListingToCard(item: Awaited<ReturnType<typeof fetchHomeListings>>[number], index: number) {
+function mapListingToCard(
+  viewerUserId: string | null,
+  item: Awaited<ReturnType<typeof fetchHomeListings>>[number],
+  index: number,
+) {
+  const isGuest = !viewerUserId;
   return (
     <ListingCard
       key={item.id}
+      listingId={item.id}
+      viewerUserId={viewerUserId}
+      sellerOwnerUserId={item.seller_owner_user_id ?? null}
+      isSaved={Boolean(item.is_saved_by_current_user)}
+      isGuest={isGuest}
       title={item.title}
       slug={item.slug}
       priceCents={item.price_cents}
@@ -36,6 +47,8 @@ function mapListingToCard(item: Awaited<ReturnType<typeof fetchHomeListings>>[nu
 export default async function HomePage() {
   const locale = await getLocale();
   const t = MESSAGES[locale].home;
+  const user = await getSessionUser();
+  const viewerId = user?.id ?? null;
 
   const [stats, latest, synths, effects, activity] = await Promise.all([
     fetchHomeMarketStats(),
@@ -65,7 +78,7 @@ export default async function HomePage() {
             {t.listingsWhenLive}
           </p>
         ) : (
-          <BauhausListingGrid>{latest.map((item, index) => mapListingToCard(item, index))}</BauhausListingGrid>
+          <BauhausListingGrid>{latest.map((item, index) => mapListingToCard(viewerId, item, index))}</BauhausListingGrid>
         )}
       </section>
 
@@ -80,7 +93,7 @@ export default async function HomePage() {
             {t.listingsWhenLive}
           </p>
         ) : (
-          <BauhausListingGrid>{synths.map((item, index) => mapListingToCard(item, index))}</BauhausListingGrid>
+          <BauhausListingGrid>{synths.map((item, index) => mapListingToCard(viewerId, item, index))}</BauhausListingGrid>
         )}
       </section>
 
@@ -95,7 +108,7 @@ export default async function HomePage() {
             {t.listingsWhenLive}
           </p>
         ) : (
-          <BauhausListingGrid>{effects.map((item, index) => mapListingToCard(item, index))}</BauhausListingGrid>
+          <BauhausListingGrid>{effects.map((item, index) => mapListingToCard(viewerId, item, index))}</BauhausListingGrid>
         )}
       </section>
     </>

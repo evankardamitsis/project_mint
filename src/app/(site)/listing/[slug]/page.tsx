@@ -9,9 +9,11 @@ import { ListingPurchaseSection } from "@/components/listings/listing-purchase-s
 import { ListingOfferPanel } from "@/components/offers/listing-offer-panel";
 import { ListingProtectedDeliveryTrustDetail } from "@/components/listings/listing-protected-delivery-trust-detail";
 import { ListingStickyCta } from "@/components/listings/listing-sticky-cta";
+import { ListingDetailSaveButton } from "@/components/listings/listing-detail-save-button";
 import { Button } from "@/components/ui/button";
 import { getProfile } from "@/lib/auth/guards";
 import { SITE_CONTAINER } from "@/config/site-layout";
+import { fetchListingWatcherCount } from "@/lib/favorites/queries";
 import { fetchListingBySlug, fetchSellerProfileForUser } from "@/lib/listings/queries";
 import { cn, formatEuroPrefix } from "@/lib/utils";
 import type { ListingCondition } from "@/types/domain";
@@ -78,6 +80,9 @@ export default async function ListingPage(props: PageProps) {
 
   const isAdmin = profile?.role === "admin";
   const isOwnerSeller = Boolean(sellerSelf?.id === listing.seller_id);
+  const showWatcher = isOwnerSeller || isAdmin;
+  const watcherCount = showWatcher ? await fetchListingWatcherCount(listing.id) : 0;
+
   const showManagement = isAdmin || isOwnerSeller;
   const showMobileSticky =
     listing.status === "active" && !isOwnerSeller && !isAdmin;
@@ -112,17 +117,13 @@ export default async function ListingPage(props: PageProps) {
                 </Button>
               </div>
               <div className="absolute right-4 top-4 z-20 lg:right-4 lg:top-4">
-                <Button
-                  variant="outline"
-                  size="icon-sm"
-                  className="border-0 bg-white/90 text-ink-2 shadow-md backdrop-blur-sm hover:bg-white"
-                  aria-label="Save"
-                  disabled
-                >
-                  <span className="text-lg" aria-hidden>
-                    ♡
-                  </span>
-                </Button>
+                <ListingDetailSaveButton
+                  listingId={listing.id}
+                  initialSaved={listing.is_saved_by_current_user}
+                  isGuest={!profile}
+                  isOwner={isOwnerSeller}
+                  loginNextPath={loginNextPath}
+                />
               </div>
               <ListingGallery
                 title={listing.title}
@@ -147,8 +148,14 @@ export default async function ListingPage(props: PageProps) {
                 <span className="font-semibold text-mint">{shortCondition[listing.condition]}</span>
                 <span className="text-ink-3">·</span>
                 <span className="text-ink-3">{listing.location?.trim() || "—"}</span>
-                <span className="text-ink-3">·</span>
-                <span className="text-ink-3">0 saves</span>
+                {showWatcher ? (
+                  <>
+                    <span className="text-ink-3">·</span>
+                    <span className="text-ink-3 tabular-nums">
+                      {watcherCount === 1 ? "1 watching" : `${watcherCount} watching`}
+                    </span>
+                  </>
+                ) : null}
               </div>
 
               <div className="mt-4 flex items-center gap-3 rounded-2xl bg-[#F7F6F3] p-4">

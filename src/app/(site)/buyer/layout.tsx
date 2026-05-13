@@ -1,5 +1,4 @@
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
-import { buyerNav } from "@/config/navigation";
 import { requireRole } from "@/lib/auth/guards";
 import { getLocale } from "@/i18n/get-locale";
 import { MESSAGES } from "@/i18n/messages";
@@ -16,6 +15,13 @@ export default async function BuyerLayout({
   const heading =
     profile.full_name?.trim() || profile.email?.trim() || m.dashboard.buyerAccountFallback;
 
+  const navItems = [
+    { href: "/buyer", label: m.buyerNav.overview },
+    { href: "/buyer/purchases", label: m.buyerNav.purchases },
+    { href: "/buyer/offers", label: m.buyerNav.offers },
+    { href: "/buyer/watchlist", label: m.buyerNav.watchlist },
+  ] as const;
+
   return (
     <DashboardShell
       sidebar={{
@@ -23,7 +29,7 @@ export default async function BuyerLayout({
         heading,
         description: m.dashboard.buyer,
       }}
-      navItems={buyerNav}
+      navItems={navItems}
     >
       {children}
     </DashboardShell>

@@ -7,6 +7,7 @@ import { ListingCard } from "@/components/listings/listing-card";
 import { ListingFilters } from "@/components/listings/listing-filters";
 import { Button } from "@/components/ui/button";
 import { SITE_CONTAINER } from "@/config/site-layout";
+import { getSessionUser } from "@/lib/auth/guards";
 import { getLocale } from "@/i18n/get-locale";
 import { MESSAGES } from "@/i18n/messages";
 import {
@@ -56,11 +57,13 @@ export default async function BrowsePage(props: PageProps) {
     sort: first(sp.sort) || "newest",
   };
 
-  const [categories, brands, listings] = await Promise.all([
+  const [categories, brands, listings, user] = await Promise.all([
     fetchCategories(),
     fetchBrands(),
     fetchBrowseListings(params),
+    getSessionUser(),
   ]);
+  const viewerId = user?.id ?? null;
 
   const active = filtersActive(params);
   const countLabel =
@@ -133,6 +136,11 @@ export default async function BrowsePage(props: PageProps) {
             {listings.map((item, index) => (
               <ListingCard
                 key={item.id}
+                listingId={item.id}
+                viewerUserId={viewerId}
+                sellerOwnerUserId={item.seller_owner_user_id ?? null}
+                isSaved={Boolean(item.is_saved_by_current_user)}
+                isGuest={!viewerId}
                 title={item.title}
                 slug={item.slug}
                 priceCents={item.price_cents}

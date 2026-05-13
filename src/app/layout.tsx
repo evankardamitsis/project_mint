@@ -43,7 +43,7 @@ export default async function RootLayout({
   return (
     <html
       lang={locale === "el" ? "el" : "en"}
-      className={`${robotoSans.variable} ${robotoMono.variable} ${displayCondensed.variable} h-full antialiased`}
+      className={`${robotoSans.className} ${robotoSans.variable} ${robotoMono.variable} ${displayCondensed.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col" suppressHydrationWarning>
         {children}

@@ -32,6 +32,11 @@ export async function SiteHeader({
         ? ("session_no_profile" as const)
         : null;
 
+  const savedHref =
+    account && account !== "session_no_profile"
+      ? "/buyer/watchlist"
+      : `/auth/login?next=${encodeURIComponent("/buyer/watchlist")}`;
+
   const logo = (
     <Link
       href="/"
@@ -56,6 +61,7 @@ export async function SiteHeader({
           sellLabel={m.header.sell}
           searchAria={m.header.searchAria}
           savedAria={m.header.savedAria}
+          savedHref={savedHref}
           logIn={m.header.logIn}
           join={m.header.join}
           account={account}

@@ -1,5 +1,9 @@
 import { createClient } from "@/lib/supabase/server";
 
+import {
+  fetchSavedListingIdsForUser,
+  fetchSellerWatcherCountsByListingId,
+} from "@/lib/favorites/queries";
 import type {
   AdminListingRow,
   BrandOption,
@@ -36,13 +40,24 @@ function sellerDisplayNameFromRow(row: {
   seller_profiles: unknown;
 }): string | null {
   const raw = row.seller_profiles as
-    | { display_name?: string }
-    | { display_name?: string }[]
+    | { display_name?: string; user_id?: string }
+    | { display_name?: string; user_id?: string }[]
     | null
     | undefined;
   const one = Array.isArray(raw) ? raw[0] : raw;
   const name = one?.display_name?.trim();
   return name || null;
+}
+
+function sellerOwnerUserIdFromRow(row: { seller_profiles: unknown }): string | null {
+  const raw = row.seller_profiles as
+    | { user_id?: string }
+    | { user_id?: string }[]
+    | null
+    | undefined;
+  const one = Array.isArray(raw) ? raw[0] : raw;
+  const id = one?.user_id?.trim();
+  return id || null;
 }
 
 function parseFiniteNumber(value: unknown): number | null {
@@ -124,7 +139,7 @@ export async function fetchBrowseListings(
   let query = supabase
     .from("listings")
     .select(
-      "id, title, slug, price_cents, currency, condition, status, location, created_at, protected_delivery_enabled, categories ( name, slug ), listing_images ( id, url, sort_order ), seller_profiles ( display_name )",
+      "id, title, slug, price_cents, currency, condition, status, location, created_at, protected_delivery_enabled, categories ( name, slug ), listing_images ( id, url, sort_order ), seller_profiles ( display_name, user_id )",
     )
     .eq("status", "active");
 
@@ -199,7 +214,7 @@ export async function fetchBrowseListings(
     return [];
   }
 
-  return (data ?? []).map((row) => {
+  const mapped = (data ?? []).map((row) => {
     const images = row.listing_images as ListingImageRow[] | null | undefined;
     const catRaw = row.categories as
       | { name?: string; slug?: string }
@@ -222,8 +237,15 @@ export async function fetchBrowseListings(
       category_name: cat?.name ?? null,
       category_slug: cat?.slug ?? null,
       seller_display_name: sellerDisplayNameFromRow(row),
+      seller_owner_user_id: sellerOwnerUserIdFromRow(row),
     };
   });
+
+  const saved = await fetchSavedListingIdsForUser(mapped.map((r) => r.id));
+  return mapped.map((r) => ({
+    ...r,
+    is_saved_by_current_user: saved.has(r.id),
+  }));
 }
 
 export async function fetchHomeListings(limit = 8): Promise<ListingCardData[]> {
@@ -231,7 +253,7 @@ export async function fetchHomeListings(limit = 8): Promise<ListingCardData[]> {
   const { data, error } = await supabase
     .from("listings")
     .select(
-      "id, title, slug, price_cents, currency, condition, status, location, created_at, protected_delivery_enabled, categories ( name, slug ), listing_images ( id, url, sort_order ), seller_profiles ( display_name )",
+      "id, title, slug, price_cents, currency, condition, status, location, created_at, protected_delivery_enabled, categories ( name, slug ), listing_images ( id, url, sort_order ), seller_profiles ( display_name, user_id )",
     )
     .eq("status", "active")
     .order("created_at", { ascending: false })
@@ -240,7 +262,7 @@ export async function fetchHomeListings(limit = 8): Promise<ListingCardData[]> {
     console.error("[listings] fetchHomeListings", error.message);
     return [];
   }
-  return (data ?? []).map((row) => {
+  const mapped = (data ?? []).map((row) => {
     const images = row.listing_images as ListingImageRow[] | null | undefined;
     const catRaw = row.categories as
       | { name?: string; slug?: string }
@@ -263,8 +285,14 @@ export async function fetchHomeListings(limit = 8): Promise<ListingCardData[]> {
       category_name: cat?.name ?? null,
       category_slug: cat?.slug ?? null,
       seller_display_name: sellerDisplayNameFromRow(row),
+      seller_owner_user_id: sellerOwnerUserIdFromRow(row),
     };
   });
+  const saved = await fetchSavedListingIdsForUser(mapped.map((r) => r.id));
+  return mapped.map((r) => ({
+    ...r,
+    is_saved_by_current_user: saved.has(r.id),
+  }));
 }
 
 export type HomeMarketStats = {
@@ -306,7 +334,7 @@ export async function fetchHomeListingsByCategorySlug(
   const { data, error } = await supabase
     .from("listings")
     .select(
-      "id, title, slug, price_cents, currency, condition, status, location, created_at, protected_delivery_enabled, categories ( name, slug ), listing_images ( id, url, sort_order ), seller_profiles ( display_name )",
+      "id, title, slug, price_cents, currency, condition, status, location, created_at, protected_delivery_enabled, categories ( name, slug ), listing_images ( id, url, sort_order ), seller_profiles ( display_name, user_id )",
     )
     .eq("status", "active")
     .eq("category_id", cat.id)
@@ -316,7 +344,7 @@ export async function fetchHomeListingsByCategorySlug(
     console.error("[listings] fetchHomeListingsByCategorySlug", error.message);
     return [];
   }
-  return (data ?? []).map((row) => {
+  const mapped = (data ?? []).map((row) => {
     const images = row.listing_images as ListingImageRow[] | null | undefined;
     const catRaw = row.categories as
       | { name?: string; slug?: string }
@@ -339,8 +367,14 @@ export async function fetchHomeListingsByCategorySlug(
       category_name: c?.name ?? null,
       category_slug: c?.slug ?? null,
       seller_display_name: sellerDisplayNameFromRow(row),
+      seller_owner_user_id: sellerOwnerUserIdFromRow(row),
     };
   });
+  const saved = await fetchSavedListingIdsForUser(mapped.map((r) => r.id));
+  return mapped.map((r) => ({
+    ...r,
+    is_saved_by_current_user: saved.has(r.id),
+  }));
 }
 
 export async function fetchSellerListings(
@@ -350,7 +384,7 @@ export async function fetchSellerListings(
   const { data, error } = await supabase
     .from("listings")
     .select(
-      "id, title, slug, price_cents, currency, condition, status, location, created_at, protected_delivery_enabled, categories ( name, slug ), listing_images ( id, url, sort_order ), seller_profiles ( display_name )",
+      "id, title, slug, price_cents, currency, condition, status, location, created_at, protected_delivery_enabled, categories ( name, slug ), listing_images ( id, url, sort_order ), seller_profiles ( display_name, user_id )",
     )
     .eq("seller_id", sellerProfileId)
     .order("created_at", { ascending: false });
@@ -358,7 +392,7 @@ export async function fetchSellerListings(
     console.error("[listings] fetchSellerListings", error.message);
     return [];
   }
-  return (data ?? []).map((row) => {
+  const mapped = (data ?? []).map((row) => {
     const images = row.listing_images as ListingImageRow[] | null | undefined;
     const catRaw = row.categories as
       | { name?: string; slug?: string }
@@ -381,8 +415,15 @@ export async function fetchSellerListings(
       category_name: cat?.name ?? null,
       category_slug: cat?.slug ?? null,
       seller_display_name: sellerDisplayNameFromRow(row),
+      seller_owner_user_id: sellerOwnerUserIdFromRow(row),
     };
   });
+
+  const counts = await fetchSellerWatcherCountsByListingId();
+  return mapped.map((r) => ({
+    ...r,
+    watcher_count: counts.get(r.id) ?? 0,
+  }));
 }
 
 type ListingDetailRow = {
@@ -467,6 +508,20 @@ export async function fetchListingBySlug(
   const sellerSales = parseFiniteNumber(seller?.completed_sales_count);
   const sellerRating = parseFiniteNumber(seller?.average_rating);
 
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  let is_saved_by_current_user = false;
+  if (user) {
+    const { data: fav } = await supabase
+      .from("favorites")
+      .select("id")
+      .eq("user_id", user.id)
+      .eq("listing_id", row.id)
+      .maybeSingle();
+    is_saved_by_current_user = Boolean(fav);
+  }
+
   return {
     id: row.id,
     seller_id: row.seller_id,
@@ -490,6 +545,7 @@ export async function fetchListingBySlug(
       sellerSales != null ? Math.max(0, Math.floor(sellerSales)) : null,
     seller_rating: sellerRating,
     images,
+    is_saved_by_current_user,
   };
 }
 

@@ -43,6 +43,12 @@ export interface ListingCardData {
   category_slug?: string | null;
   /** Seller shop name from `seller_profiles.display_name` when joined */
   seller_display_name?: string | null;
+  /** Seller account id (`seller_profiles.user_id`); for save/owner checks on public grids */
+  seller_owner_user_id?: string | null;
+  /** When viewer is logged in; omitted/false for anonymous */
+  is_saved_by_current_user?: boolean;
+  /** Aggregate savers (seller dashboard only); no identities */
+  watcher_count?: number;
 }
 
 export interface ListingDetailData {
@@ -69,6 +75,10 @@ export interface ListingDetailData {
   /** From `seller_profiles` when present (e.g. 4.8). */
   seller_rating?: number | null;
   images: ListingImageRow[];
+  /** Current viewer has this listing saved */
+  is_saved_by_current_user: boolean;
+  /** Total favorites (seller or admin on detail only) */
+  watcher_count?: number;
 }
 
 export interface SellerProfileRow {

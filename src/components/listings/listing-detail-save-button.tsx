@@ -1,53 +1,51 @@
 "use client";
 
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useTransition } from "react";
 import { Heart } from "lucide-react";
 
 import { toggleSaveListingAction } from "@/lib/favorites/actions";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-export function ListingCardHeartButton({
+export function ListingDetailSaveButton({
   listingId,
   initialSaved,
   isGuest,
   isOwner,
+  loginNextPath,
   className,
 }: {
   listingId: string;
   initialSaved: boolean;
   isGuest: boolean;
   isOwner: boolean;
+  loginNextPath: string;
   className?: string;
 }) {
   const router = useRouter();
-  const pathname = usePathname();
   const [pending, startTransition] = useTransition();
 
   if (isOwner) {
     return null;
   }
 
-  function goLogin() {
-    const next = pathname || "/browse";
-    router.push(`/auth/login?next=${encodeURIComponent(next)}`);
-  }
-
   return (
-    <button
+    <Button
       type="button"
+      variant="outline"
+      size="icon-sm"
       disabled={pending}
       className={cn(
-        className,
+        "border-0 bg-white/90 shadow-md backdrop-blur-sm hover:bg-white",
+        initialSaved ? "text-[#1a7a4a]" : "text-ink-2",
         pending && "opacity-70",
-        initialSaved && "text-[#1a7a4a]",
+        className,
       )}
-      aria-label={initialSaved ? "Remove from saved" : "Save listing"}
-      onClick={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
+      aria-label={initialSaved ? "Saved — click to remove" : "Save listing"}
+      onClick={() => {
         if (isGuest) {
-          goLogin();
+          router.push(`/auth/login?next=${encodeURIComponent(loginNextPath)}`);
           return;
         }
         startTransition(async () => {
@@ -59,7 +57,7 @@ export function ListingCardHeartButton({
         });
       }}
     >
-      <Heart className={cn("size-3.5", initialSaved && "fill-current")} strokeWidth={1.75} aria-hidden />
-    </button>
+      <Heart className={cn("size-5", initialSaved && "fill-current")} strokeWidth={1.75} aria-hidden />
+    </Button>
   );
 }

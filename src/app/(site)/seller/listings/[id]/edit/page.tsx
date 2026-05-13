@@ -12,6 +12,7 @@ import {
   fetchSellerListingForEdit,
   fetchSellerProfileForUser,
 } from "@/lib/listings/queries";
+import { fetchListingWatcherCount } from "@/lib/favorites/queries";
 
 type PageProps = { params: Promise<{ id: string }> };
 
@@ -27,6 +28,9 @@ export default async function EditSellerListingPage(props: PageProps) {
   if (!seller || !listing || listing.seller_id !== seller.id) {
     notFound();
   }
+
+  const watcherCount = await fetchListingWatcherCount(listing.id);
+  const watcherLabel = watcherCount === 1 ? "1 watching" : `${watcherCount} watching`;
 
   if (listing.status === "sold") {
     return (
@@ -53,7 +57,7 @@ export default async function EditSellerListingPage(props: PageProps) {
     <div className="space-y-8">
       <PageHeader
         title="Edit listing"
-        description="Changes to active or rejected listings send the item back to admin review."
+        description={`Changes to active or rejected listings send the item back to admin review. ${watcherLabel}.`}
         actions={
           <div className="flex flex-wrap items-center gap-2">
             <StatusBadge domain="listing" value={listing.status} />
