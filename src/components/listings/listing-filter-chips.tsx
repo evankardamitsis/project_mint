@@ -14,6 +14,7 @@ export type BrowseFilterChipLabels = {
   filterBrand: string;
   filterCondition: string;
   filterPrice: string;
+  filterPriceDrops: string;
   filterAllCategories: string;
   filterAllBrands: string;
   filterAnyCondition: string;
@@ -35,6 +36,8 @@ type Values = {
   min_price: string;
   max_price: string;
   sort: string;
+  deal: string;
+  priceDrop: string;
 };
 
 function browseHref(patch: Partial<Record<string, string>>) {
@@ -59,6 +62,8 @@ function hrefWith(base: Values, patch: Partial<Values>) {
     ...(next.min_price ? { min_price: next.min_price } : {}),
     ...(next.max_price ? { max_price: next.max_price } : {}),
     ...(next.sort && next.sort !== "newest" ? { sort: next.sort } : {}),
+    ...(next.deal === "price-drops" ? { deal: next.deal } : {}),
+    ...(next.priceDrop === "true" ? { priceDrop: "true" } : {}),
   });
 }
 
@@ -167,8 +172,12 @@ export function ListingFilterChips({
       values.condition ||
       values.min_price ||
       values.max_price ||
-      (values.sort && values.sort !== "newest"),
+      (values.sort && values.sort !== "newest") ||
+      values.deal === "price-drops" ||
+      values.priceDrop === "true",
   );
+
+  const priceDropsActive = values.deal === "price-drops" || values.priceDrop === "true";
 
   return (
     <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -209,6 +218,19 @@ export function ListingFilterChips({
             </ChipLinkRow>
           ))}
         </ChipDetails>
+
+        <Link
+          href={hrefWith(values, {
+            deal: priceDropsActive ? "" : "price-drops",
+            priceDrop: "",
+          })}
+          className={cn(
+            "inline-flex shrink-0 list-none items-center gap-1.25 rounded-none border border-[#cccccc] bg-white px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.08em] text-[#444444] hover:border-[#111111]/70",
+            priceDropsActive && "border-[#111111] bg-[#111111] text-white",
+          )}
+        >
+          {labels.filterPriceDrops}
+        </Link>
 
         {filtersActive ? (
           <Link

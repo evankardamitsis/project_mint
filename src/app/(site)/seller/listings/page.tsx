@@ -104,6 +104,11 @@ export default async function SellerListingsPage() {
                 <p className="mt-1 text-xs font-medium text-ink-2 tabular-nums">
                   {(row.watcher_count ?? 0) === 1 ? "1 watching" : `${row.watcher_count ?? 0} watching`}
                 </p>
+                <p className="mt-1 text-xs text-ink-3">
+                  {typeof row.latest_price_drop_percent === "number" && row.latest_price_drop_percent <= -5
+                    ? `Dropped ${Math.round(Math.abs(row.latest_price_drop_percent))}%`
+                    : "No price drop"}
+                </p>
                 <p className={cn("mt-1 text-xs font-medium capitalize", statusColor(row.status))}>{statusLabel(row.status)}</p>
               </div>
               <div className="flex w-full shrink-0 items-center justify-between gap-3 sm:w-auto sm:flex-col sm:items-end">

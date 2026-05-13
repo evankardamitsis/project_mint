@@ -96,6 +96,10 @@ export function ListingCard({
   sellerOwnerUserId = null,
   isSaved = false,
   isGuest = true,
+  latestPriceDropPercent = null,
+  latestPriceDropOldPriceCents = null,
+  latestPriceDropCreatedAt = null,
+  watchlistSavedAt = null,
 }: {
   title: string;
   slug: string;
@@ -118,6 +122,10 @@ export function ListingCard({
   sellerOwnerUserId?: string | null;
   isSaved?: boolean;
   isGuest?: boolean;
+  latestPriceDropPercent?: number | null;
+  latestPriceDropOldPriceCents?: number | null;
+  latestPriceDropCreatedAt?: string | null;
+  watchlistSavedAt?: string | null;
 }) {
   const reserved = status === "reserved";
   const shopName = sellerDisplayName?.trim() ?? "";
@@ -140,12 +148,39 @@ export function ListingCard({
           maximumFractionDigits: 2,
         }).format(priceCents / 100);
 
+  const pct = latestPriceDropPercent;
+  const hasMeaningfulDrop = typeof pct === "number" && Number.isFinite(pct) && pct <= -5;
+  const majorDrop = typeof pct === "number" && Number.isFinite(pct) && pct <= -10;
+  const dropPctRounded = hasMeaningfulDrop ? Math.round(Math.abs(pct)) : 0;
+  const oldStrike =
+    hasMeaningfulDrop &&
+    typeof latestPriceDropOldPriceCents === "number" &&
+    latestPriceDropOldPriceCents > priceCents
+      ? currency === "EUR"
+        ? formatEuroPrefix(latestPriceDropOldPriceCents)
+        : new Intl.NumberFormat("en-US", {
+            style: "currency",
+            currency,
+            minimumFractionDigits: latestPriceDropOldPriceCents % 100 === 0 ? 0 : 2,
+            maximumFractionDigits: 2,
+          }).format(latestPriceDropOldPriceCents / 100)
+      : null;
+  const newDropSinceWatch =
+    Boolean(watchlistSavedAt && latestPriceDropCreatedAt) &&
+    new Date(latestPriceDropCreatedAt as string).getTime() > new Date(watchlistSavedAt as string).getTime();
+
   const href = `/listing/${slug}`;
   const conditionLabel = conditionDisplayLabel(condition);
   const pillColor = conditionPillColor(condition);
 
   return (
-    <article className={cn("group relative block w-full bg-[var(--color-background-page)]", className)}>
+    <article
+      className={cn(
+        "group relative block w-full bg-[var(--color-background-page)]",
+        newDropSinceWatch && "shadow-[inset_3px_0_0_0_#1a7a4a]",
+        className,
+      )}
+    >
       <Link
         href={href}
         className="block focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--ring)]"
@@ -212,7 +247,19 @@ export function ListingCard({
             ) : null}
           </p>
           <div className="flex items-baseline justify-between gap-1">
-            <p className="text-[19px] font-black leading-none tracking-[-0.03em] text-[#111111] tabular-nums">{priceLabel}</p>
+            <div className="min-w-0">
+              {oldStrike ? (
+                <p className="mb-0.5 text-[11px] font-semibold tabular-nums text-[#999999] line-through">{oldStrike}</p>
+              ) : null}
+              <p className="text-[19px] font-black leading-none tracking-[-0.03em] text-[#111111] tabular-nums">
+                {priceLabel}
+              </p>
+              {hasMeaningfulDrop ? (
+                <p className="mt-1 text-[8px] font-black uppercase tracking-[0.12em] text-[#1a7a4a]">
+                  {majorDrop ? `−${dropPctRounded}%` : "Price drop"}
+                </p>
+              ) : null}
+            </div>
             {metaLine ? (
               <p className="max-w-[110px] shrink-0 overflow-hidden text-ellipsis whitespace-nowrap text-[9px] uppercase tracking-[0.04em] text-text-muted">
                 {metaLine}

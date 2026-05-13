@@ -85,6 +85,7 @@ export default async function AdminListingsPage(props: PageProps) {
               <TableHead>Seller</TableHead>
               <TableHead>Category</TableHead>
               <TableHead>Price</TableHead>
+              <TableHead className="whitespace-nowrap text-xs">Drop</TableHead>
               <TableHead>Condition</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Created</TableHead>
@@ -94,7 +95,7 @@ export default async function AdminListingsPage(props: PageProps) {
           <TableBody>
             {listings.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={9} className="py-10 text-center text-sm text-muted-foreground">
+                <TableCell colSpan={10} className="py-10 text-center text-sm text-muted-foreground">
                   No listings in this view.
                 </TableCell>
               </TableRow>
@@ -119,6 +120,13 @@ export default async function AdminListingsPage(props: PageProps) {
                   <TableCell className="text-sm">{row.category_name ?? "—"}</TableCell>
                   <TableCell>
                     <Price amountCents={row.price_cents} currency={row.currency} />
+                  </TableCell>
+                  <TableCell className="whitespace-nowrap text-xs text-muted-foreground tabular-nums">
+                    {row.status === "active" &&
+                    typeof row.latest_price_drop_percent === "number" &&
+                    row.latest_price_drop_percent <= -5
+                      ? `−${Math.round(Math.abs(row.latest_price_drop_percent))}%`
+                      : "—"}
                   </TableCell>
                   <TableCell>
                     <ConditionBadge condition={row.condition} />

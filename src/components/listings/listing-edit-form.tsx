@@ -20,6 +20,7 @@ import {
   updateSellerListingAction,
 } from "@/lib/listings/seller-actions";
 import { centsToEurosInput } from "@/lib/listings/money";
+import { formatEuroPrefix } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -252,6 +253,22 @@ export function ListingEditForm({
             {fieldErrors?.price_euros ? (
               <p className="text-xs text-destructive">{fieldErrors.price_euros}</p>
             ) : null}
+            {listing.price_history?.[0] ? (
+              <p className="text-xs text-muted-foreground">
+                Last recorded change:{" "}
+                <span className="font-medium tabular-nums text-foreground">
+                  {formatEuroPrefix(listing.price_history[0].old_price_cents)} →{" "}
+                  {formatEuroPrefix(listing.price_history[0].new_price_cents)}
+                </span>
+                {listing.price_history[0].change_percent != null ? (
+                  <span className="tabular-nums">
+                    {" "}
+                    ({Number(listing.price_history[0].change_percent) >= 0 ? "+" : ""}
+                    {Number(listing.price_history[0].change_percent).toFixed(1)}%)
+                  </span>
+                ) : null}
+              </p>
+            ) : null}
           </div>
           <div className="space-y-2 sm:col-span-2">
             <Label htmlFor="location">Location</Label>
@@ -297,6 +314,37 @@ export function ListingEditForm({
           </div>
         </CardContent>
       </Card>
+
+      {listing.price_history && listing.price_history.length > 0 ? (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Price history</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ul className="space-y-2 text-sm text-muted-foreground">
+              {listing.price_history.map((h) => (
+                <li key={h.id} className="flex flex-wrap items-baseline gap-x-2 tabular-nums">
+                  <span className="font-medium text-foreground">
+                    {formatEuroPrefix(h.old_price_cents)} → {formatEuroPrefix(h.new_price_cents)}
+                  </span>
+                  <span className="text-xs">
+                    {new Date(h.created_at).toLocaleString(undefined, {
+                      dateStyle: "medium",
+                      timeStyle: "short",
+                    })}
+                  </span>
+                  {h.change_percent != null ? (
+                    <span className="text-xs">
+                      ({Number(h.change_percent) >= 0 ? "+" : ""}
+                      {Number(h.change_percent).toFixed(1)}%)
+                    </span>
+                  ) : null}
+                </li>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
+      ) : null}
 
       <Card>
         <CardHeader>

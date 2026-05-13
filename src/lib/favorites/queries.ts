@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 
+import { attachPublicPriceDropToCard, fetchPublicPriceDropSignalsForListingIds } from "@/lib/listings/price-drop";
 import type { ListingCardData, ListingImageRow } from "@/types/listings";
 import type { ListingCondition, ListingStatus } from "@/types/domain";
 
@@ -98,6 +99,7 @@ export async function fetchBuyerWatchlistListings(): Promise<ListingCardData[]> 
   }
 
   const rows = (data ?? []) as unknown as {
+    created_at: string;
     listings:
       | {
           id: string;
@@ -166,9 +168,11 @@ export async function fetchBuyerWatchlistListings(): Promise<ListingCardData[]> 
       seller_display_name: sp?.display_name?.trim() ?? null,
       seller_owner_user_id: sp?.user_id?.trim() ?? null,
       is_saved_by_current_user: true,
+      watchlist_saved_at: row.created_at as string,
     });
   }
-  return out;
+  const signals = await fetchPublicPriceDropSignalsForListingIds(supabase, out.map((r) => r.id));
+  return out.map((r) => attachPublicPriceDropToCard(r, signals.get(r.id)));
 }
 
 export async function fetchListingWatcherCount(listingId: string): Promise<number> {

@@ -25,7 +25,15 @@ function isAcceptedImage(file: File): boolean {
 }
 
 type AssertSellerOwnsListingResult =
-  | { ok: true; listingId: string; sellerId: string; status: ListingStatus; title: string; slug: string }
+  | {
+      ok: true;
+      listingId: string;
+      sellerId: string;
+      status: ListingStatus;
+      title: string;
+      slug: string;
+      price_cents: number;
+    }
   | { ok: false };
 
 async function assertSellerOwnsListing(
@@ -43,7 +51,7 @@ async function assertSellerOwnsListing(
   }
   const { data: row, error } = await supabase
     .from("listings")
-    .select("id, seller_id, status, title, slug")
+    .select("id, seller_id, status, title, slug, price_cents")
     .eq("id", listingId)
     .maybeSingle();
   if (error || !row || row.seller_id !== seller.id) {
@@ -56,6 +64,7 @@ async function assertSellerOwnsListing(
     status: row.status as ListingStatus,
     title: row.title as string,
     slug: row.slug as string,
+    price_cents: row.price_cents as number,
   };
 }
 
@@ -225,6 +234,7 @@ function revalidateListingPaths(slug: string, listingId: string) {
   revalidatePath(`/seller/listings/${listingId}/edit`);
   revalidatePath(`/listing/${slug}`);
   revalidatePath("/admin/listings");
+  revalidatePath("/buyer/watchlist");
 }
 
 export async function updateSellerListingAction(
@@ -321,6 +331,23 @@ export async function updateSellerListingAction(
     if (upErr) {
       console.error("[listings] updateSellerListingAction", upErr.message, upErr.code);
       return { ok: false, error: "Could not update this listing." };
+    }
+
+    const oldPrice = gate.price_cents;
+    const newPrice = price.cents;
+    if (oldPrice !== newPrice && oldPrice >= 0 && newPrice >= 0) {
+      const changePercent =
+        oldPrice > 0 ? ((newPrice - oldPrice) / oldPrice) * 100 : null;
+      const { error: histErr } = await supabase.from("listing_price_history").insert({
+        listing_id: listingId,
+        old_price_cents: oldPrice,
+        new_price_cents: newPrice,
+        change_percent: changePercent,
+        changed_by: user.id,
+      });
+      if (histErr) {
+        console.error("[listings] updateSellerListingAction price history", histErr.message);
+      }
     }
 
     const { count: existingCount } = await supabase

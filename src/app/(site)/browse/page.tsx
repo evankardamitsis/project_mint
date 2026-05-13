@@ -12,6 +12,7 @@ import { getLocale } from "@/i18n/get-locale";
 import { MESSAGES } from "@/i18n/messages";
 import {
   type BrowseQueryParams,
+  browsePriceDropsMode,
   fetchBrands,
   fetchBrowseListings,
   fetchCategories,
@@ -37,7 +38,8 @@ function filtersActive(p: BrowseQueryParams): boolean {
       p.condition?.trim() ||
       p.min_price?.trim() ||
       p.max_price?.trim() ||
-      (p.sort && p.sort !== "newest"),
+      (p.sort && p.sort !== "newest") ||
+      browsePriceDropsMode(p),
   );
 }
 
@@ -55,6 +57,8 @@ export default async function BrowsePage(props: PageProps) {
     min_price: first(sp.min_price),
     max_price: first(sp.max_price),
     sort: first(sp.sort) || "newest",
+    deal: first(sp.deal),
+    priceDrop: first(sp.priceDrop),
   };
 
   const [categories, brands, listings, user] = await Promise.all([
@@ -79,12 +83,13 @@ export default async function BrowsePage(props: PageProps) {
         <ListingFilters
           categories={categories}
           brands={brands}
-          filterLabels={{
+            filterLabels={{
             clearAllLink: b.clearAllLink,
             filterCategory: b.filterCategory,
             filterBrand: b.filterBrand,
             filterCondition: b.filterCondition,
             filterPrice: b.filterPrice,
+            filterPriceDrops: b.filterPriceDrops,
             filterAllCategories: b.filterAllCategories,
             filterAllBrands: b.filterAllBrands,
             filterAnyCondition: b.filterAnyCondition,
@@ -105,6 +110,8 @@ export default async function BrowsePage(props: PageProps) {
             min_price: params.min_price ?? "",
             max_price: params.max_price ?? "",
             sort: params.sort ?? "newest",
+            deal: browsePriceDropsMode(params) ? "price-drops" : "",
+            priceDrop: params.priceDrop === "true" ? "true" : "",
           }}
         />
       </div>
@@ -153,6 +160,9 @@ export default async function BrowsePage(props: PageProps) {
                 categoryName={item.category_name}
                 categorySlug={item.category_slug ?? null}
                 sellerDisplayName={item.seller_display_name}
+                latestPriceDropPercent={item.latest_price_drop_percent ?? null}
+                latestPriceDropOldPriceCents={item.latest_price_drop_old_price_cents ?? null}
+                latestPriceDropCreatedAt={item.latest_price_drop_created_at ?? null}
               />
             ))}
           </BauhausListingGrid>

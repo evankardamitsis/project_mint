@@ -142,6 +142,29 @@ export default async function ListingPage(props: PageProps) {
               <p className="price-hero mt-2 text-[#111111] tabular-nums">
                 {priceStr}
               </p>
+              {listing.status === "active" &&
+              typeof listing.latest_price_drop_percent === "number" &&
+              listing.latest_price_drop_percent <= -5 ? (
+                <p className="mt-2 text-sm font-semibold text-[#0A5C43]">
+                  {listing.latest_price_drop_old_price_cents != null ? (
+                    <>
+                      Price dropped from{" "}
+                      <span className="tabular-nums">
+                        {listing.currency === "EUR"
+                          ? formatEuroPrefix(listing.latest_price_drop_old_price_cents)
+                          : new Intl.NumberFormat("en-US", {
+                              style: "currency",
+                              currency: listing.currency,
+                              minimumFractionDigits: listing.latest_price_drop_old_price_cents % 100 === 0 ? 0 : 2,
+                              maximumFractionDigits: 2,
+                            }).format(listing.latest_price_drop_old_price_cents / 100)}
+                      </span>
+                    </>
+                  ) : (
+                    <>Price dropped {Math.round(Math.abs(listing.latest_price_drop_percent))}%</>
+                  )}
+                </p>
+              ) : null}
 
               <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
                 <span className={cn("inline-flex size-2 shrink-0 rounded-full", conditionDotClass(listing.condition))} aria-hidden />

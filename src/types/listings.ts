@@ -49,6 +49,12 @@ export interface ListingCardData {
   is_saved_by_current_user?: boolean;
   /** Aggregate savers (seller dashboard only); no identities */
   watcher_count?: number;
+  /** Signed % change for latest ≥5% price-down on active listing; null if none */
+  latest_price_drop_percent?: number | null;
+  latest_price_drop_old_price_cents?: number | null;
+  latest_price_drop_created_at?: string | null;
+  /** Watchlist only: when the user saved this listing (for “new drop since saved”) */
+  watchlist_saved_at?: string | null;
 }
 
 export interface ListingDetailData {
@@ -79,6 +85,9 @@ export interface ListingDetailData {
   is_saved_by_current_user: boolean;
   /** Total favorites (seller or admin on detail only) */
   watcher_count?: number;
+  latest_price_drop_percent?: number | null;
+  latest_price_drop_old_price_cents?: number | null;
+  latest_price_drop_created_at?: string | null;
 }
 
 export interface SellerProfileRow {
@@ -113,6 +122,16 @@ export interface SellerListingEditData {
   offers_enabled: boolean;
   protected_delivery_enabled: boolean;
   images: ListingImageRow[];
+  /** Recent price changes (seller edit UI); newest first */
+  price_history?: ListingPriceHistoryRow[];
+}
+
+export interface ListingPriceHistoryRow {
+  id: string;
+  old_price_cents: number;
+  new_price_cents: number;
+  change_percent: number | null;
+  created_at: string;
 }
 
 export interface AdminListingRow {
@@ -127,4 +146,6 @@ export interface AdminListingRow {
   seller_display_name: string;
   category_name: string | null;
   primary_image_url: string | null;
+  /** Latest ≥5% price-down (active listings); admin moderation context */
+  latest_price_drop_percent?: number | null;
 }

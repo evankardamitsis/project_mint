@@ -19,6 +19,8 @@ export function ListingFilters({
     min_price: string;
     max_price: string;
     sort: string;
+    deal: string;
+    priceDrop: string;
   };
   filterLabels: BrowseFilterChipLabels;
 }) {
@@ -34,6 +36,8 @@ export function ListingFilters({
         <input type="hidden" name="min_price" value={values.min_price} />
         <input type="hidden" name="max_price" value={values.max_price} />
         <input type="hidden" name="sort" value={values.sort} />
+        <input type="hidden" name="deal" value={values.deal} />
+        <input type="hidden" name="priceDrop" value={values.priceDrop} />
         <div className="relative w-full">
           <Search className="pointer-events-none absolute left-[14px] top-1/2 size-4 -translate-y-1/2 text-[#666666]" aria-hidden />
           <input

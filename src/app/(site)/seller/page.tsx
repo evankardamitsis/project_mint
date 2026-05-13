@@ -132,6 +132,9 @@ export default async function SellerHomePage() {
                 categoryName={row.category_name}
                 categorySlug={row.category_slug ?? null}
                 sellerDisplayName={row.seller_display_name ?? seller.display_name}
+                latestPriceDropPercent={row.latest_price_drop_percent ?? null}
+                latestPriceDropOldPriceCents={row.latest_price_drop_old_price_cents ?? null}
+                latestPriceDropCreatedAt={row.latest_price_drop_created_at ?? null}
                 footer={
                   <div className="flex flex-wrap items-center gap-2">
                     <StatusBadge domain="listing" value={row.status} />

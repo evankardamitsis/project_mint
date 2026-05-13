@@ -61,6 +61,7 @@ export type Messages = {
     filterBrand: string;
     filterCondition: string;
     filterPrice: string;
+    filterPriceDrops: string;
     filterAllCategories: string;
     filterAllBrands: string;
     filterAnyCondition: string;
@@ -201,6 +202,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       filterBrand: "Brand",
       filterCondition: "Condition",
       filterPrice: "Price",
+      filterPriceDrops: "Price drops",
       filterAllCategories: "All categories",
       filterAllBrands: "All brands",
       filterAnyCondition: "Any condition",
@@ -346,6 +348,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       filterBrand: "Μάρκα",
       filterCondition: "Κατάσταση",
       filterPrice: "Τιμή",
+      filterPriceDrops: "Μειώσεις τιμής",
       filterAllCategories: "Όλες οι κατηγορίες",
       filterAllBrands: "Όλες οι μάρκες",
       filterAnyCondition: "Οποιαδήποτε",

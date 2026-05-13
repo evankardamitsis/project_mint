@@ -53,6 +53,10 @@ export default async function BuyerWatchlistPage() {
                 categoryName={item.category_name}
                 categorySlug={item.category_slug ?? null}
                 sellerDisplayName={item.seller_display_name}
+                latestPriceDropPercent={item.latest_price_drop_percent ?? null}
+                latestPriceDropOldPriceCents={item.latest_price_drop_old_price_cents ?? null}
+                latestPriceDropCreatedAt={item.latest_price_drop_created_at ?? null}
+                watchlistSavedAt={item.watchlist_saved_at ?? null}
               />
             ))}
           </BauhausListingGrid>

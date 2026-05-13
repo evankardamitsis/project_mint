@@ -4,6 +4,13 @@ import {
   fetchSavedListingIdsForUser,
   fetchSellerWatcherCountsByListingId,
 } from "@/lib/favorites/queries";
+import {
+  attachPublicPriceDropToCard,
+  attachPublicPriceDropToDetail,
+  fetchBrowsePriceDropOrder,
+  fetchPublicPriceDropSignalsForListingIds,
+  fetchSellerPriceDropInsights,
+} from "@/lib/listings/price-drop";
 import type {
   AdminListingRow,
   BrandOption,
@@ -11,6 +18,7 @@ import type {
   ListingCardData,
   ListingDetailData,
   ListingImageRow,
+  ListingPriceHistoryRow,
   SellerListingEditData,
   SellerProfileFull,
 } from "@/types/listings";
@@ -73,6 +81,112 @@ function parseFiniteNumber(value: unknown): number | null {
   return null;
 }
 
+export type BrowseQueryParams = {
+  q?: string;
+  category?: string;
+  brand?: string;
+  condition?: string;
+  min_price?: string;
+  max_price?: string;
+  sort?: string;
+  /** Meaningful price drops (active listings), sorted by newest drop */
+  deal?: string;
+  priceDrop?: string;
+};
+
+export function browsePriceDropsMode(params: BrowseQueryParams): boolean {
+  return params.deal === "price-drops" || params.priceDrop === "true";
+}
+
+const browseListingSelect =
+  "id, title, slug, price_cents, currency, condition, status, location, created_at, protected_delivery_enabled, categories ( name, slug ), listing_images ( id, url, sort_order ), seller_profiles ( display_name, user_id )";
+
+type BrowseFilterResolution = { categoryId?: string; brandId?: string };
+
+async function resolveBrowseCategoryBrandIds(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  params: BrowseQueryParams,
+): Promise<BrowseFilterResolution> {
+  const out: BrowseFilterResolution = {};
+  if (params.category) {
+    const { data: cat } = await supabase
+      .from("categories")
+      .select("id")
+      .eq("slug", params.category)
+      .maybeSingle();
+    if (cat?.id) {
+      out.categoryId = cat.id as string;
+    }
+  }
+  if (params.brand) {
+    const { data: br } = await supabase.from("brands").select("id").eq("slug", params.brand).maybeSingle();
+    if (br?.id) {
+      out.brandId = br.id as string;
+    }
+  }
+  return out;
+}
+
+/** Text + facet filters on an active-listings browse query (sync — Postgrest builder is thenable). */
+function applyBrowseListingFiltersSync(
+  query: unknown,
+  params: BrowseQueryParams,
+  resolved: BrowseFilterResolution,
+): unknown {
+  type QB = {
+    or: (s: string) => QB;
+    eq: (col: string, val: unknown) => QB;
+    gte: (col: string, val: number) => QB;
+    lte: (col: string, val: number) => QB;
+    in: (col: string, vals: string[]) => QB;
+    order: (col: string, opts: { ascending: boolean }) => QB;
+  };
+  let q = query as QB;
+  const text = params.q?.trim().slice(0, 120) ?? "";
+  if (text.length > 0) {
+    const safe = escapeIlike(text);
+    q = q.or(`title.ilike.%${safe}%,description.ilike.%${safe}%`);
+  }
+
+  if (resolved.categoryId) {
+    q = q.eq("category_id", resolved.categoryId);
+  }
+
+  if (resolved.brandId) {
+    q = q.eq("brand_id", resolved.brandId);
+  }
+
+  if (params.condition) {
+    const allowed: ListingCondition[] = [
+      "brand_new",
+      "mint",
+      "excellent",
+      "very_good",
+      "good",
+      "fair",
+      "poor",
+      "non_functioning",
+    ];
+    if (allowed.includes(params.condition as ListingCondition)) {
+      q = q.eq("condition", params.condition as ListingCondition);
+    }
+  }
+
+  const minEur = params.min_price?.trim();
+  if (minEur && /^\d+(\.\d{1,2})?$/.test(minEur)) {
+    const cents = Math.round(Number.parseFloat(minEur) * 100);
+    q = q.gte("price_cents", cents);
+  }
+
+  const maxEur = params.max_price?.trim();
+  if (maxEur && /^\d+(\.\d{1,2})?$/.test(maxEur)) {
+    const cents = Math.round(Number.parseFloat(maxEur) * 100);
+    q = q.lte("price_cents", cents);
+  }
+
+  return q;
+}
+
 export async function fetchCategories(): Promise<CategoryOption[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
@@ -121,83 +235,92 @@ export async function fetchSellerProfileForUser(): Promise<SellerProfileFull | n
   return data as SellerProfileFull | null;
 }
 
-export type BrowseQueryParams = {
-  q?: string;
-  category?: string;
-  brand?: string;
-  condition?: string;
-  min_price?: string;
-  max_price?: string;
-  sort?: string;
-};
-
 export async function fetchBrowseListings(
   params: BrowseQueryParams,
 ): Promise<ListingCardData[]> {
   const supabase = await createClient();
 
-  let query = supabase
-    .from("listings")
-    .select(
-      "id, title, slug, price_cents, currency, condition, status, location, created_at, protected_delivery_enabled, categories ( name, slug ), listing_images ( id, url, sort_order ), seller_profiles ( display_name, user_id )",
-    )
-    .eq("status", "active");
+  const mapBrowseRows = (
+    rows: {
+      id: unknown;
+      title: unknown;
+      slug: unknown;
+      price_cents: unknown;
+      currency: unknown;
+      condition: unknown;
+      location: unknown;
+      status: unknown;
+      created_at: unknown;
+      protected_delivery_enabled: unknown;
+      categories: unknown;
+      listing_images: ListingImageRow[] | null | undefined;
+      seller_profiles: unknown;
+    }[],
+  ): ListingCardData[] =>
+    rows.map((row) => {
+      const images = row.listing_images as ListingImageRow[] | null | undefined;
+      const catRaw = row.categories as
+        | { name?: string; slug?: string }
+        | { name?: string; slug?: string }[]
+        | null
+        | undefined;
+      const cat = Array.isArray(catRaw) ? catRaw[0] : catRaw;
+      return {
+        id: row.id as string,
+        title: row.title as string,
+        slug: row.slug as string,
+        price_cents: row.price_cents as number,
+        currency: (row.currency as string) ?? "EUR",
+        condition: row.condition as ListingCondition,
+        location: (row.location as string | null) ?? null,
+        status: row.status as ListingCardData["status"],
+        created_at: row.created_at as string,
+        primary_image_url: primaryImageUrl(images),
+        protected_delivery_enabled: Boolean(row.protected_delivery_enabled),
+        category_name: cat?.name ?? null,
+        category_slug: cat?.slug ?? null,
+        seller_display_name: sellerDisplayNameFromRow(row),
+        seller_owner_user_id: sellerOwnerUserIdFromRow(row),
+      };
+    });
 
-  const q = params.q?.trim().slice(0, 120) ?? "";
-  if (q.length > 0) {
-    const safe = escapeIlike(q);
-    query = query.or(`title.ilike.%${safe}%,description.ilike.%${safe}%`);
-  }
-
-  if (params.category) {
-    const { data: cat } = await supabase
-      .from("categories")
-      .select("id")
-      .eq("slug", params.category)
-      .maybeSingle();
-    if (cat?.id) {
-      query = query.eq("category_id", cat.id);
+  if (browsePriceDropsMode(params)) {
+    const ordered = await fetchBrowsePriceDropOrder(supabase);
+    if (ordered.length === 0) {
+      return [];
     }
-  }
-
-  if (params.brand) {
-    const { data: br } = await supabase
-      .from("brands")
-      .select("id")
-      .eq("slug", params.brand)
-      .maybeSingle();
-    if (br?.id) {
-      query = query.eq("brand_id", br.id);
+    const orderedIds = ordered.map((o) => o.listing_id);
+    const resolved = await resolveBrowseCategoryBrandIds(supabase, params);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Postgrest builder is thenable; sync helper returns unknown to avoid async auto-await.
+    const q: any = applyBrowseListingFiltersSync(
+      supabase.from("listings").select(browseListingSelect).eq("status", "active").in("id", orderedIds),
+      params,
+      resolved,
+    );
+    const { data, error } = await q;
+    if (error) {
+      console.error("[listings] fetchBrowseListings price drops", error.message);
+      return [];
     }
+    let mapped = mapBrowseRows(data ?? []);
+    const idSet = new Set(mapped.map((m) => m.id));
+    const orderedFiltered = ordered.filter((o) => idSet.has(o.listing_id));
+    const idx = new Map(orderedFiltered.map((o, i) => [o.listing_id, i]));
+    mapped = [...mapped].sort((a, b) => (idx.get(a.id) ?? 1e9) - (idx.get(b.id) ?? 1e9));
+    const signals = await fetchPublicPriceDropSignalsForListingIds(supabase, mapped.map((r) => r.id));
+    const saved = await fetchSavedListingIdsForUser(mapped.map((r) => r.id));
+    return mapped.map((r) =>
+      attachPublicPriceDropToCard({ ...r, is_saved_by_current_user: saved.has(r.id) }, signals.get(r.id)),
+    );
   }
 
-  if (params.condition) {
-    const allowed: ListingCondition[] = [
-      "brand_new",
-      "mint",
-      "excellent",
-      "very_good",
-      "good",
-      "fair",
-      "poor",
-      "non_functioning",
-    ];
-    if (allowed.includes(params.condition as ListingCondition)) {
-      query = query.eq("condition", params.condition as ListingCondition);
-    }
-  }
-
-  const minEur = params.min_price?.trim();
-  if (minEur && /^\d+(\.\d{1,2})?$/.test(minEur)) {
-    const cents = Math.round(Number.parseFloat(minEur) * 100);
-    query = query.gte("price_cents", cents);
-  }
-
-  const maxEur = params.max_price?.trim();
-  if (maxEur && /^\d+(\.\d{1,2})?$/.test(maxEur)) {
-    const cents = Math.round(Number.parseFloat(maxEur) * 100);
-    query = query.lte("price_cents", cents);
-  }
+  const resolved = await resolveBrowseCategoryBrandIds(supabase, params);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Postgrest builder is thenable; sync helper returns unknown to avoid async auto-await.
+  let query: any = applyBrowseListingFiltersSync(
+    supabase.from("listings").select(browseListingSelect).eq("status", "active"),
+    params,
+    resolved,
+  );
 
   const sort = params.sort ?? "newest";
   if (sort === "price_asc") {
@@ -214,38 +337,12 @@ export async function fetchBrowseListings(
     return [];
   }
 
-  const mapped = (data ?? []).map((row) => {
-    const images = row.listing_images as ListingImageRow[] | null | undefined;
-    const catRaw = row.categories as
-      | { name?: string; slug?: string }
-      | { name?: string; slug?: string }[]
-      | null
-      | undefined;
-    const cat = Array.isArray(catRaw) ? catRaw[0] : catRaw;
-    return {
-      id: row.id as string,
-      title: row.title as string,
-      slug: row.slug as string,
-      price_cents: row.price_cents as number,
-      currency: (row.currency as string) ?? "EUR",
-      condition: row.condition as ListingCondition,
-      location: (row.location as string | null) ?? null,
-      status: row.status as ListingCardData["status"],
-      created_at: row.created_at as string,
-      primary_image_url: primaryImageUrl(images),
-      protected_delivery_enabled: Boolean(row.protected_delivery_enabled),
-      category_name: cat?.name ?? null,
-      category_slug: cat?.slug ?? null,
-      seller_display_name: sellerDisplayNameFromRow(row),
-      seller_owner_user_id: sellerOwnerUserIdFromRow(row),
-    };
-  });
-
+  const mapped = mapBrowseRows(data ?? []);
+  const signals = await fetchPublicPriceDropSignalsForListingIds(supabase, mapped.map((r) => r.id));
   const saved = await fetchSavedListingIdsForUser(mapped.map((r) => r.id));
-  return mapped.map((r) => ({
-    ...r,
-    is_saved_by_current_user: saved.has(r.id),
-  }));
+  return mapped.map((r) =>
+    attachPublicPriceDropToCard({ ...r, is_saved_by_current_user: saved.has(r.id) }, signals.get(r.id)),
+  );
 }
 
 export async function fetchHomeListings(limit = 8): Promise<ListingCardData[]> {
@@ -289,10 +386,10 @@ export async function fetchHomeListings(limit = 8): Promise<ListingCardData[]> {
     };
   });
   const saved = await fetchSavedListingIdsForUser(mapped.map((r) => r.id));
-  return mapped.map((r) => ({
-    ...r,
-    is_saved_by_current_user: saved.has(r.id),
-  }));
+  const signals = await fetchPublicPriceDropSignalsForListingIds(supabase, mapped.map((r) => r.id));
+  return mapped.map((r) =>
+    attachPublicPriceDropToCard({ ...r, is_saved_by_current_user: saved.has(r.id) }, signals.get(r.id)),
+  );
 }
 
 export type HomeMarketStats = {
@@ -371,10 +468,10 @@ export async function fetchHomeListingsByCategorySlug(
     };
   });
   const saved = await fetchSavedListingIdsForUser(mapped.map((r) => r.id));
-  return mapped.map((r) => ({
-    ...r,
-    is_saved_by_current_user: saved.has(r.id),
-  }));
+  const signals = await fetchPublicPriceDropSignalsForListingIds(supabase, mapped.map((r) => r.id));
+  return mapped.map((r) =>
+    attachPublicPriceDropToCard({ ...r, is_saved_by_current_user: saved.has(r.id) }, signals.get(r.id)),
+  );
 }
 
 export async function fetchSellerListings(
@@ -420,10 +517,17 @@ export async function fetchSellerListings(
   });
 
   const counts = await fetchSellerWatcherCountsByListingId();
-  return mapped.map((r) => ({
-    ...r,
-    watcher_count: counts.get(r.id) ?? 0,
-  }));
+  const insights = await fetchSellerPriceDropInsights(supabase);
+  return mapped.map((r) => {
+    const ins = insights.get(r.id);
+    return {
+      ...r,
+      watcher_count: counts.get(r.id) ?? 0,
+      latest_price_drop_percent: ins?.drop_percent ?? null,
+      latest_price_drop_old_price_cents: null,
+      latest_price_drop_created_at: ins?.last_drop_at ?? null,
+    };
+  });
 }
 
 type ListingDetailRow = {
@@ -522,7 +626,7 @@ export async function fetchListingBySlug(
     is_saved_by_current_user = Boolean(fav);
   }
 
-  return {
+  const base: ListingDetailData = {
     id: row.id,
     seller_id: row.seller_id,
     title: row.title,
@@ -547,6 +651,12 @@ export async function fetchListingBySlug(
     images,
     is_saved_by_current_user,
   };
+
+  if (row.status !== "active") {
+    return attachPublicPriceDropToDetail(base, undefined);
+  }
+  const signals = await fetchPublicPriceDropSignalsForListingIds(supabase, [row.id]);
+  return attachPublicPriceDropToDetail(base, signals.get(row.id));
 }
 
 export async function fetchSellerListingStats(sellerId: string): Promise<{
@@ -636,6 +746,29 @@ type SellerListingEditRow = {
   listing_images: ListingImageRow[] | null;
 };
 
+export async function fetchListingPriceHistoryForSeller(
+  listingId: string,
+): Promise<ListingPriceHistoryRow[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("listing_price_history")
+    .select("id, old_price_cents, new_price_cents, change_percent, created_at")
+    .eq("listing_id", listingId)
+    .order("created_at", { ascending: false })
+    .limit(8);
+  if (error) {
+    console.error("[listings] fetchListingPriceHistoryForSeller", error.message);
+    return [];
+  }
+  return (data ?? []).map((r) => ({
+    id: r.id as string,
+    old_price_cents: r.old_price_cents as number,
+    new_price_cents: r.new_price_cents as number,
+    change_percent: parseFiniteNumber(r.change_percent),
+    created_at: r.created_at as string,
+  }));
+}
+
 export async function fetchSellerListingForEdit(
   listingId: string,
 ): Promise<SellerListingEditData | null> {
@@ -671,6 +804,7 @@ export async function fetchSellerListingForEdit(
     return null;
   }
   const row = data as unknown as SellerListingEditRow;
+  const price_history = await fetchListingPriceHistoryForSeller(row.id);
   return {
     id: row.id,
     seller_id: row.seller_id,
@@ -687,6 +821,7 @@ export async function fetchSellerListingForEdit(
     offers_enabled: row.offers_enabled,
     protected_delivery_enabled: row.protected_delivery_enabled,
     images: sortImages(row.listing_images ?? undefined),
+    price_history: price_history.length > 0 ? price_history : undefined,
   };
 }
 
@@ -734,7 +869,7 @@ export async function fetchAdminListings(
     console.error("[listings] fetchAdminListings", error.message);
     return [];
   }
-  return (data ?? []).map((raw) => {
+  const rows = (data ?? []).map((raw) => {
     const row = raw as unknown as AdminListingQueryRow;
     const cat = Array.isArray(row.categories)
       ? row.categories[0]
@@ -757,4 +892,11 @@ export async function fetchAdminListings(
       primary_image_url: primaryImageUrl(images),
     };
   });
+  const activeIds = rows.filter((r) => r.status === "active").map((r) => r.id);
+  const signals = await fetchPublicPriceDropSignalsForListingIds(supabase, activeIds);
+  return rows.map((r) => ({
+    ...r,
+    latest_price_drop_percent:
+      r.status === "active" ? (signals.get(r.id)?.drop_percent ?? null) : null,
+  }));
 }
