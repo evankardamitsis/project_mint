@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
-import { ArrowRight, Handshake, Heart, Package, Shield } from "lucide-react";
+import { ArrowRight, Bell, Handshake, Heart, Package, Shield } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -17,6 +17,8 @@ type HubCopy = {
   cardSavedCta: string;
   cardHelpTitle: string;
   cardHelpBody: string;
+  cardAlertsTitle: string;
+  cardAlertsBody: string;
 };
 
 function HubTile({
@@ -76,11 +78,13 @@ export function BuyerAccountHub({
   purchaseCount,
   offerCount,
   watchlistCount,
+  alertsCount,
 }: {
   copy: HubCopy;
   purchaseCount: number;
   offerCount: number;
   watchlistCount: number;
+  alertsCount: number;
 }) {
   return (
     <div className="space-y-8">
@@ -91,7 +95,7 @@ export function BuyerAccountHub({
         <p className="mt-3 max-w-xl text-sm leading-relaxed text-[var(--color-text-secondary)]">{copy.lead}</p>
       </header>
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         <HubTile
           href="/buyer/purchases"
           icon={Package}
@@ -122,6 +126,17 @@ export function BuyerAccountHub({
           footer={
             <p className="mt-3 text-xs font-medium uppercase tracking-wide text-[var(--color-text-muted)]">
               {watchlistCount === 1 ? "1 saved" : `${watchlistCount} saved`}
+            </p>
+          }
+        />
+        <HubTile
+          href="/buyer/alerts"
+          icon={Bell}
+          title={copy.cardAlertsTitle}
+          body={copy.cardAlertsBody}
+          footer={
+            <p className="mt-3 text-xs font-medium uppercase tracking-wide text-[var(--color-text-muted)]">
+              {alertsCount === 1 ? "1 search" : `${alertsCount} searches`}
             </p>
           }
         />

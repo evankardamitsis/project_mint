@@ -40,6 +40,10 @@ export const listingCreateFieldSchema = z.object({
     .default(""),
   offers_enabled: z.coerce.boolean(),
   protected_delivery_enabled: z.coerce.boolean(),
+  product_id: z.preprocess(
+    (v) => (typeof v === "string" && v.trim() === "" ? undefined : v),
+    z.string().uuid().optional(),
+  ),
 });
 
 export type ListingCreateFields = z.infer<typeof listingCreateFieldSchema>;

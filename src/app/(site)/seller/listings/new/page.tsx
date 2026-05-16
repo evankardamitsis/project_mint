@@ -1,6 +1,6 @@
 import { Package } from "lucide-react";
 
-import { ListingForm } from "@/components/listings/listing-form";
+import { ListingWizard } from "@/components/listings/wizard/listing-wizard";
 import { SetupSellerProfileButton } from "@/components/listings/setup-seller-profile-button";
 import { EmptyState } from "@/components/empty-state";
 import { PageHeader } from "@/components/page-header";
@@ -36,12 +36,12 @@ export default async function NewListingPage() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 bg-[var(--color-background-page)] pb-12 pt-2">
       <PageHeader
         title="New listing"
-        description="Submit a listing for review. It becomes visible on the marketplace after approval."
+        description="Guided steps: match a template or start from scratch, then submit for review."
       />
-      <ListingForm categories={categories} brands={brands} />
+      <ListingWizard categories={categories} brands={brands} />
     </div>
   );
 }

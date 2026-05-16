@@ -7,7 +7,13 @@ export type Messages = {
     effectsPedals: string;
     proAudio: string;
   };
-  header: { sell: string; logIn: string; join: string; searchAria: string; savedAria: string };
+  header: {
+    sell: string;
+    logIn: string;
+    join: string;
+    searchAria: string;
+    savedAria: string;
+  };
   footer: {
     tagline: string;
     copyrightLine: string;
@@ -73,6 +79,15 @@ export type Messages = {
     price250to500: string;
     price500to1000: string;
     priceOver1000: string;
+    saveSearchCta: string;
+    saveSearchSaved: string;
+    saveSearchViewAlerts: string;
+    saveSearchSubtleNoFilters: string;
+    saveSearchNameLabel: string;
+    saveSearchNotifications: string;
+    saveSearchSubmit: string;
+    saveSearchCancel: string;
+    saveSearchGuestHint: string;
   };
   sell: {
     title: string;
@@ -110,6 +125,7 @@ export type Messages = {
     purchases: string;
     offers: string;
     watchlist: string;
+    alerts: string;
   };
   buyerWatchlist: {
     title: string;
@@ -129,8 +145,30 @@ export type Messages = {
     cardSavedCta: string;
     cardHelpTitle: string;
     cardHelpBody: string;
+    cardAlertsTitle: string;
+    cardAlertsBody: string;
   };
-  sellerOrders: { pageTitle: string; pageDescription: string; emptyTitle: string; emptyDescription: string };
+  buyerAlerts: {
+    title: string;
+    emptyTitle: string;
+    emptyBody: string;
+    browseCta: string;
+    viewResults: string;
+    notificationsOn: string;
+    notificationsOff: string;
+    toggleAlertsOn: string;
+    toggleAlertsOff: string;
+    delete: string;
+    matchOne: string;
+    matchMany: string;
+    savedOnPrefix: string;
+  };
+  sellerOrders: {
+    pageTitle: string;
+    pageDescription: string;
+    emptyTitle: string;
+    emptyDescription: string;
+  };
 };
 
 export const MESSAGES: Record<AppLocale, Messages> = {
@@ -195,7 +233,8 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       emptyFilteredBody: "Try adjusting your filters or browse all gear.",
       clearFilters: "Clear filters",
       emptyNoneTitle: "No listings yet",
-      emptyNoneBody: "New gear shows up here as soon as sellers publish listings.",
+      emptyNoneBody:
+        "New gear shows up here as soon as sellers publish listings.",
       listingsSection: "Listings",
       clearAllLink: "Clear all",
       filterCategory: "Category",
@@ -214,6 +253,17 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       price250to500: "€250 – €500",
       price500to1000: "€500 – €1,000",
       priceOver1000: "Over €1,000",
+      saveSearchCta: "Save this search",
+      saveSearchSaved: "Saved search",
+      saveSearchViewAlerts: "View in alerts",
+      saveSearchSubtleNoFilters:
+        "Add a search or filters to save this browse for later.",
+      saveSearchNameLabel: "Name",
+      saveSearchNotifications:
+        "Email me when there are new matches (coming soon)",
+      saveSearchSubmit: "Save",
+      saveSearchCancel: "Cancel",
+      saveSearchGuestHint: "Sign in to save searches and get alerts later.",
     },
     sell: {
       title: "Sell gear with protection built in.",
@@ -223,11 +273,14 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       getStarted: "Get started",
       browseGear: "Browse gear",
       tile1h: "Protected for every sale",
-      tile1t: "Payment is held until the buyer confirms delivery. You get paid, guaranteed.",
+      tile1t:
+        "Payment is held until the buyer confirms delivery. You get paid, guaranteed.",
       tile2h: "Proof photos built in",
-      tile2t: "Upload packaging photos before you ship. Disputes are resolved fairly with evidence.",
+      tile2t:
+        "Upload packaging photos before you ship. Disputes are resolved fairly with evidence.",
       tile3h: "No upfront fees",
-      tile3t: "Listing is free. A small commission applies only when your item sells.",
+      tile3t:
+        "Listing is free. A small commission applies only when your item sells.",
       footerBuyer:
         "Create a seller profile, add payout details when you are ready, and publish listings for review — there is no fee to list.",
       footerSeller: "You are set up as a seller.",
@@ -253,31 +306,58 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       purchases: "Purchases",
       offers: "Offers",
       watchlist: "Watchlist",
+      alerts: "Alerts",
     },
     buyerWatchlist: {
       title: "Watchlist",
       emptyTitle: "Nothing saved yet",
-      emptyDescription: "Save gear you're interested in and come back to it later.",
+      emptyDescription:
+        "Save gear you're interested in and come back to it later.",
       browseCta: "Browse gear",
     },
     buyerHome: {
       headline: "Your mint.",
       lead: "Purchases, offers, and buyer protection — in one calm place.",
       cardPurchasesTitle: "Purchases",
-      cardPurchasesBody: "Orders you placed with Buy now or an accepted offer. Track delivery and proof photos.",
+      cardPurchasesBody:
+        "Orders you placed with Buy now or an accepted offer. Track delivery and proof photos.",
       cardOffersTitle: "Offers",
-      cardOffersBody: "Negotiations on listings — counters, acceptances, and expiries stay here.",
+      cardOffersBody:
+        "Negotiations on listings — counters, acceptances, and expiries stay here.",
       cardSavedTitle: "Watchlist",
-      cardSavedBody: "Save listings while you browse — your shortlist stays here.",
+      cardSavedBody:
+        "Save listings while you browse — your shortlist stays here.",
       cardSavedCta: "Open watchlist",
       cardHelpTitle: "Protected delivery",
-      cardHelpBody: "Payments can be held until tracking and photos look good. Open a case from an order if you need help.",
+      cardHelpBody:
+        "Payments can be held until tracking and photos look good. Open a case from an order if you need help.",
+      cardAlertsTitle: "Saved searches",
+      cardAlertsBody:
+        "Keep filter combinations handy — we will add alerts when new listings match.",
+    },
+    buyerAlerts: {
+      title: "Saved searches",
+      emptyTitle: "No saved searches yet",
+      emptyBody:
+        "Save searches and we’ll help you spot the right gear when it appears.",
+      browseCta: "Browse gear",
+      viewResults: "View results",
+      notificationsOn: "Notifications on",
+      notificationsOff: "Notifications off",
+      toggleAlertsOn: "Turn alerts on",
+      toggleAlertsOff: "Turn alerts off",
+      delete: "Delete",
+      matchOne: "1 match",
+      matchMany: "{n} matches",
+      savedOnPrefix: "Saved",
     },
     sellerOrders: {
       pageTitle: "Orders",
-      pageDescription: "When a buyer completes checkout on one of your listings, the order will appear here.",
+      pageDescription:
+        "When a buyer completes checkout on one of your listings, the order will appear here.",
       emptyTitle: "No orders yet",
-      emptyDescription: "When a buyer completes checkout on one of your listings, the order will appear here.",
+      emptyDescription:
+        "When a buyer completes checkout on one of your listings, the order will appear here.",
     },
   },
   el: {
@@ -295,7 +375,8 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       savedAria: "Αποθηκευμένα",
     },
     footer: {
-      tagline: "Μουσικός εξοπλισμός & συλλεκτικά — αγορά και πώληση με ασφάλεια.",
+      tagline:
+        "Μουσικός εξοπλισμός & συλλεκτικά — αγορά και πώληση με ασφάλεια.",
       copyrightLine: "© 2026 mint. — Αθήνα, Ελλάδα",
       company: "Εταιρεία",
       legal: "Νομικά",
@@ -324,13 +405,14 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       sectionSynths: "Συνθεσάιζερ & πλήκτρα",
       sectionEffects: "Εφέ & πετάλια",
       seeAll: "Όλες",
-      listingsWhenLive: "Οι αγγελίες θα εμφανίζονται εδώ μόλις οι πωλητές ξεκινήσουν.",
+      listingsWhenLive:
+        "Οι αγγελίες θα εμφανίζονται εδώ μόλις οι πωλητές ξεκινήσουν.",
     },
     trust: {
       protectedPayments: "Προστατευμένες πληρωμές",
-      paymentHeld: "Κράτηση πληρωμής",
-      proofPhotos: "Φωτογραφίες απόδειξης",
-      trackingVerified: "Επιβεβαίωση αποστολής",
+      paymentHeld: "Ασφαλής πληρωμή",
+      proofPhotos: "Ασφαλής παράδοση",
+      trackingVerified: "Παρακολούθηση αποστολής",
       disputeSupport: "Υποστήριξη διαφορών",
     },
     browse: {
@@ -341,7 +423,8 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       emptyFilteredBody: "Δοκίμασε άλλα φίλτρα ή δες όλον τον εξοπλισμό.",
       clearFilters: "Καθαρισμός φίλτρων",
       emptyNoneTitle: "Δεν υπάρχουν αγγελίες ακόμη",
-      emptyNoneBody: "Νέες αγγελίες εμφανίζονται εδώ μόλις τις δημοσιεύσουν οι πωλητές.",
+      emptyNoneBody:
+        "Νέες αγγελίες εμφανίζονται εδώ μόλις τις δημοσιεύσουν οι πωλητές.",
       listingsSection: "Αγγελίες",
       clearAllLink: "Καθαρισμός",
       filterCategory: "Κατηγορία",
@@ -360,6 +443,18 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       price250to500: "€250 – €500",
       price500to1000: "€500 – €1.000",
       priceOver1000: "Πάνω από €1.000",
+      saveSearchCta: "Αποθήκευση αναζήτησης",
+      saveSearchSaved: "Αποθηκευμένη αναζήτηση",
+      saveSearchViewAlerts: "Δες στις ειδοποιήσεις",
+      saveSearchSubtleNoFilters:
+        "Πρόσθεσε όρους ή φίλτρα για να αποθηκεύσεις αυτή την αναζήτηση.",
+      saveSearchNameLabel: "Όνομα",
+      saveSearchNotifications:
+        "Στείλε email όταν υπάρχουν νέα αποτελέσματα (σύντομα)",
+      saveSearchSubmit: "Αποθήκευση",
+      saveSearchCancel: "Ακύρωση",
+      saveSearchGuestHint:
+        "Συνδέσου για να αποθηκεύεις αναζητήσεις και ειδοποιήσεις.",
     },
     sell: {
       title: "Πούλησε εξοπλισμό με ενσωματωμένη προστασία.",
@@ -369,17 +464,21 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       getStarted: "Ξεκίνα",
       browseGear: "Δες αγγελίες",
       tile1h: "Προστασία σε κάθε πώληση",
-      tile1t: "Η πληρωμή κρατείται μέχρι ο αγοραστής να επιβεβαιώσει την παράδοση. Πληρώνεσαι, εγγυημένα.",
+      tile1t:
+        "Η πληρωμή κρατείται μέχρι ο αγοραστής να επιβεβαιώσει την παράδοση. Πληρώνεσαι, εγγυημένα.",
       tile2h: "Φωτογραφίες απόδειξης",
-      tile2t: "Ανέβασε φωτογραφίες συσκευασίας πριν την αποστολή. Οι διαφορές λύνονται δίκαια με αποδείξεις.",
+      tile2t:
+        "Ανέβασε φωτογραφίες συσκευασίας πριν την αποστολή. Οι διαφορές λύνονται δίκαια με αποδείξεις.",
       tile3h: "Χωρίς προκαταβολή",
       tile3t: "Η καταχώριση είναι δωρεάν. Μικρή προμήθεια μόνο όταν πουλήσεις.",
       footerBuyer:
         "Δημιούργησε προφίλ πωλητή, πρόσθεσε στοιχεία πληρωμής όταν είσαι έτοιμος και δημοσίευσε αγγελίες για έλεγχο — χωρίς χρέωση καταχώρισης.",
       footerSeller: "Έχεις ενεργό προφίλ πωλητή.",
-      footerSellerTail: "για να διαχειρίζεσαι αγγελίες, παραγγελίες και προσφορές.",
+      footerSellerTail:
+        "για να διαχειρίζεσαι αγγελίες, παραγγελίες και προσφορές.",
       openHub: "Άνοιξε το κέντρο πωλητή",
-      sellerAccessTitle: "Δημιούργησε λογαριασμό πωλητή για να αναρτήσεις αγγελίες",
+      sellerAccessTitle:
+        "Δημιούργησε λογαριασμό πωλητή για να αναρτήσεις αγγελίες",
     },
     listingNotFound: {
       title: "Η αγγελία δεν βρέθηκε",
@@ -388,7 +487,8 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       similar: "Παρόμοιος εξοπλισμός →",
     },
     dashboard: {
-      seller: "Διαχείριση αγγελιών, παραγγελιών, προσφορών και του καταστήματός σου σε ένα μέρος.",
+      seller:
+        "Διαχείριση αγγελιών, παραγγελιών, προσφορών και του καταστήματός σου σε ένα μέρος.",
       buyer: "Παρακολούθηση αγορών, προσφορών και παραδόσεων από ένα μέρος.",
       admin: "Συντονισμός, διαφορές και υγεία της αγοράς.",
       sellerShopFallback: "Το κατάστημά σου",
@@ -399,31 +499,58 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       purchases: "Αγορές",
       offers: "Προσφορές",
       watchlist: "Αποθηκευμένα",
+      alerts: "Ειδοποιήσεις",
     },
     buyerWatchlist: {
       title: "Αποθηκευμένα",
       emptyTitle: "Δεν έχεις αποθηκεύσει ακόμη",
-      emptyDescription: "Αποθήκευσε αγγελίες που σε ενδιαφέρουν και επέστρεψε αργότερα.",
+      emptyDescription:
+        "Αποθήκευσε αγγελίες που σε ενδιαφέρουν και επέστρεψε αργότερα.",
       browseCta: "Περιήγηση",
     },
     buyerHome: {
       headline: "Το mint. σου.",
       lead: "Αγορές, προσφορές και προστασία αγοραστή — σε ένα ήρεμο μέρος.",
       cardPurchasesTitle: "Αγορές",
-      cardPurchasesBody: "Παραγγελίες με Άμεση αγορά ή αποδεκτή προσφορά. Παρακολούθησε παράδοση και φωτογραφίες απόδειξης.",
+      cardPurchasesBody:
+        "Παραγγελίες με Άμεση αγορά ή αποδεκτή προσφορά. Παρακολούθησε παράδοση με αποδεικτικές φωτογραφίες.",
       cardOffersTitle: "Προσφορές",
-      cardOffersBody: "Διαπραγματεύσεις σε αγγελίες — αντιπροσφορές, αποδοχές και λήξεις μένουν εδώ.",
+      cardOffersBody:
+        "Διαπραγματεύσεις σε αγγελίες — αντιπροσφορές, αποδοχές και λήξεις μένουν εδώ.",
       cardSavedTitle: "Αποθηκευμένα",
-      cardSavedBody: "Αποθήκευσε αγγελίες ενώ περιηγείσαι — η λίστα σου μένει εδώ.",
+      cardSavedBody:
+        "Αποθήκευσε αγγελίες ενώ περιηγείσαι — η λίστα σου μένει εδώ.",
       cardSavedCta: "Άνοιξε τα αποθηκευμένα",
       cardHelpTitle: "Προστατευμένη παράδοση",
-      cardHelpBody: "Οι πληρωμές μπορεί να κρατούνται μέχρι το tracking και οι φωτογραφίες να είναι εντάξει. Άνοιξε υπόθεση από την παραγγελία αν χρειάζεσαι βοήθεια.",
+      cardHelpBody:
+        "Οι πληρωμές μπορεί να κρατούνται μέχρι το tracking και οι φωτογραφίες να είναι εντάξει. Άνοιξε υπόθεση από την παραγγελία αν χρειάζεσαι βοήθεια.",
+      cardAlertsTitle: "Αποθηκευμένες αναζητήσεις",
+      cardAlertsBody:
+        "Κράτα συνδυασμούς φίλτρων — θα προσθέσουμε ειδοποιήσεις όταν εμφανίζονται νέες αγγελίες.",
+    },
+    buyerAlerts: {
+      title: "Αποθηκευμένες αναζητήσεις",
+      emptyTitle: "Δεν έχεις αποθηκευμένες αναζητήσεις",
+      emptyBody:
+        "Αποθήκευσε αναζητήσεις και θα σε βοηθήσουμε να εντοπίσεις τον κατάλληλο εξοπλισμό όταν εμφανίζεται.",
+      browseCta: "Περιήγηση",
+      viewResults: "Αποτελέσματα",
+      notificationsOn: "Ειδοποιήσεις ενεργές",
+      notificationsOff: "Ειδοποιήσεις ανενεργές",
+      toggleAlertsOn: "Ενεργοποίηση ειδοποιήσεων",
+      toggleAlertsOff: "Απενεργοποίηση ειδοποιήσεων",
+      delete: "Διαγραφή",
+      matchOne: "1 ταίριασμα",
+      matchMany: "{n} ταιριάσματα",
+      savedOnPrefix: "Αποθηκεύτηκε",
     },
     sellerOrders: {
       pageTitle: "Παραγγελίες",
-      pageDescription: "Όταν ένας αγοραστής ολοκληρώσει την πληρωμή για μια αγγελία σου, η παραγγελία θα εμφανιστεί εδώ.",
+      pageDescription:
+        "Όταν ένας αγοραστής ολοκληρώσει την πληρωμή για μια αγγελία σου, η παραγγελία θα εμφανιστεί εδώ.",
       emptyTitle: "Δεν υπάρχουν παραγγελίες ακόμη",
-      emptyDescription: "Όταν ένας αγοραστής ολοκληρώσει την πληρωμή για μια αγγελία σου, η παραγγελία θα εμφανιστεί εδώ.",
+      emptyDescription:
+        "Όταν ένας αγοραστής ολοκληρώσει την πληρωμή για μια αγγελία σου, η παραγγελία θα εμφανιστεί εδώ.",
     },
   },
 };

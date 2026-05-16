@@ -72,6 +72,7 @@ export async function createListingAction(
       offers_enabled: formData.get("offers_enabled") === "on",
       protected_delivery_enabled:
         formData.get("protected_delivery_enabled") === "on",
+      product_id: String(formData.get("product_id") ?? ""),
     };
 
     const parsed = listingCreateFieldSchema.safeParse(raw);
@@ -134,10 +135,13 @@ export async function createListingAction(
         ? parsed.data.brand_id
         : null;
 
+    const productId = parsed.data.product_id ?? null;
+
     const { error: insertErr } = await supabase.from("listings").insert({
       seller_id: seller.id,
       category_id: parsed.data.category_id,
       brand_id: brandId,
+      product_id: productId,
       title: parsed.data.title.trim(),
       slug,
       description: parsed.data.description?.trim() || null,

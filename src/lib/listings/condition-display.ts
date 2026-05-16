@@ -1,15 +1,15 @@
 import type { ListingCondition } from "@/types/domain";
 
-/** User-facing condition labels (`mint` stays the stored enum value; shown as "Like new"). */
+/** User-facing condition labels (`mint` stays the stored enum value; shown as "Σαν καινούριο"). */
 export const CONDITION_DISPLAY_LABEL: Record<ListingCondition, string> = {
-  brand_new: "Brand new",
-  mint: "Like new",
-  excellent: "Excellent",
-  very_good: "Very good",
-  good: "Good",
-  fair: "Fair",
-  poor: "Poor",
-  non_functioning: "Non-functioning",
+  brand_new: "Καινούριο",
+  mint: "Σαν καινούριο",
+  excellent: "Άριστο",
+  very_good: "Πολύ καλό",
+  good: "Καλό",
+  fair: "Μέτριο",
+  poor: "Κακό",
+  non_functioning: "Μη λειτουργικό",
 };
 
 export function conditionDisplayLabel(condition: ListingCondition): string {

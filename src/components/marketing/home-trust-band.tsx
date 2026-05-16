@@ -15,18 +15,18 @@ export async function HomeTrustBand() {
   ] as const;
 
   return (
-    <div className="w-full border-b border-[#111111] bg-[#ffffff]">
+    <div className="w-full border-b border-[#EEECE8] bg-white">
       <div className={SITE_CONTAINER}>
-        <div className="flex flex-row overflow-x-auto [-ms-overflow-style:none] scrollbar-none sm:grid sm:grid-cols-4 sm:overflow-visible [&::-webkit-scrollbar]:hidden">
+        <div className="grid grid-cols-2 sm:grid-cols-4">
           {items.map(({ Icon, label }) => (
             <div
               key={label}
-              className="flex shrink-0 items-center gap-2 border-r-[0.5px] border-[#e8e5e0] py-[11px] pl-[14px] pr-[14px] last:border-r-0"
+              className="flex items-center gap-3 border-r border-[#EEECE8] px-6 py-5 last:border-r-0 [&:nth-child(2)]:border-r-0 sm:[&:nth-child(2)]:border-r"
             >
-              <span className="flex size-[18px] shrink-0 items-center justify-center bg-[#1a7a4a] text-[9px] font-black text-[#ffffff]">
-                <Icon className="size-[11px]" stroke={2} aria-hidden />
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#E8F7F1]">
+                <Icon className="h-[18px] w-[18px] text-[#1a7a4a]" stroke={2} aria-hidden />
               </span>
-              <span className="text-[9px] font-bold uppercase leading-snug tracking-[0.07em] text-[#333333]">{label}</span>
+              <span className="text-sm font-semibold leading-snug text-[#222222]">{label}</span>
             </div>
           ))}
         </div>

@@ -11,7 +11,6 @@ import { getRecentActivity } from "@/lib/activity/get-recent-activity";
 import {
   fetchHomeListings,
   fetchHomeListingsByCategorySlug,
-  fetchHomeMarketStats,
 } from "@/lib/listings/queries";
 
 function mapListingToCard(
@@ -53,24 +52,16 @@ export default async function HomePage() {
   const user = await getSessionUser();
   const viewerId = user?.id ?? null;
 
-  const [stats, latest, synths, effects, activity] = await Promise.all([
-    fetchHomeMarketStats(),
+  const [latest, synths, effects, activity] = await Promise.all([
     fetchHomeListings(6),
     fetchHomeListingsByCategorySlug("synths-keyboards", 3),
     fetchHomeListingsByCategorySlug("effects-pedals", 3),
     getRecentActivity(),
   ]);
 
-  const recentPreview = latest.slice(0, 3).map((item) => ({
-    slug: item.slug,
-    title: item.title,
-    price_cents: item.price_cents,
-    currency: item.currency,
-  }));
-
   return (
     <>
-      <HomeHero locale={locale} home={t} stats={stats} recentPreview={recentPreview} />
+      <HomeHero />
       <HomeTrustBand />
       <LiveTicker items={activity} />
 

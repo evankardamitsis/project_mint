@@ -5,6 +5,7 @@ import { BauhausListingGrid } from "@/components/marketing/bauhaus-listing-grid"
 import { SectionHeader } from "@/components/marketing/section-header";
 import { ListingCard } from "@/components/listings/listing-card";
 import { ListingFilters } from "@/components/listings/listing-filters";
+import { BrowseSaveSearchPanel } from "@/components/saved-searches/browse-save-search-panel";
 import { Button } from "@/components/ui/button";
 import { SITE_CONTAINER } from "@/config/site-layout";
 import { getSessionUser } from "@/lib/auth/guards";
@@ -17,6 +18,8 @@ import {
   fetchBrowseListings,
   fetchCategories,
 } from "@/lib/listings/queries";
+import { findSavedSearchMatchingBrowseParams } from "@/lib/saved-searches/queries";
+import { suggestSavedSearchName } from "@/lib/saved-searches/saved-search-from-browse";
 import { cn } from "@/lib/utils";
 
 type PageProps = {
@@ -43,6 +46,18 @@ function filtersActive(p: BrowseQueryParams): boolean {
   );
 }
 
+function browsePathFromSearchParams(sp: Record<string, string | string[] | undefined>): string {
+  const p = new URLSearchParams();
+  for (const [key, raw] of Object.entries(sp)) {
+    const v = Array.isArray(raw) ? raw[0] : raw;
+    if (v) {
+      p.set(key, v);
+    }
+  }
+  const s = p.toString();
+  return s ? `/browse?${s}` : "/browse";
+}
+
 export default async function BrowsePage(props: PageProps) {
   const locale = await getLocale();
   const b = MESSAGES[locale].browse;
@@ -61,17 +76,36 @@ export default async function BrowsePage(props: PageProps) {
     priceDrop: first(sp.priceDrop),
   };
 
-  const [categories, brands, listings, user] = await Promise.all([
+  const user = await getSessionUser();
+  const viewerId = user?.id ?? null;
+
+  const [categories, brands, listings, matchedSaved] = await Promise.all([
     fetchCategories(),
     fetchBrands(),
     fetchBrowseListings(params),
-    getSessionUser(),
+    viewerId ? findSavedSearchMatchingBrowseParams(params) : Promise.resolve(null),
   ]);
-  const viewerId = user?.id ?? null;
 
   const active = filtersActive(params);
   const countLabel =
     listings.length === 1 ? b.countOne : b.countMany.replace("{n}", String(listings.length));
+
+  const categoryName = categories.find((c) => c.slug === params.category)?.name ?? null;
+  const brandName = brands.find((br) => br.slug === params.brand)?.name ?? null;
+  const defaultSearchName = suggestSavedSearchName(params, { categoryName, brandName });
+  const loginNextHref = `/auth/login?next=${encodeURIComponent(browsePathFromSearchParams(sp))}`;
+
+  const saveCopy = {
+    saveCta: b.saveSearchCta,
+    savedLabel: b.saveSearchSaved,
+    viewAlerts: b.saveSearchViewAlerts,
+    subtleNoFilters: b.saveSearchSubtleNoFilters,
+    nameLabel: b.saveSearchNameLabel,
+    notificationsLabel: b.saveSearchNotifications,
+    submit: b.saveSearchSubmit,
+    cancel: b.saveSearchCancel,
+    guestHint: b.saveSearchGuestHint,
+  };
 
   return (
     <div className={cn(SITE_CONTAINER, "bg-[var(--color-background-page)] pb-10 pt-0")}>
@@ -83,7 +117,7 @@ export default async function BrowsePage(props: PageProps) {
         <ListingFilters
           categories={categories}
           brands={brands}
-            filterLabels={{
+          filterLabels={{
             clearAllLink: b.clearAllLink,
             filterCategory: b.filterCategory,
             filterBrand: b.filterBrand,
@@ -114,6 +148,27 @@ export default async function BrowsePage(props: PageProps) {
             priceDrop: params.priceDrop === "true" ? "true" : "",
           }}
         />
+        <div className="mt-4 max-w-md">
+          <BrowseSaveSearchPanel
+            copy={saveCopy}
+            filtersActive={active}
+            isGuest={!viewerId}
+            loginNextHref={loginNextHref}
+            defaultName={defaultSearchName}
+            formDefaults={{
+              q: params.q ?? "",
+              category: params.category ?? "",
+              brand: params.brand ?? "",
+              condition: params.condition ?? "",
+              min_price: params.min_price ?? "",
+              max_price: params.max_price ?? "",
+              sort: params.sort ?? "newest",
+              deal: browsePriceDropsMode(params) ? "price-drops" : "",
+              priceDrop: params.priceDrop === "true" ? "true" : "",
+            }}
+            matchedSaved={matchedSaved ? { id: matchedSaved.id, name: matchedSaved.name } : null}
+          />
+        </div>
       </div>
 
       <p className="px-5 py-2 text-[9px] font-bold uppercase tracking-[0.08em] text-[#999999]">{countLabel}</p>
