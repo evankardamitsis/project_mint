@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { buyNowOrderAction } from "@/lib/orders/actions";
 import { Price } from "@/components/price";
+import { formatEuroPrefix } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { Profile } from "@/types/domain";
@@ -105,24 +106,31 @@ export function ListingPurchaseSection({
     );
   }
 
+  const priceLabel =
+    listing.currency === "EUR"
+      ? formatEuroPrefix(listing.price_cents)
+      : new Intl.NumberFormat("en-US", {
+          style: "currency",
+          currency: listing.currency,
+          minimumFractionDigits: listing.price_cents % 100 === 0 ? 0 : 2,
+          maximumFractionDigits: 2,
+        }).format(listing.price_cents / 100);
+
   return (
-    <Card className="border-0 bg-transparent shadow-none">
-      <CardHeader>
-        <CardTitle className="text-base">Buy now</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <Price amountCents={listing.price_cents} currency={listing.currency} className="text-2xl" />
-        <p className="text-xs text-ink-2">
-          Demo checkout only — no card charges. A 5% platform fee is shown on the order summary.
-        </p>
-        <form action={buyNowOrderAction} className="space-y-2">
-          <input type="hidden" name="listing_id" value={listing.id} />
-          <input type="hidden" name="listing_slug" value={listing.slug} />
-          <Button type="submit" className="w-full bg-[#111111] font-bold text-white hover:bg-ink/90">
-            Buy now
-          </Button>
-        </form>
-      </CardContent>
-    </Card>
+    <div className="space-y-3">
+      <form action={buyNowOrderAction}>
+        <input type="hidden" name="listing_id" value={listing.id} />
+        <input type="hidden" name="listing_slug" value={listing.slug} />
+        <button
+          type="submit"
+          className="w-full rounded-2xl bg-[#111111] py-5 text-lg font-black text-white transition-colors hover:bg-[#222222]"
+        >
+          Αγόρασε τώρα ({priceLabel})
+        </button>
+      </form>
+      <p className="text-center text-xs text-[#AAAAAA]">
+        Demo checkout — no real charges.
+      </p>
+    </div>
   );
 }

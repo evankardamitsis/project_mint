@@ -9,23 +9,32 @@ const BUCKET = "listing-images";
 type DemoAdminClient = ReturnType<typeof createDemoSupabaseAdmin>;
 
 export type DemoSeedListingImageKey =
-  | "guitar"
-  | "synth"
-  | "pedal"
-  | "amp"
-  | "mic"
-  | "dj"
+  | "guitar" | "guitar-2" | "guitar-3"
+  | "synth"  | "synth-2"  | "synth-3"
+  | "pedal"  | "pedal-2"  | "pedal-3"
+  | "amp"    | "amp-2"
+  | "mic"    | "mic-2"
+  | "dj"     | "dj-2"
   | "case";
 
 /** Deterministic seeds → stable images across runs (same seed = same photo). */
 const PICSUM_SEEDS: Record<DemoSeedListingImageKey, string> = {
-  guitar: "projectmint-demo-guitar-1",
-  synth: "projectmint-demo-synth-1",
-  pedal: "projectmint-demo-pedal-1",
-  amp: "projectmint-demo-amp-1",
-  mic: "projectmint-demo-mic-1",
-  dj: "projectmint-demo-dj-1",
-  case: "projectmint-demo-case-1",
+  guitar:    "projectmint-demo-guitar-1",
+  "guitar-2": "projectmint-demo-guitar-2",
+  "guitar-3": "projectmint-demo-guitar-3",
+  synth:     "projectmint-demo-synth-1",
+  "synth-2":  "projectmint-demo-synth-2",
+  "synth-3":  "projectmint-demo-synth-3",
+  pedal:     "projectmint-demo-pedal-1",
+  "pedal-2":  "projectmint-demo-pedal-2",
+  "pedal-3":  "projectmint-demo-pedal-3",
+  amp:       "projectmint-demo-amp-1",
+  "amp-2":    "projectmint-demo-amp-2",
+  mic:       "projectmint-demo-mic-1",
+  "mic-2":    "projectmint-demo-mic-2",
+  dj:        "projectmint-demo-dj-1",
+  "dj-2":     "projectmint-demo-dj-2",
+  case:      "projectmint-demo-case-1",
 };
 
 export type RasterPayload = {
@@ -51,15 +60,9 @@ function sniffImageMime(buf: Buffer): RasterPayload["contentType"] {
 }
 
 function extForMime(m: RasterPayload["contentType"]): string {
-  if (m === "image/png") {
-    return "png";
-  }
-  if (m === "image/webp") {
-    return "webp";
-  }
-  if (m === "image/gif") {
-    return "gif";
-  }
+  if (m === "image/png") return "png";
+  if (m === "image/webp") return "webp";
+  if (m === "image/gif") return "gif";
   return "jpg";
 }
 
@@ -91,12 +94,12 @@ async function fetchOneRaster(key: DemoSeedListingImageKey): Promise<RasterPaylo
 }
 
 const ALL_KEYS: DemoSeedListingImageKey[] = [
-  "guitar",
-  "synth",
-  "pedal",
-  "amp",
-  "mic",
-  "dj",
+  "guitar", "guitar-2", "guitar-3",
+  "synth",  "synth-2",  "synth-3",
+  "pedal",  "pedal-2",  "pedal-3",
+  "amp",    "amp-2",
+  "mic",    "mic-2",
+  "dj",     "dj-2",
   "case",
 ];
 
@@ -113,8 +116,10 @@ export async function prefetchDemoListingRasters(): Promise<Map<DemoSeedListingI
   return map;
 }
 
+/** SVG fallback strips the "-2"/"-3" suffix so it maps to an existing file. */
 export function localSvgListingImagePath(key: DemoSeedListingImageKey): string {
-  return `/demo/listings/${key}.svg`;
+  const base = key.replace(/-\d+$/, "");
+  return `/demo/listings/${base}.svg`;
 }
 
 export function storagePublicObjectUrl(supabaseProjectUrl: string, objectPath: string): string {
@@ -140,6 +145,24 @@ export async function uploadDemoListingPrimaryPhoto(
   return storagePublicObjectUrl(supabaseProjectUrl, path);
 }
 
+export async function uploadDemoListingGalleryPhoto(
+  admin: DemoAdminClient,
+  supabaseProjectUrl: string,
+  listingId: string,
+  sortOrder: number,
+  raster: RasterPayload,
+): Promise<string> {
+  const path = `${listingId}/demo-seed-gallery-${sortOrder}.${raster.ext}`;
+  const { error } = await admin.storage.from(BUCKET).upload(path, raster.body, {
+    contentType: raster.contentType,
+    upsert: true,
+  });
+  if (error) {
+    throw new Error(`Storage upload ${path}: ${error.message}`);
+  }
+  return storagePublicObjectUrl(supabaseProjectUrl, path);
+}
+
 export async function removeListingImageObjects(
   admin: DemoAdminClient,
   listingIds: string[],
@@ -153,9 +176,7 @@ export async function removeListingImageObjects(
       continue;
     }
     const names = (files ?? []).map((f) => f.name).filter(Boolean);
-    if (names.length === 0) {
-      continue;
-    }
+    if (names.length === 0) continue;
     const paths = names.map((n) => `${id}/${n}`);
     const { error: rmErr } = await admin.storage.from(BUCKET).remove(paths);
     if (rmErr) {

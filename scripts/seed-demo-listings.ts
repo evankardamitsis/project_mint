@@ -29,6 +29,8 @@ import {
   localSvgListingImagePath,
   prefetchDemoListingRasters,
   uploadDemoListingPrimaryPhoto,
+  uploadDemoListingGalleryPhoto,
+  type DemoSeedListingImageKey,
   type RasterPayload,
 } from "./demo-seed-listing-images";
 
@@ -94,7 +96,8 @@ type DemoListing = {
   protected_delivery_enabled: boolean;
   status: ListingStatus;
   rejection_reason?: string | null;
-  image: "guitar" | "synth" | "pedal" | "amp" | "mic" | "dj" | "case";
+  image: DemoSeedListingImageKey;
+  galleryImages?: DemoSeedListingImageKey[];
 };
 
 function localDemoSvgPath(key: DemoListing["image"]): string {
@@ -115,6 +118,7 @@ const DEMO_LISTINGS: DemoListing[] = [
     protected_delivery_enabled: true,
     status: "active",
     image: "guitar",
+    galleryImages: ["guitar-2", "guitar-3"],
   },
   {
     slug: `${DEMO_SLUG_PREFIX}gibson-les-paul-studio`,
@@ -129,6 +133,7 @@ const DEMO_LISTINGS: DemoListing[] = [
     protected_delivery_enabled: true,
     status: "active",
     image: "guitar",
+    galleryImages: ["guitar-2"],
   },
   {
     slug: `${DEMO_SLUG_PREFIX}ibanez-rg-prestige`,
@@ -143,6 +148,7 @@ const DEMO_LISTINGS: DemoListing[] = [
     protected_delivery_enabled: true,
     status: "active",
     image: "guitar",
+    galleryImages: ["guitar-2", "guitar-3"],
   },
   {
     slug: `${DEMO_SLUG_PREFIX}roland-sh-101`,
@@ -157,6 +163,7 @@ const DEMO_LISTINGS: DemoListing[] = [
     protected_delivery_enabled: true,
     status: "active",
     image: "synth",
+    galleryImages: ["synth-2", "synth-3"],
   },
   {
     slug: `${DEMO_SLUG_PREFIX}korg-minilogue-xd`,
@@ -171,6 +178,7 @@ const DEMO_LISTINGS: DemoListing[] = [
     protected_delivery_enabled: true,
     status: "active",
     image: "synth",
+    galleryImages: ["synth-2"],
   },
   {
     slug: `${DEMO_SLUG_PREFIX}moog-subsequent-37`,
@@ -255,6 +263,7 @@ const DEMO_LISTINGS: DemoListing[] = [
     protected_delivery_enabled: true,
     status: "active",
     image: "pedal",
+    galleryImages: ["pedal-2", "pedal-3"],
   },
   {
     slug: `${DEMO_SLUG_PREFIX}fender-blues-junior`,
@@ -269,6 +278,7 @@ const DEMO_LISTINGS: DemoListing[] = [
     protected_delivery_enabled: true,
     status: "active",
     image: "amp",
+    galleryImages: ["amp-2"],
   },
   {
     slug: `${DEMO_SLUG_PREFIX}vox-ac15`,
@@ -283,6 +293,7 @@ const DEMO_LISTINGS: DemoListing[] = [
     protected_delivery_enabled: true,
     status: "active",
     image: "amp",
+    galleryImages: ["amp-2"],
   },
   {
     slug: `${DEMO_SLUG_PREFIX}marshall-dsl40`,
@@ -354,6 +365,7 @@ const DEMO_LISTINGS: DemoListing[] = [
     protected_delivery_enabled: true,
     status: "active",
     image: "dj",
+    galleryImages: ["dj-2"],
   },
   {
     slug: `${DEMO_SLUG_PREFIX}pioneer-djm750`,
@@ -368,6 +380,7 @@ const DEMO_LISTINGS: DemoListing[] = [
     protected_delivery_enabled: true,
     status: "active",
     image: "dj",
+    galleryImages: ["dj-2"],
   },
   {
     slug: `${DEMO_SLUG_PREFIX}analog-cases-synth-case`,
@@ -396,6 +409,7 @@ const DEMO_LISTINGS: DemoListing[] = [
     protected_delivery_enabled: true,
     status: "active",
     image: "guitar",
+    galleryImages: ["guitar-2", "guitar-3"],
   },
   {
     slug: `${DEMO_SLUG_PREFIX}nord-lead-a1`,
@@ -410,6 +424,7 @@ const DEMO_LISTINGS: DemoListing[] = [
     protected_delivery_enabled: true,
     status: "active",
     image: "synth",
+    galleryImages: ["synth-2", "synth-3"],
   },
   {
     slug: `${DEMO_SLUG_PREFIX}focusrite-scarlett-18i20`,
@@ -438,6 +453,7 @@ const DEMO_LISTINGS: DemoListing[] = [
     protected_delivery_enabled: true,
     status: "active",
     image: "guitar",
+    galleryImages: ["guitar-2"],
   },
   {
     slug: `${DEMO_SLUG_PREFIX}audio-technica-m50x`,
@@ -709,13 +725,13 @@ async function main(): Promise<void> {
       const lid = existing.id as string;
       const { data: imgRows } = await admin
         .from("listing_images")
-        .select("id, url")
+        .select("id, url, sort_order")
         .eq("listing_id", lid)
-        .order("sort_order", { ascending: true })
-        .limit(1);
-      const first = imgRows?.[0] as { id: string; url: string } | undefined;
+        .order("sort_order", { ascending: true });
+      const allRows = (imgRows ?? []) as { id: string; url: string; sort_order: number }[];
+      const primary = allRows.find((r) => r.sort_order === 0);
 
-      if (!first) {
+      if (!primary) {
         let insUrl: string;
         try {
           insUrl = await resolveDemoPrimaryImageUrl(admin, url, lid, L.image, rasterMap);
@@ -738,12 +754,12 @@ async function main(): Promise<void> {
         }
       } else if (
         rasterMap &&
-        first.url.includes("/demo/listings/") &&
-        first.url.endsWith(".svg")
+        primary.url.includes("/demo/listings/") &&
+        primary.url.endsWith(".svg")
       ) {
         try {
           const newUrl = await resolveDemoPrimaryImageUrl(admin, url, lid, L.image, rasterMap);
-          const { error: upErr } = await admin.from("listing_images").update({ url: newUrl }).eq("id", first.id);
+          const { error: upErr } = await admin.from("listing_images").update({ url: newUrl }).eq("id", primary.id);
           if (upErr) {
             console.warn(`  listing_images upgrade ${L.slug}: ${upErr.message}`);
           } else if (newUrl.includes("/storage/v1/object/public/listing-images/")) {
@@ -757,6 +773,39 @@ async function main(): Promise<void> {
       } else {
         imagesSkipped++;
       }
+
+      // Insert any missing gallery images for existing listings
+      for (let gi = 0; gi < (L.galleryImages ?? []).length; gi++) {
+        const galleryKey = L.galleryImages![gi];
+        const expectedSortOrder = gi + 1;
+        if (allRows.some((r) => r.sort_order === expectedSortOrder)) continue;
+        const raster = rasterMap?.get(galleryKey);
+        let galleryUrl: string;
+        if (raster) {
+          try {
+            galleryUrl = await uploadDemoListingGalleryPhoto(admin, url, lid, expectedSortOrder, raster);
+          } catch (e) {
+            console.warn(`  ${L.slug} gallery[${gi}]: ${e instanceof Error ? e.message : e}`);
+            galleryUrl = localDemoSvgPath(galleryKey);
+          }
+        } else {
+          galleryUrl = localDemoSvgPath(galleryKey);
+        }
+        const { error: gErr } = await admin.from("listing_images").insert({
+          listing_id: lid,
+          url: galleryUrl,
+          sort_order: expectedSortOrder,
+        });
+        if (gErr) {
+          console.warn(`  listing_images gallery[${gi}] ${L.slug}: ${gErr.message}`);
+        } else {
+          imagesInserted++;
+          if (galleryUrl.includes("/storage/v1/object/public/listing-images/")) {
+            rasterStorageUploads++;
+          }
+        }
+      }
+
       continue;
     }
 
@@ -813,6 +862,37 @@ async function main(): Promise<void> {
       imagesInserted++;
       if (primaryUrl.includes("/storage/v1/object/public/listing-images/")) {
         rasterStorageUploads++;
+      }
+    }
+
+    // Insert gallery images for new listings
+    for (let gi = 0; gi < (L.galleryImages ?? []).length; gi++) {
+      const galleryKey = L.galleryImages![gi];
+      const sortOrder = gi + 1;
+      const raster = rasterMap?.get(galleryKey);
+      let galleryUrl: string;
+      if (raster) {
+        try {
+          galleryUrl = await uploadDemoListingGalleryPhoto(admin, url, listingId, sortOrder, raster);
+        } catch (e) {
+          console.warn(`  ${L.slug} gallery[${gi}]: ${e instanceof Error ? e.message : e}`);
+          galleryUrl = localDemoSvgPath(galleryKey);
+        }
+      } else {
+        galleryUrl = localDemoSvgPath(galleryKey);
+      }
+      const { error: gErr } = await admin.from("listing_images").insert({
+        listing_id: listingId,
+        url: galleryUrl,
+        sort_order: sortOrder,
+      });
+      if (gErr) {
+        console.warn(`  listing_images gallery[${gi}] ${L.slug}: ${gErr.message}`);
+      } else {
+        imagesInserted++;
+        if (galleryUrl.includes("/storage/v1/object/public/listing-images/")) {
+          rasterStorageUploads++;
+        }
       }
     }
   }

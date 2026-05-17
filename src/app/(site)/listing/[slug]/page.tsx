@@ -134,7 +134,7 @@ export default async function ListingPage(props: PageProps) {
             </div>
           </div>
 
-          <div className="min-w-0 flex-1 bg-white pt-5 lg:w-[45%] lg:bg-transparent lg:pt-0 lg:pl-10">
+          <div className="min-w-0 flex-1 pt-5 lg:w-[45%] lg:pt-0 lg:pl-10">
             <div className="lg:sticky lg:top-6 lg:max-h-[calc(100vh-48px)] lg:overflow-y-auto lg:pb-4">
               <h1 className="text-pretty text-2xl font-black leading-tight tracking-tight text-[#111111] lg:text-3xl">
                 {listing.title}
@@ -221,17 +221,18 @@ export default async function ListingPage(props: PageProps) {
                 </div>
               ) : null}
 
-              <section id="offers" className="scroll-mt-24 pb-8 pt-10">
+              <div id="offers" className="scroll-mt-24 pt-6 pb-8">
                 <ListingOfferPanel
                   listingId={listing.id}
                   slug={listing.slug}
                   currency={listing.currency}
+                  priceCents={listing.price_cents}
                   offersEnabled={listing.offers_enabled}
                   listingActive={listing.status === "active"}
                   viewer={profile}
                   isListingSeller={isOwnerSeller}
                 />
-              </section>
+              </div>
             </div>
           </div>
         </div>

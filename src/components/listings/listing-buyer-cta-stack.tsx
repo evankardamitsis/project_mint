@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 
 import { buyNowOrderAction } from "@/lib/orders/actions";
@@ -24,7 +26,6 @@ export function ListingBuyerCtaStack({
   offersEnabled: boolean;
   loginNextPath: string;
   direction?: "row" | "col";
-  /** Smaller controls for the fixed mobile bar. */
   compact?: boolean;
   className?: string;
 }) {
@@ -39,61 +40,64 @@ export function ListingBuyerCtaStack({
         }).format(priceCents / 100);
 
   const isRow = direction === "row";
-  const pad = compact ? "py-3.5 text-sm" : "py-4 text-base";
-  const radius = compact ? "rounded-xl" : "rounded-2xl";
 
+  if (compact) {
+    // Mobile sticky bar — compact row with both actions
+    return (
+      <div className={cn("flex gap-3", isRow ? "w-full flex-row items-stretch" : "flex-col", className)}>
+        {mode === "buy" ? (
+          <form action={buyNowOrderAction} className="min-w-0 flex-1">
+            <input type="hidden" name="listing_id" value={listingId} />
+            <input type="hidden" name="listing_slug" value={slug} />
+            <Button
+              type="submit"
+              className="h-auto w-full rounded-xl py-3.5 text-sm font-bold text-white bg-[#111111] hover:bg-ink/90"
+            >
+              Αγόρασε · {priceBit}
+            </Button>
+          </form>
+        ) : (
+          <Button
+            className="h-auto min-w-0 flex-1 rounded-xl py-3.5 text-sm font-bold text-white bg-[#111111] hover:bg-ink/90"
+            render={<Link href={`/auth/login?next=${encodeURIComponent(loginNextPath)}`} />}
+          >
+            Σύνδεση για αγορά
+          </Button>
+        )}
+        {offersEnabled ? (
+          <Link
+            href={`/listing/${slug}#offers`}
+            className="inline-flex shrink-0 items-center justify-center rounded-xl bg-[#F0EEE9] px-5 py-3.5 text-sm font-bold text-[#111111] transition-colors hover:bg-[#E8E6E1]"
+          >
+            Προσφορά
+          </Link>
+        ) : null}
+      </div>
+    );
+  }
+
+  // Desktop right column — Buy Now is THE primary CTA; offer is handled by ListingOfferPanel below
   return (
-    <div
-      className={cn(
-        "flex gap-3",
-        isRow ? "w-full flex-row items-stretch" : "flex-col",
-        className,
-      )}
-    >
+    <div className={cn("flex flex-col", className)}>
       {mode === "buy" ? (
-        <form action={buyNowOrderAction} className={cn(isRow && "min-w-0 flex-1")}>
+        <form action={buyNowOrderAction}>
           <input type="hidden" name="listing_id" value={listingId} />
           <input type="hidden" name="listing_slug" value={slug} />
-          <Button
+          <button
             type="submit"
-            className={cn(
-              "h-auto w-full text-center font-bold text-white",
-              radius,
-              pad,
-              "bg-[#111111] hover:bg-ink/90",
-            )}
+            className="w-full rounded-2xl bg-[#111111] py-5 text-lg font-black text-white transition-colors hover:bg-[#222222]"
           >
-            Buy now · {priceBit}
-          </Button>
+            Αγόρασε τώρα ({priceBit})
+          </button>
         </form>
       ) : (
-        <Button
-          className={cn(
-            "h-auto text-center font-bold text-white",
-            radius,
-            pad,
-            "bg-[#111111] hover:bg-ink/90",
-            isRow ? "min-w-0 flex-1" : "w-full",
-          )}
-          render={<Link href={`/auth/login?next=${encodeURIComponent(loginNextPath)}`} />}
-        >
-          Log in to buy
-        </Button>
-      )}
-      {offersEnabled ? (
         <Link
-          href={`/listing/${slug}#offers`}
-          className={cn(
-            "inline-flex items-center justify-center text-center font-bold text-[#111111] transition-colors hover:bg-[#E8E6E1]",
-            radius,
-            pad,
-            "bg-[#F0EEE9]",
-            isRow ? "shrink-0 px-5" : "w-full",
-          )}
+          href={`/auth/login?next=${encodeURIComponent(loginNextPath)}`}
+          className="block w-full rounded-2xl bg-[#111111] py-5 text-center text-lg font-black text-white transition-colors hover:bg-[#222222]"
         >
-          Make offer
+          Συνδέσου για αγορά
         </Link>
-      ) : null}
+      )}
     </div>
   );
 }
