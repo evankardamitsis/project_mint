@@ -13,7 +13,7 @@ const CATEGORY_LINKS = [
 
 export function HomeHero() {
   return (
-    <section className="w-full overflow-hidden border-b border-[#EEECE8] bg-[#FAFAF8] pb-10 pt-12 sm:pb-12 sm:pt-16">
+    <section className="w-full border-b border-[#EEECE8] bg-[#FAFAF8] pb-4 pt-12 sm:pb-6 sm:pt-16">
       <div className="mx-auto max-w-[860px] px-4 text-center sm:px-6">
         <p className="mb-4 text-xs font-bold uppercase tracking-[0.15em] text-[#1D9E75]">
           Η ελληνική αγορά μουσικού εξοπλισμού
@@ -37,7 +37,7 @@ export function HomeHero() {
 
         <HomeSearch />
 
-        <div className="mt-4 flex items-center gap-2 overflow-x-auto [-ms-overflow-style:none] scrollbar-none [&::-webkit-scrollbar]:hidden sm:mt-5">
+        <div className="mt-4 flex items-center gap-2 overflow-x-auto [-ms-overflow-style:none] scrollbar-none [&::-webkit-scrollbar]:hidden sm:mt-5 lg:flex-wrap lg:justify-center lg:overflow-visible">
           <Link
             href="/browse"
             className="shrink-0 whitespace-nowrap rounded-full border border-transparent bg-[#111111] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all"

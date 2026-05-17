@@ -65,33 +65,33 @@ export default async function HomePage() {
       <HomeHero />
 
       {/* USP cards */}
-      <section className="border-b border-[#EEECE8] bg-[#FAFAF8] py-10">
+      <section className="border-b border-[#EEECE8] bg-[#FAFAF8] pb-10 pt-4">
         <div className="mx-auto grid max-w-[1400px] grid-cols-1 gap-4 px-6 md:grid-cols-3 lg:px-10">
-          <div className="rounded-2xl border border-[#EEECE8] bg-white p-7">
+          <div className="overflow-hidden rounded-2xl border border-[#E4E2DC] bg-white p-8 transition-all hover:border-[#1D9E75] hover:shadow-sm">
             <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#E8F7F1]">
-              <Lock className="size-5 text-[#1a7a4a]" strokeWidth={2} />
+              <Lock className="size-6 text-[#1a7a4a]" strokeWidth={2} />
             </div>
-            <h3 className="mb-1.5 text-[15px] font-bold text-[#111111]">Ασφαλής πληρωμή</h3>
-            <p className="text-[13px] leading-relaxed text-[#6B6B6B]">
+            <h3 className="mb-2 text-lg font-bold text-[#111111]">Ασφαλής πληρωμή</h3>
+            <p className="text-sm leading-relaxed text-[#555555]">
               Τα χρήματά σου κρατούνται σε αναμονή μέχρι να επιβεβαιώσεις ότι έλαβες το προϊόν σε καλή κατάσταση.
             </p>
           </div>
-          <div className="rounded-2xl border border-[#EEECE8] bg-white p-7">
+          <div className="overflow-hidden rounded-2xl border border-[#E4E2DC] bg-white p-8 transition-all hover:border-[#1D9E75] hover:shadow-sm">
             <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#E8F7F1]">
-              <Camera className="size-5 text-[#1a7a4a]" strokeWidth={2} />
+              <Camera className="size-6 text-[#1a7a4a]" strokeWidth={2} />
             </div>
-            <h3 className="mb-1.5 text-[15px] font-bold text-[#111111]">Φωτογραφίες αποστολής</h3>
-            <p className="text-[13px] leading-relaxed text-[#6B6B6B]">
+            <h3 className="mb-2 text-lg font-bold text-[#111111]">Φωτογραφίες αποστολής</h3>
+            <p className="text-sm leading-relaxed text-[#555555]">
               Ο πωλητής φωτογραφίζει το προϊόν πριν την αποστολή — απόδειξη κατάστασης για αγοραστή και πωλητή.
             </p>
           </div>
-          <div className="rounded-2xl border border-[#EEECE8] bg-white p-7">
+          <div className="overflow-hidden rounded-2xl border border-[#E4E2DC] bg-white p-8 transition-all hover:border-[#1D9E75] hover:shadow-sm">
             <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#E8F7F1]">
-              <ShieldCheck className="size-5 text-[#1a7a4a]" strokeWidth={2} />
+              <ShieldCheck className="size-6 text-[#1a7a4a]" strokeWidth={2} />
             </div>
-            <h3 className="mb-1.5 text-[15px] font-bold text-[#111111]">Προστατευμένη διαμάχη</h3>
-            <p className="text-[13px] leading-relaxed text-[#6B6B6B]">
-              Αν κάτι πάει στραβά, η mint παρεμβαίνει και διασφαλίζει δίκαιη έκβαση για όλους.
+            <h3 className="mb-2 text-lg font-bold text-[#111111]">Προστατευμένη συναλλαγή</h3>
+            <p className="text-sm leading-relaxed text-[#555555]">
+              Αν κάτι δεν πάει καλά, η mint παρεμβαίνει και διασφαλίζει δίκαιη έκβαση για σένα και τον πωλητή.
             </p>
           </div>
         </div>
