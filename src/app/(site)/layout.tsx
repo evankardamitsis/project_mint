@@ -1,3 +1,4 @@
+import { MobileBottomNav } from "@/components/marketing/mobile-bottom-nav";
 import { SiteFooter } from "@/components/marketing/site-footer";
 import { SiteHeader } from "@/components/marketing/site-header";
 import { getLocale } from "@/i18n/get-locale";
@@ -16,6 +17,7 @@ export default async function SiteLayout({
       <SiteHeader locale={locale} messages={messages} />
       <div className="flex-1 bg-background">{children}</div>
       <SiteFooter messages={messages} />
+      <MobileBottomNav />
     </>
   );
 }

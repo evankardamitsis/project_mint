@@ -37,7 +37,7 @@ export function HomeHero() {
 
         <HomeSearch />
 
-        <div className="mt-4 flex items-center gap-2 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mt-5">
+        <div className="mt-4 flex items-center gap-2 overflow-x-auto [-ms-overflow-style:none] scrollbar-none [&::-webkit-scrollbar]:hidden sm:mt-5">
           <Link
             href="/browse"
             className="shrink-0 whitespace-nowrap rounded-full border border-[#DDDBD5] bg-white px-3 py-1.5 text-sm font-medium text-[#444444] transition-all hover:border-[#1D9E75] hover:text-[#1D9E75] sm:px-4 sm:py-2"
