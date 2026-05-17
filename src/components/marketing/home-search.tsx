@@ -380,6 +380,7 @@ export function HomeSearch() {
       <div className="flex items-center gap-2 rounded-full border border-[#EEECE8] bg-white px-4 py-2.5 shadow-[0_2px_20px_rgba(0,0,0,0.08)] transition-all focus-within:border-[#1D9E75] focus-within:shadow-[0_2px_24px_rgba(0,0,0,0.14)] sm:gap-3 sm:px-5 sm:py-3">
         <Search className="h-4 w-4 shrink-0 text-[#ABABAB] sm:h-5 sm:w-5" aria-hidden />
         <input
+          data-home-search
           type="text"
           autoComplete="off"
           autoCorrect="off"

@@ -40,7 +40,7 @@ export function HomeHero() {
         <div className="mt-4 flex items-center gap-2 overflow-x-auto [-ms-overflow-style:none] scrollbar-none [&::-webkit-scrollbar]:hidden sm:mt-5">
           <Link
             href="/browse"
-            className="shrink-0 whitespace-nowrap rounded-full border border-[#DDDBD5] bg-white px-3 py-1.5 text-sm font-medium text-[#444444] transition-all hover:border-[#1D9E75] hover:text-[#1D9E75] sm:px-4 sm:py-2"
+            className="shrink-0 whitespace-nowrap rounded-full border border-transparent bg-[#111111] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all"
           >
             Όλα
           </Link>
@@ -48,7 +48,7 @@ export function HomeHero() {
             <Link
               key={cat.slug}
               href={`/browse?category=${cat.slug}`}
-              className="shrink-0 whitespace-nowrap rounded-full border border-[#DDDBD5] bg-white px-3 py-1.5 text-sm font-medium text-[#444444] transition-all hover:border-[#1D9E75] hover:text-[#1D9E75] sm:px-4 sm:py-2"
+              className="shrink-0 whitespace-nowrap rounded-full border border-[#DDDBD6] bg-white px-5 py-2.5 text-sm font-semibold text-[#444444] transition-all hover:border-[#111111] hover:text-[#111111]"
             >
               {cat.label}
             </Link>

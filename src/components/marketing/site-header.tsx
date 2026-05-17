@@ -40,7 +40,7 @@ export async function SiteHeader({
   const logo = (
     <Link
       href="/"
-      className="flex h-12 shrink-0 items-center justify-center border-r border-[#1e1e1e] px-4 text-[1.125rem] font-black tracking-[-0.04em] text-white sm:px-5 sm:text-[1.35rem] lg:h-14 lg:justify-self-center lg:border-x lg:border-[#1e1e1e] lg:px-10 lg:text-[1.85rem] lg:leading-none"
+      className="flex shrink-0 items-center px-4 text-[1.25rem] font-black tracking-[-0.04em] text-white sm:px-6 sm:text-[1.4rem] lg:text-[1.85rem] lg:leading-none"
     >
       mint<span className="text-[#1a7a4a]">.</span>
     </Link>

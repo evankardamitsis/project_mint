@@ -1,6 +1,7 @@
+import { Lock, Camera, ShieldCheck } from "lucide-react";
+
 import { BauhausListingGrid } from "@/components/marketing/bauhaus-listing-grid";
 import { HomeHero } from "@/components/marketing/home-hero";
-import { HomeTrustBand } from "@/components/marketing/home-trust-band";
 import { LiveTicker } from "@/components/marketing/live-ticker";
 import { SectionHeader } from "@/components/marketing/section-header";
 import { ListingCard } from "@/components/listings/listing-card";
@@ -62,7 +63,40 @@ export default async function HomePage() {
   return (
     <>
       <HomeHero />
-      <HomeTrustBand />
+
+      {/* USP cards */}
+      <section className="border-b border-[#EEECE8] bg-[#FAFAF8] py-10">
+        <div className="mx-auto grid max-w-[1400px] grid-cols-1 gap-4 px-6 md:grid-cols-3 lg:px-10">
+          <div className="rounded-2xl border border-[#EEECE8] bg-white p-7">
+            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#E8F7F1]">
+              <Lock className="size-5 text-[#1a7a4a]" strokeWidth={2} />
+            </div>
+            <h3 className="mb-1.5 text-[15px] font-bold text-[#111111]">Ασφαλής πληρωμή</h3>
+            <p className="text-[13px] leading-relaxed text-[#6B6B6B]">
+              Τα χρήματά σου κρατούνται σε αναμονή μέχρι να επιβεβαιώσεις ότι έλαβες το προϊόν σε καλή κατάσταση.
+            </p>
+          </div>
+          <div className="rounded-2xl border border-[#EEECE8] bg-white p-7">
+            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#E8F7F1]">
+              <Camera className="size-5 text-[#1a7a4a]" strokeWidth={2} />
+            </div>
+            <h3 className="mb-1.5 text-[15px] font-bold text-[#111111]">Φωτογραφίες αποστολής</h3>
+            <p className="text-[13px] leading-relaxed text-[#6B6B6B]">
+              Ο πωλητής φωτογραφίζει το προϊόν πριν την αποστολή — απόδειξη κατάστασης για αγοραστή και πωλητή.
+            </p>
+          </div>
+          <div className="rounded-2xl border border-[#EEECE8] bg-white p-7">
+            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#E8F7F1]">
+              <ShieldCheck className="size-5 text-[#1a7a4a]" strokeWidth={2} />
+            </div>
+            <h3 className="mb-1.5 text-[15px] font-bold text-[#111111]">Προστατευμένη διαμάχη</h3>
+            <p className="text-[13px] leading-relaxed text-[#6B6B6B]">
+              Αν κάτι πάει στραβά, η mint παρεμβαίνει και διασφαλίζει δίκαιη έκβαση για όλους.
+            </p>
+          </div>
+        </div>
+      </section>
+
       <LiveTicker items={activity} />
 
       <section className="px-5 pb-6 pt-5">

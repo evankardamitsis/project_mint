@@ -11,6 +11,7 @@ import {
   IconPiano,
   IconSpeakerphone,
 } from "@tabler/icons-react";
+import { ShieldCheck } from "lucide-react";
 
 import { ListingCardHeartButton } from "@/components/listings/listing-card-heart-button";
 import { cn, formatEuroPrefix } from "@/lib/utils";
@@ -128,10 +129,8 @@ export function ListingCard({
   watchlistSavedAt?: string | null;
 }) {
   const reserved = status === "reserved";
-  const shopName = sellerDisplayName?.trim() ?? "";
   const cityLine = location?.trim() ?? "";
-  const metaLine =
-    shopName && cityLine ? `${shopName} · ${cityLine}` : shopName || cityLine || null;
+  const metaLine = cityLine || null;
   const categoryTrimmed = categoryName?.trim() ?? "";
   const hasImage = Boolean(imageUrl?.trim());
   const isOwnerSeller = Boolean(
@@ -209,10 +208,11 @@ export function ListingCard({
 
             {protectedDeliveryEnabled ? (
               <div
-                className="pointer-events-none absolute right-2 top-10 z-10 bg-[#1a7a4a] px-[7px] py-1 text-[8px] font-black uppercase tracking-widest text-[#ffffff]"
+                className="pointer-events-none absolute right-2 top-10 z-10 flex items-center gap-1 rounded-lg bg-white/90 px-2.5 py-1 backdrop-blur-sm"
                 aria-label="Protected delivery"
               >
-                PROTECTED
+                <ShieldCheck className="size-3 text-[#0A5C43]" strokeWidth={2.5} aria-hidden />
+                <span className="text-[10px] font-bold uppercase tracking-wide text-[#0A5C43]">Protected</span>
               </div>
             ) : null}
 
