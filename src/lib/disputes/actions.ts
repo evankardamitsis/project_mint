@@ -12,6 +12,7 @@ import {
 } from "@/lib/disputes/constants";
 import { hasActiveDispute, orderAllowsNewDispute } from "@/lib/disputes/eligibility";
 import { getProfile } from "@/lib/auth/guards";
+import { hasRole } from "@/lib/roles";
 import type { DisputeReason, DisputeStatus, OrderStatus, PaymentStatus } from "@/types/domain";
 
 const REASONS_REQUIRE_EVIDENCE: DisputeReason[] = ["damaged", "not_as_described", "counterfeit"];
@@ -279,7 +280,7 @@ export async function adminDisputeResolutionAction(
   formData: FormData,
 ): Promise<AdminDisputeFormState> {
   const profile = await getProfile();
-  if (!profile || profile.role !== "admin") {
+  if (!profile || !hasRole(profile.role, "admin")) {
     return { ok: false, error: "Forbidden." };
   }
 

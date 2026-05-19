@@ -4,7 +4,22 @@ import { Suspense } from "react";
 import { SiteHeaderInner } from "@/components/marketing/site-header-inner";
 import { getProfile, getSessionUser } from "@/lib/auth/guards";
 import type { AppLocale, Messages } from "@/i18n/messages";
+import { hasRole } from "@/lib/roles";
+import type { UserRole } from "@/lib/roles";
 import { cn } from "@/lib/utils";
+
+function sellHrefFor(role: UserRole | null, loggedIn: boolean): string {
+  if (!loggedIn) {
+    return "/auth/login?next=/sell";
+  }
+  if (!role || role === "user") {
+    return "/sell";
+  }
+  if (hasRole(role, "seller")) {
+    return "/seller/listings";
+  }
+  return "/sell";
+}
 
 export async function SiteHeader({
   className,
@@ -27,10 +42,15 @@ export async function SiteHeader({
 
   const account =
     user && profile
-      ? { fullName: profile.full_name, email: profile.email ?? user.email ?? null, role: profile.role }
+      ? { fullName: profile.full_name, email: profile.email ?? user.email ?? null, role: profile.role as UserRole }
       : user
         ? ("session_no_profile" as const)
         : null;
+
+  const sellHref = sellHrefFor(
+    account && account !== "session_no_profile" ? account.role : null,
+    Boolean(user),
+  );
 
   const savedHref =
     account && account !== "session_no_profile"
@@ -59,6 +79,8 @@ export async function SiteHeader({
           locale={locale}
           navItems={browseCategoryLinks}
           sellLabel={m.header.sell}
+          sellHref={sellHref}
+          accountLabels={m.header}
           searchAria={m.header.searchAria}
           savedAria={m.header.savedAria}
           savedHref={savedHref}

@@ -12,6 +12,7 @@ import { ListingStickyCta } from "@/components/listings/listing-sticky-cta";
 import { ListingDetailSaveButton } from "@/components/listings/listing-detail-save-button";
 import { Button } from "@/components/ui/button";
 import { getProfile } from "@/lib/auth/guards";
+import { getCurrentUserRole, hasRole } from "@/lib/roles";
 import { SITE_CONTAINER } from "@/config/site-layout";
 import { fetchListingWatcherCount } from "@/lib/favorites/queries";
 import { fetchListingBySlug, fetchSellerProfileForUser } from "@/lib/listings/queries";
@@ -73,17 +74,18 @@ export default async function ListingPage(props: PageProps) {
     notFound();
   }
 
-  const [profile, sellerSelf] = await Promise.all([
+  const [profile, sellerSelf, userRole] = await Promise.all([
     getProfile(),
     fetchSellerProfileForUser(),
+    getCurrentUserRole(),
   ]);
 
-  const isAdmin = profile?.role === "admin";
+  const isAdmin = userRole ? hasRole(userRole, "admin") : false;
   const isOwnerSeller = Boolean(sellerSelf?.id === listing.seller_id);
+  const showAdminPanel = isAdmin || isOwnerSeller;
   const showWatcher = isOwnerSeller || isAdmin;
   const watcherCount = showWatcher ? await fetchListingWatcherCount(listing.id) : 0;
 
-  const showManagement = isAdmin || isOwnerSeller;
   const showMobileSticky =
     listing.status === "active" && !isOwnerSeller && !isAdmin;
   const stickyMode = !showMobileSticky ? "none" : profile ? "buy" : "login";
@@ -194,34 +196,34 @@ export default async function ListingPage(props: PageProps) {
                 <ChevronRight className="size-5 shrink-0 text-ink-3" aria-hidden />
               </div>
 
-              {listing.protected_delivery_enabled ? <ListingProtectedDeliveryTrustDetail /> : null}
+              <ListingProtectedDeliveryTrustDetail />
 
               {listing.description ? (
                 <p className="mt-6 whitespace-pre-wrap text-sm leading-relaxed text-[#444444]">{listing.description}</p>
               ) : null}
 
-              {showMobileSticky && stickyMode !== "none" ? (
-                <div className="mt-8 hidden lg:flex lg:flex-col lg:gap-3">
-                  <ListingBuyerCtaStack
-                    mode={stickyMode}
-                    listingId={listing.id}
-                    slug={listing.slug}
-                    priceCents={listing.price_cents}
-                    currency={listing.currency}
-                    offersEnabled={listing.offers_enabled}
-                    loginNextPath={loginNextPath}
-                    direction="col"
-                  />
-                </div>
-              ) : null}
+              <div id="offers" className="mt-8 scroll-mt-24 pb-8">
+                {showMobileSticky && stickyMode !== "none" ? (
+                  <div className="hidden lg:flex lg:flex-col lg:gap-3">
+                    <ListingBuyerCtaStack
+                      mode={stickyMode}
+                      listingId={listing.id}
+                      slug={listing.slug}
+                      priceCents={listing.price_cents}
+                      currency={listing.currency}
+                      offersEnabled={listing.offers_enabled}
+                      loginNextPath={loginNextPath}
+                      direction="col"
+                    />
+                  </div>
+                ) : null}
 
-              {!showMobileSticky ? (
-                <div className="mt-6">
-                  <ListingPurchaseSection listing={listing} viewer={profile} isOwnerSeller={isOwnerSeller} />
-                </div>
-              ) : null}
+                {!showMobileSticky ? (
+                  <div className="mb-3">
+                    <ListingPurchaseSection listing={listing} viewer={profile} isOwnerSeller={isOwnerSeller} />
+                  </div>
+                ) : null}
 
-              <div id="offers" className="scroll-mt-24 pt-6 pb-8">
                 <ListingOfferPanel
                   listingId={listing.id}
                   slug={listing.slug}
@@ -233,23 +235,25 @@ export default async function ListingPage(props: PageProps) {
                   isListingSeller={isOwnerSeller}
                 />
               </div>
+
+              {showAdminPanel ? (
+                <div className="hidden lg:block">
+                  <div className="my-8 h-px bg-[#EEECE8]" aria-hidden />
+                  <ListingManagementPanel
+                    layout="detail"
+                    listingId={listing.id}
+                    slug={listing.slug}
+                    status={listing.status}
+                    isOwnerSeller={isOwnerSeller}
+                    isAdmin={isAdmin}
+                    rejectionReason={listing.rejection_reason}
+                  />
+                </div>
+              ) : null}
             </div>
           </div>
         </div>
 
-        {showManagement ? (
-          <div className="mt-10 w-full rounded-xl border border-dashed border-border bg-[#F7F6F3]/80 p-4">
-            <p className="mb-3 text-xs font-medium uppercase tracking-wide text-ink-3">Seller / admin</p>
-            <ListingManagementPanel
-              listingId={listing.id}
-              slug={listing.slug}
-              status={listing.status}
-              isOwnerSeller={isOwnerSeller}
-              isAdmin={Boolean(isAdmin)}
-              rejectionReason={listing.rejection_reason}
-            />
-          </div>
-        ) : null}
       </div>
 
       <ListingStickyCta
@@ -261,6 +265,20 @@ export default async function ListingPage(props: PageProps) {
         offersEnabled={listing.offers_enabled}
         loginNextPath={loginNextPath}
       />
+
+      {showAdminPanel ? (
+        <div className={cn(SITE_CONTAINER, "border-t border-[#EEECE8] bg-[#FAFAF8] py-8 pb-32 lg:hidden")}>
+          <ListingManagementPanel
+            layout="detail"
+            listingId={listing.id}
+            slug={listing.slug}
+            status={listing.status}
+            isOwnerSeller={isOwnerSeller}
+            isAdmin={isAdmin}
+            rejectionReason={listing.rejection_reason}
+          />
+        </div>
+      ) : null}
     </div>
   );
 }

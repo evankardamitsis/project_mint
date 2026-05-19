@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 
 import { getProfile } from "@/lib/auth/guards";
+import { hasRole } from "@/lib/roles";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import {
@@ -144,7 +145,7 @@ export async function uploadProtectedDeliveryAssetAction(formData: FormData): Pr
 export async function deleteProtectedDeliveryAssetAction(assetId: string): Promise<{ ok: boolean; error?: string }> {
   try {
     const profile = await getProfile();
-    if (!profile || profile.role !== "admin") {
+    if (!profile || !hasRole(profile.role, "admin")) {
       return { ok: false, error: "Only an admin can remove proof assets." };
     }
 

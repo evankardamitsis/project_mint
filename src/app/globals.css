@@ -180,9 +180,6 @@
   .mint-condition-pill {
     border-radius: 0;
   }
-  [data-mint-browse-chip] {
-    border-radius: 0;
-  }
   .mint-marquee {
     animation: mint-marquee 30s linear infinite;
   }

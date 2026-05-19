@@ -1,5 +1,7 @@
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
-import { requireRole } from "@/lib/auth/guards";
+import { redirect } from "next/navigation";
+
+import { getProfile, requireUser } from "@/lib/auth/guards";
 import { getLocale } from "@/i18n/get-locale";
 import { MESSAGES } from "@/i18n/messages";
 import { initialsFromDisplayName } from "@/lib/profile-display";
@@ -9,7 +11,11 @@ export default async function BuyerLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const profile = await requireRole(["buyer", "seller", "admin"], { nextAfterLogin: "/buyer" });
+  await requireUser("/buyer");
+  const profile = await getProfile();
+  if (!profile) {
+    redirect("/auth/login?next=/buyer");
+  }
   const locale = await getLocale();
   const m = MESSAGES[locale];
   const heading =

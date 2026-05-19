@@ -18,9 +18,16 @@ export default async function SellerOrdersPage() {
   if (!seller) {
     return (
       <div className="space-y-8">
-        <PageHeader title="Orders" description="Set up your seller profile to receive orders." />
-        <EmptyState icon={Package} title="Seller profile required" description="Complete your profile to sell and fulfill orders.">
-          <Button render={<Link href="/seller/profile" />}>Set up profile</Button>
+        <PageHeader
+          title="Παραγγελίες"
+          description="Ρύθμισε το προφίλ πωλητή για να λαμβάνεις παραγγελίες."
+        />
+        <EmptyState
+          icon={Package}
+          title="Απαιτείται προφίλ πωλητή"
+          description="Ολοκλήρωσε το προφίλ σου για να πουλάς και να εκτελείς παραγγελίες."
+        >
+          <Button render={<Link href="/seller/profile" />}>Ρύθμιση προφίλ</Button>
         </EmptyState>
       </div>
     );
@@ -30,9 +37,15 @@ export default async function SellerOrdersPage() {
 
   return (
     <div className="space-y-8">
-      <PageHeader title={o.pageTitle} description="Sales you are fulfilling — ship with proof so buyers stay confident." />
+      <PageHeader title={o.pageTitle} description={o.pageDescription} />
       {rows.length === 0 ? (
-        <EmptyState icon={Package} title={o.emptyTitle} description={o.emptyDescription} />
+        <div className="flex flex-col items-center justify-center py-20 text-center">
+          <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#F7F6F3]">
+            <Package className="h-8 w-8 text-[#ABABAB]" aria-hidden />
+          </div>
+          <h3 className="mb-2 text-base font-semibold text-[#111111]">{o.emptyTitle}</h3>
+          <p className="max-w-sm text-sm leading-relaxed text-[#6B6B6B]">{o.emptyDescription}</p>
+        </div>
       ) : (
         <OrderDashboardCards
           stack="always"

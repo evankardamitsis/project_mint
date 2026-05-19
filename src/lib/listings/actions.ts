@@ -39,15 +39,6 @@ export async function createListingAction(
       return { ok: false, error: "You need to be signed in." };
     }
 
-    const { data: sessionData } = await supabase.auth.getSession();
-    if (!sessionData.session?.access_token) {
-      console.error("[listings] createListingAction missing session for PostgREST");
-      return {
-        ok: false,
-        error: "Your session expired or could not be loaded. Sign in again and retry.",
-      };
-    }
-
     const { data: seller, error: sellerErr } = await supabase
       .from("seller_profiles")
       .select("id")

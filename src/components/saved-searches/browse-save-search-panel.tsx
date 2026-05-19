@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Bell } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useActionState, useEffect, useState, useTransition } from "react";
 
@@ -19,6 +20,8 @@ type Copy = {
   submit: string;
   cancel: string;
   guestHint: string;
+  promptText: string;
+  promptAction: string;
 };
 
 export function BrowseSaveSearchPanel({
@@ -67,9 +70,9 @@ export function BrowseSaveSearchPanel({
 
   if (matchedSaved) {
     return (
-      <div className="rounded-none border border-[#e0ddd8] bg-white px-4 py-3 shadow-sm">
+      <div className="mb-5 rounded-xl border border-[#e0ddd8] bg-white px-5 py-3.5 shadow-sm">
         <p className="text-[11px] font-bold uppercase tracking-[0.1em] text-[#1a7a4a]">{copy.savedLabel}</p>
-        <p className="mt-1 text-[13px] font-semibold text-[#111111]">{matchedSaved.name}</p>
+        <p className="mt-1 text-sm font-semibold text-[#111111]">{matchedSaved.name}</p>
         <Link
           href="/buyer/alerts"
           className="mt-2 inline-block text-[11px] font-bold uppercase tracking-wide text-[#111111] underline decoration-[#111111] underline-offset-2"
@@ -81,42 +84,28 @@ export function BrowseSaveSearchPanel({
   }
 
   if (!filtersActive) {
-    return (
-      <div className="rounded-none border border-dashed border-[#dddddd] bg-[#faf9f6] px-4 py-3">
-        <p className="text-[11px] text-[#999999]">{copy.subtleNoFilters}</p>
-      </div>
-    );
+    return null;
   }
 
   if (isGuest) {
     return (
-      <div className="rounded-none border border-[#e0ddd8] bg-white px-4 py-3 shadow-sm">
-        <Button
-          className="rounded-none border border-[#111111] bg-[#111111] px-4 py-2 text-[10px] font-bold uppercase tracking-[0.1em] text-white hover:bg-[#111111]/90"
-          render={<Link href={loginNextHref} />}
+      <div className="mb-5 flex items-center gap-3 rounded-xl bg-[#E8F7F1] px-5 py-3.5">
+        <Bell className="h-4 w-4 shrink-0 text-[#1D9E75]" aria-hidden />
+        <p className="flex-1 text-sm text-[#0A5C43]">{copy.promptText}</p>
+        <Link
+          href={loginNextHref}
+          className="whitespace-nowrap text-sm font-bold text-[#0A5C43] transition-colors hover:text-[#111111]"
         >
-          {copy.saveCta}
-        </Button>
-        <p className="mt-2 text-[11px] text-[#888888]">{copy.guestHint}</p>
+          {copy.promptAction}
+        </Link>
       </div>
     );
   }
 
-  return (
-    <div className="rounded-none border border-[#e0ddd8] bg-white shadow-sm">
-      {!open ? (
-        <div className="flex flex-wrap items-center gap-3 px-4 py-3">
-          <Button
-            type="button"
-            variant="outline"
-            className="rounded-none border-[#111111] px-4 py-2 text-[10px] font-bold uppercase tracking-[0.1em] text-[#111111]"
-            onClick={() => setOpen(true)}
-          >
-            {copy.saveCta}
-          </Button>
-        </div>
-      ) : (
-        <form action={formAction} className="space-y-3 px-4 py-4">
+  if (open) {
+    return (
+      <div className="mb-5 rounded-xl border border-[#e0ddd8] bg-white p-4 shadow-sm">
+        <form action={formAction} className="space-y-3">
           <input type="hidden" name="q" value={formDefaults.q} />
           <input type="hidden" name="category" value={formDefaults.category} />
           <input type="hidden" name="brand" value={formDefaults.brand} />
@@ -127,7 +116,7 @@ export function BrowseSaveSearchPanel({
           <input type="hidden" name="deal" value={formDefaults.deal} />
           <input type="hidden" name="priceDrop" value={formDefaults.priceDrop} />
           <div className="space-y-1.5">
-            <Label htmlFor="saved-search-name" className="text-[11px] font-bold uppercase tracking-wide text-[#666666]">
+            <Label htmlFor="saved-search-name" className="text-xs font-medium text-[#666666]">
               {copy.nameLabel}
             </Label>
             <Input
@@ -136,7 +125,7 @@ export function BrowseSaveSearchPanel({
               required
               maxLength={120}
               defaultValue={defaultName}
-              className="rounded-none border-[#111111] text-[13px]"
+              className="rounded-lg border-[#EEECE8] text-sm"
             />
           </div>
           <div className="flex items-center gap-2">
@@ -148,12 +137,12 @@ export function BrowseSaveSearchPanel({
               value="on"
               className="size-4 rounded border border-[#111111] accent-[#1a7a4a]"
             />
-            <Label htmlFor="saved-search-notify" className="text-[12px] font-medium text-[#444444]">
+            <Label htmlFor="saved-search-notify" className="text-sm font-medium text-[#444444]">
               {copy.notificationsLabel}
             </Label>
           </div>
           {state.ok === false && state.error ? (
-            <p className="text-[12px] text-red-700" role="alert">
+            <p className="text-sm text-red-700" role="alert">
               {state.error}
             </p>
           ) : null}
@@ -161,21 +150,35 @@ export function BrowseSaveSearchPanel({
             <Button
               type="submit"
               disabled={pending}
-              className="rounded-none bg-[#111111] px-4 py-2 text-[10px] font-bold uppercase tracking-[0.1em] text-white hover:bg-[#111111]/90"
+              className="rounded-full bg-[#111111] px-4 py-2 text-sm font-semibold text-white hover:bg-[#111111]/90"
             >
               {pending ? "…" : copy.submit}
             </Button>
             <Button
               type="button"
               variant="outline"
-              className="rounded-none border-[#cccccc] px-4 py-2 text-[10px] font-bold uppercase tracking-[0.1em]"
+              className="rounded-full border-[#EEECE8] px-4 py-2 text-sm font-medium"
               onClick={() => startTransition(() => setOpen(false))}
             >
               {copy.cancel}
             </Button>
           </div>
         </form>
-      )}
+      </div>
+    );
+  }
+
+  return (
+    <div className="mb-5 flex items-center gap-3 rounded-xl bg-[#E8F7F1] px-5 py-3.5">
+      <Bell className="h-4 w-4 shrink-0 text-[#1D9E75]" aria-hidden />
+      <p className="flex-1 text-sm text-[#0A5C43]">{copy.promptText}</p>
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="whitespace-nowrap text-sm font-bold text-[#0A5C43] transition-colors hover:text-[#111111]"
+      >
+        {copy.promptAction}
+      </button>
     </div>
   );
 }

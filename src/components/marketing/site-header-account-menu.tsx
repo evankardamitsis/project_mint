@@ -3,9 +3,11 @@
 import Link from "next/link";
 import { ChevronDown } from "lucide-react";
 
+import { AccountRoleBadge } from "@/components/account/account-role-badge";
 import { LogoutButton } from "@/components/marketing/logout-button";
+import type { Messages } from "@/i18n/messages";
+import { hasRole, type UserRole } from "@/lib/roles-shared";
 import { cn } from "@/lib/utils";
-import type { UserRole } from "@/types/domain";
 
 function initialsFrom(fullName: string | null, email: string | null) {
   const base = (fullName ?? email ?? "?").trim();
@@ -16,19 +18,35 @@ function initialsFrom(fullName: string | null, email: string | null) {
   return base.slice(0, 2).toUpperCase() || "?";
 }
 
+const linkCls = (dark: boolean) =>
+  cn(
+    "px-3 py-2 text-sm font-medium",
+    dark
+      ? "text-[#cccccc] hover:bg-[#1a1a1a] hover:text-white"
+      : "text-ink-2 hover:bg-muted/60 hover:text-ink",
+  );
+
+const roleBadgeLabels = (labels: Messages["header"]) => ({
+  roleAdmin: labels.roleAdmin,
+  roleSuperAdmin: labels.roleSuperAdmin,
+});
+
 export function SiteHeaderAccountMenu({
   fullName,
   email,
   role,
+  labels,
   tone = "light",
 }: {
   fullName: string | null;
   email: string | null;
   role: UserRole;
+  labels: Messages["header"];
   tone?: "light" | "dark";
 }) {
   const initials = initialsFrom(fullName, email);
   const dark = tone === "dark";
+  const badgeLabels = roleBadgeLabels(labels);
 
   return (
     <details className="group relative">
@@ -49,56 +67,53 @@ export function SiteHeaderAccountMenu({
         >
           {initials}
         </span>
+        <AccountRoleBadge role={role} labels={badgeLabels} className="mr-1 hidden sm:inline-flex" />
         <ChevronDown className={cn("size-4 group-open:rotate-180", dark ? "text-[#888888]" : "text-ink-2")} aria-hidden />
       </summary>
       <div
         className={cn(
           "absolute right-0 top-[calc(100%+0.5rem)] z-50 min-w-48 border py-1 shadow-lg",
-          dark ? "border-[#1e1e1e] bg-[#111111]" : "rounded-xl border-border bg-surface",
+          dark ? "border-border-dark bg-[#111111]" : "rounded-xl border-border bg-surface",
         )}
         role="menu"
       >
-        <p className={cn("border-b px-3 py-2 text-xs", dark ? "border-[#1e1e1e] text-[#888888]" : "border-border text-ink-2")}>
-          <span className={cn("block truncate font-medium", dark ? "text-white" : "text-ink")}>{fullName ?? "Account"}</span>
+        <div className={cn("border-b px-3 py-2 text-xs", dark ? "border-border-dark text-[#888888]" : "border-border text-ink-2")}>
+          <div className="flex items-center gap-2">
+            <span className={cn("min-w-0 truncate font-medium", dark ? "text-white" : "text-ink")}>
+              {fullName ?? "Account"}
+            </span>
+            <AccountRoleBadge role={role} labels={badgeLabels} />
+          </div>
           {email ? (
-            <span className={cn("mt-0.5 block truncate", dark ? "text-[#666666]" : "text-ink-3")}>{email}</span>
+            <span className={cn("mt-0.5 block truncate", dark ? "text-text-secondary" : "text-ink-3")}>{email}</span>
           ) : null}
-        </p>
+        </div>
         <div className="flex flex-col py-1">
-          {role === "seller" || role === "admin" ? (
-            <Link
-              href="/seller"
-              className={cn(
-                "px-3 py-2 text-sm font-medium",
-                dark ? "text-[#cccccc] hover:bg-[#1a1a1a] hover:text-white" : "text-ink-2 hover:bg-muted/60 hover:text-ink",
-              )}
-            >
-              Seller hub
+          <Link href="/buyer/purchases" className={linkCls(dark)}>
+            {labels.accountPurchases}
+          </Link>
+          <Link href="/buyer/watchlist" className={linkCls(dark)}>
+            {labels.accountSaved}
+          </Link>
+          <Link href="/buyer" className={linkCls(dark)}>
+            {labels.accountSettings}
+          </Link>
+          {hasRole(role, "seller") ? (
+            <Link href="/seller/listings" className={linkCls(dark)}>
+              {labels.accountMyListings}
             </Link>
           ) : null}
-          {role === "buyer" || role === "seller" || role === "admin" ? (
-            <Link
-              href="/buyer"
-              className={cn(
-                "px-3 py-2 text-sm font-medium",
-                dark ? "text-[#cccccc] hover:bg-[#1a1a1a] hover:text-white" : "text-ink-2 hover:bg-muted/60 hover:text-ink",
-              )}
-            >
-              Purchases
+          {hasRole(role, "admin") ? (
+            <Link href="/admin" className={linkCls(dark)}>
+              {labels.accountAdmin}
             </Link>
           ) : null}
-          {role === "admin" ? (
-            <Link
-              href="/admin"
-              className={cn(
-                "px-3 py-2 text-sm font-medium",
-                dark ? "text-[#cccccc] hover:bg-[#1a1a1a] hover:text-white" : "text-ink-2 hover:bg-muted/60 hover:text-ink",
-              )}
-            >
-              Admin
+          {role === "super_admin" ? (
+            <Link href="/admin/users" className={linkCls(dark)}>
+              {labels.accountUsers}
             </Link>
           ) : null}
-          <div className={cn("border-t px-2 py-2", dark ? "border-[#1e1e1e]" : "border-border")}>
+          <div className={cn("border-t px-2 py-2", dark ? "border-border-dark" : "border-border")}>
             <LogoutButton
               className={cn(
                 "w-full justify-center rounded-none",

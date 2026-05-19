@@ -1,3 +1,5 @@
+import type { BrowseQueryParams } from "@/lib/listings/browse-params";
+import { browsePriceDropsMode } from "@/lib/listings/browse-params";
 import { createClient } from "@/lib/supabase/server";
 
 import {
@@ -81,22 +83,8 @@ function parseFiniteNumber(value: unknown): number | null {
   return null;
 }
 
-export type BrowseQueryParams = {
-  q?: string;
-  category?: string;
-  brand?: string;
-  condition?: string;
-  min_price?: string;
-  max_price?: string;
-  sort?: string;
-  /** Meaningful price drops (active listings), sorted by newest drop */
-  deal?: string;
-  priceDrop?: string;
-};
-
-export function browsePriceDropsMode(params: BrowseQueryParams): boolean {
-  return params.deal === "price-drops" || params.priceDrop === "true";
-}
+export type { BrowseQueryParams } from "@/lib/listings/browse-params";
+export { browsePriceDropsMode } from "@/lib/listings/browse-params";
 
 const browseListingSelect =
   "id, title, slug, price_cents, currency, condition, status, location, created_at, protected_delivery_enabled, categories ( name, slug ), listing_images ( id, url, sort_order ), seller_profiles ( display_name, user_id )";

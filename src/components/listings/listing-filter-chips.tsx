@@ -67,22 +67,33 @@ function hrefWith(base: Values, patch: Partial<Values>) {
   });
 }
 
+const chipBase =
+  "inline-flex cursor-pointer list-none items-center gap-1.5 marker:content-none [&::-webkit-details-marker]:hidden";
+const chipBrowse =
+  "rounded-full border border-[#EEECE8] bg-white px-4 py-2.5 text-sm font-medium normal-case tracking-normal text-[#444444] hover:border-[#111111] hover:text-[#111111] transition-all";
+const chipBrowseActive =
+  "rounded-full border border-[#111111] bg-[#111111] px-4 py-2.5 text-sm font-medium normal-case tracking-normal text-white";
+const chipDefault =
+  "rounded-none border border-[#cccccc] bg-white px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.08em] text-[#444444]";
+const chipDefaultActive = "border-[#111111] bg-[#111111] text-white";
+
 function ChipDetails({
   label,
   active,
   children,
+  browse,
 }: {
   label: string;
   active: boolean;
   children: React.ReactNode;
+  browse: boolean;
 }) {
   return (
     <details className="group relative">
       <summary
-        data-mint-browse-chip
         className={cn(
-          "inline-flex cursor-pointer list-none items-center gap-1.25 rounded-none border border-[#cccccc] bg-white px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.08em] text-[#444444] marker:content-none [&::-webkit-details-marker]:hidden",
-          active && "border-[#111111] bg-[#111111] text-white",
+          chipBase,
+          browse ? (active ? chipBrowseActive : chipBrowse) : cn(chipDefault, active && chipDefaultActive),
         )}
       >
         <span className="max-w-40 truncate">{label}</span>
@@ -128,12 +139,15 @@ export function ListingFilterChips({
   brands,
   values,
   labels,
+  variant = "default",
 }: {
   categories: CategoryOption[];
   brands: BrandOption[];
   values: Values;
   labels: BrowseFilterChipLabels;
+  variant?: "default" | "browse";
 }) {
+  const browse = variant === "browse";
   const categoryLabel = values.category
     ? (categories.find((c) => c.slug === values.category)?.name ?? labels.filterCategory)
     : labels.filterCategory;
@@ -180,9 +194,9 @@ export function ListingFilterChips({
   const priceDropsActive = values.deal === "price-drops" || values.priceDrop === "true";
 
   return (
-    <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <div className={cn("flex w-full flex-col gap-3 sm:flex-row sm:items-center sm:justify-between", browse && "mb-6")}>
       <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
-        <ChipDetails label={categoryLabel} active={Boolean(values.category)}>
+        <ChipDetails label={categoryLabel} active={Boolean(values.category)} browse={browse}>
           <ChipLinkRow href={hrefWith(values, { category: "" })}>{labels.filterAllCategories}</ChipLinkRow>
           {categories.map((c) => (
             <ChipLinkRow key={c.id} href={hrefWith(values, { category: c.slug })}>
@@ -191,7 +205,7 @@ export function ListingFilterChips({
           ))}
         </ChipDetails>
 
-        <ChipDetails label={brandLabel} active={Boolean(values.brand)}>
+        <ChipDetails label={brandLabel} active={Boolean(values.brand)} browse={browse}>
           <ChipLinkRow href={hrefWith(values, { brand: "" })}>{labels.filterAllBrands}</ChipLinkRow>
           {brands.map((b) => (
             <ChipLinkRow key={b.id} href={hrefWith(values, { brand: b.slug })}>
@@ -200,7 +214,7 @@ export function ListingFilterChips({
           ))}
         </ChipDetails>
 
-        <ChipDetails label={conditionLabel} active={Boolean(values.condition)}>
+        <ChipDetails label={conditionLabel} active={Boolean(values.condition)} browse={browse}>
           <ChipLinkRow href={hrefWith(values, { condition: "" })}>{labels.filterAnyCondition}</ChipLinkRow>
           {conditions.map((c) => (
             <ChipLinkRow key={c.value} href={hrefWith(values, { condition: c.value })}>
@@ -211,7 +225,7 @@ export function ListingFilterChips({
           ))}
         </ChipDetails>
 
-        <ChipDetails label={priceLabel} active={priceActive}>
+        <ChipDetails label={priceLabel} active={priceActive} browse={browse}>
           {PRICE_PRESETS.map((preset) => (
             <ChipLinkRow key={preset.key} href={hrefWith(values, { min_price: preset.min, max_price: preset.max })}>
               {labels[preset.key]}
@@ -225,8 +239,15 @@ export function ListingFilterChips({
             priceDrop: "",
           })}
           className={cn(
-            "inline-flex shrink-0 list-none items-center gap-1.25 rounded-none border border-[#cccccc] bg-white px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.08em] text-[#444444] hover:border-[#111111]/70",
-            priceDropsActive && "border-[#111111] bg-[#111111] text-white",
+            chipBase,
+            browse
+              ? priceDropsActive
+                ? chipBrowseActive
+                : chipBrowse
+              : cn(
+                  "rounded-none border border-[#cccccc] bg-white px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.08em] text-[#444444] hover:border-[#111111]/70",
+                  priceDropsActive && chipDefaultActive,
+                ),
           )}
         >
           {labels.filterPriceDrops}
@@ -242,8 +263,13 @@ export function ListingFilterChips({
         ) : null}
       </div>
 
-      <div className="flex shrink-0 items-center self-end sm:self-center sm:border-l-[0.5px] sm:border-[#ddd] sm:pl-3">
-        <ChipDetails label={sortLabel} active={sortActive}>
+      <div
+        className={cn(
+          "flex shrink-0 items-center self-end sm:self-center",
+          browse ? "ml-auto" : "sm:border-l-[0.5px] sm:border-[#ddd] sm:pl-3",
+        )}
+      >
+        <ChipDetails label={sortLabel} active={sortActive} browse={browse}>
           <ChipLinkRow href={hrefWith(values, { sort: "newest" })}>{labels.sortNewest}</ChipLinkRow>
           <ChipLinkRow href={hrefWith(values, { sort: "price_asc" })}>{labels.sortPriceAsc}</ChipLinkRow>
           <ChipLinkRow href={hrefWith(values, { sort: "price_desc" })}>{labels.sortPriceDesc}</ChipLinkRow>

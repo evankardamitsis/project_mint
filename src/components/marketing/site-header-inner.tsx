@@ -7,12 +7,13 @@ import { useEffect, useState, useCallback } from "react";
 import { Menu, Search, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 
+import { AccountRoleBadge } from "@/components/account/account-role-badge";
 import { LocaleSwitcher } from "@/components/i18n/locale-switcher";
 import { LogoutButton } from "@/components/marketing/logout-button";
 import { SiteHeaderAccountMenu } from "@/components/marketing/site-header-account-menu";
 import { SITE_CONTAINER } from "@/config/site-layout";
-import type { AppLocale } from "@/i18n/messages";
-import type { UserRole } from "@/types/domain";
+import type { AppLocale, Messages } from "@/i18n/messages";
+import { hasRole, type UserRole } from "@/lib/roles-shared";
 import { cn } from "@/lib/utils";
 
 function browseCategoryActive(pathname: string, searchParams: URLSearchParams, href: string) {
@@ -30,7 +31,9 @@ export function SiteHeaderInner({
   locale,
   navItems,
   sellLabel,
-  savedHref,
+  sellHref,
+  accountLabels,
+  searchAria,
   logIn,
   join,
   account,
@@ -39,23 +42,27 @@ export function SiteHeaderInner({
   locale: AppLocale;
   navItems: readonly NavItem[];
   sellLabel: string;
+  sellHref: string;
+  accountLabels: Messages["header"];
   searchAria: string;
   savedAria: string;
   savedHref: string;
   logIn: string;
   join: string;
   account:
-    | { fullName: string | null; email: string | null; role: UserRole }
-    | "session_no_profile"
-    | null;
+  | { fullName: string | null; email: string | null; role: UserRole }
+  | "session_no_profile"
+  | null;
 }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const router = useRouter();
-  const [drawer, setDrawer] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [drawerAtPath, setDrawerAtPath] = useState<string | null>(null);
+  const drawerVisible = drawerOpen && drawerAtPath === pathname;
 
   const handleSearchClick = useCallback(() => {
-    const el = document.querySelector<HTMLInputElement>("[data-home-search]");
+    const el = document.querySelector<HTMLInputElement>("[data-smart-search]");
     if (el) {
       el.scrollIntoView({ behavior: "smooth", block: "center" });
       el.focus();
@@ -65,69 +72,78 @@ export function SiteHeaderInner({
   }, [router]);
 
   useEffect(() => {
-    if (!drawer) return;
+    if (!drawerVisible) return;
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    return () => { document.body.style.overflow = prev; };
-  }, [drawer]);
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [drawerVisible]);
 
-  // Close drawer on route change
-  useEffect(() => { setDrawer(false); }, [pathname]);
+  const closeDrawer = () => {
+    setDrawerOpen(false);
+    setDrawerAtPath(null);
+  };
 
-  const closeDrawer = () => setDrawer(false);
+  const toggleDrawer = () => {
+    if (drawerVisible) {
+      closeDrawer();
+      return;
+    }
+    setDrawerOpen(true);
+    setDrawerAtPath(pathname);
+  };
 
   const role = account && account !== "session_no_profile" ? account.role : null;
 
   const sellCls =
     "flex h-12 shrink-0 items-center border-l border-[#1e1e1e] bg-[#1a7a4a] px-[18px] text-[10px] font-bold uppercase tracking-[0.09em] text-white transition-colors hover:bg-[#15633c] lg:h-14";
 
+  const drawerLinkCls =
+    "text-[12px] font-medium text-[#cccccc] transition-colors hover:text-white";
+
   return (
     <>
-      {/* ── Header bar ── */}
       <div className={cn(SITE_CONTAINER, "flex min-h-12 min-w-0 items-stretch lg:min-h-14")}>
-
-        {/* Left: burger + search icon */}
         <div className="flex flex-1 items-stretch">
           <button
             type="button"
-            className="flex h-12 w-12 shrink-0 items-center justify-center border-r border-[#1e1e1e] text-[#888888] transition-colors hover:bg-[#1a1a1a] hover:text-white lg:h-14 lg:w-14"
-            aria-label={drawer ? "Close menu" : "Open menu"}
-            aria-expanded={drawer}
-            onClick={() => setDrawer((v) => !v)}
+            className="flex h-12 w-12 shrink-0 items-center justify-center border-r border-border-dark text-[#888888] transition-colors hover:bg-[#1a1a1a] hover:text-white lg:h-14 lg:w-14"
+            aria-label={drawerVisible ? "Close menu" : "Open menu"}
+            aria-expanded={drawerVisible}
+            onClick={toggleDrawer}
           >
-            {drawer ? <X className="size-5" /> : <Menu className="size-5" />}
+            {drawerVisible ? <X className="size-5" /> : <Menu className="size-5" />}
           </button>
           <button
             type="button"
-            className="flex h-12 w-12 shrink-0 items-center justify-center border-r border-[#1e1e1e] text-[#888888] transition-colors hover:bg-[#1a1a1a] hover:text-white lg:h-14 lg:w-14"
-            aria-label="Search"
+            className="flex h-12 w-12 shrink-0 items-center justify-center border-r border-border-dark text-[#888888] transition-colors hover:bg-[#1a1a1a] hover:text-white lg:h-14 lg:w-14"
+            aria-label={searchAria}
             onClick={handleSearchClick}
           >
             <Search className="size-4" />
           </button>
         </div>
 
-        {/* Center: logo */}
         {centerSlot}
 
-        {/* Right */}
         <div className="flex flex-1 items-stretch justify-end">
-          <Link href="/sell" className={sellCls}>
+          <Link href={sellHref} className={sellCls}>
             {sellLabel}
           </Link>
 
-          {/* Desktop: locale + account */}
-          <div className="hidden items-stretch border-l border-[#1e1e1e] lg:flex">
+          <div className="hidden items-stretch border-l border-border-dark lg:flex">
             <div className="flex items-center px-3">
               <LocaleSwitcher locale={locale} variant="dark" />
             </div>
-            <div className="flex items-center border-l border-[#1e1e1e] px-2">
+            <div className="flex items-center border-l border-border-dark px-2">
               {account && account !== "session_no_profile" ? (
                 <SiteHeaderAccountMenu
                   tone="dark"
                   fullName={account.fullName}
                   email={account.email}
                   role={account.role}
+                  labels={accountLabels}
                 />
               ) : account === "session_no_profile" ? (
                 <LogoutButton className="h-8 rounded-none border border-[#333333] bg-transparent px-3 text-[10px] font-bold uppercase tracking-wide text-white hover:bg-[#1a1a1a]" />
@@ -152,10 +168,8 @@ export function SiteHeaderInner({
         </div>
       </div>
 
-      {/* ── Drawer — slides from LEFT, all screen sizes ── */}
-      {drawer && (
+      {drawerVisible && (
         <div className="fixed inset-0 z-50">
-          {/* Backdrop */}
           <button
             type="button"
             className="absolute inset-0 bg-black/60 backdrop-blur-[2px]"
@@ -163,11 +177,8 @@ export function SiteHeaderInner({
             onClick={closeDrawer}
           />
 
-          {/* Panel */}
           <div className="absolute left-0 top-0 flex h-full w-[min(100%,22rem)] flex-col bg-[#111111] shadow-2xl">
-
-            {/* Drawer header */}
-            <div className="flex h-12 shrink-0 items-center justify-between border-b border-[#1e1e1e] px-4 lg:h-14">
+            <div className="flex h-12 shrink-0 items-center justify-between border-b border-border-dark px-4 lg:h-14">
               <span className="text-[1.25rem] font-black tracking-[-0.03em] text-white lg:text-[1.5rem]">
                 mint<span className="text-[#1a7a4a]">.</span>
               </span>
@@ -181,13 +192,11 @@ export function SiteHeaderInner({
               </button>
             </div>
 
-            {/* Locale (mobile only — desktop has it in the bar) */}
-            <div className="border-b border-[#1e1e1e] px-4 py-3 lg:hidden">
+            <div className="border-b border-border-dark px-4 py-3 lg:hidden">
               <LocaleSwitcher locale={locale} variant="dark" />
             </div>
 
-            {/* Nav items */}
-            <nav className="flex flex-col overflow-y-auto border-b border-[#1e1e1e] py-2" aria-label="Κατηγορίες">
+            <nav className="flex flex-col overflow-y-auto border-b border-border-dark py-2" aria-label="Categories">
               {navItems.map((item) => {
                 const active = browseCategoryActive(pathname, searchParams, item.href);
                 return (
@@ -198,7 +207,7 @@ export function SiteHeaderInner({
                     className={cn(
                       "px-5 py-3.5 text-[11px] font-bold uppercase tracking-[0.09em] transition-colors",
                       active
-                        ? "bg-[#1a7a4a]/20 text-[#1a7a4a]"
+                        ? "bg-mint-tint text-mint"
                         : "text-[#888888] hover:bg-[#1a1a1a] hover:text-white",
                     )}
                   >
@@ -208,44 +217,51 @@ export function SiteHeaderInner({
               })}
             </nav>
 
-            {/* Account section */}
             <div className="flex flex-1 flex-col gap-3 p-5">
               {account && account !== "session_no_profile" ? (
                 <div className="flex flex-col gap-2 text-sm">
-                  <p className="truncate text-xs font-semibold text-white">
-                    {account.fullName ?? "Account"}
-                  </p>
-                  {account.email && (
+                  <div className="flex flex-wrap items-center gap-2">
+                    <p className="truncate text-xs font-semibold text-white">
+                      {account.fullName ?? "Account"}
+                    </p>
+                    {role ? (
+                      <AccountRoleBadge
+                        role={role}
+                        labels={{
+                          roleAdmin: accountLabels.roleAdmin,
+                          roleSuperAdmin: accountLabels.roleSuperAdmin,
+                        }}
+                      />
+                    ) : null}
+                  </div>
+                  {account.email ? (
                     <p className="truncate text-[11px] text-[#888888]">{account.email}</p>
-                  )}
-                  <div className="mt-2 flex flex-col gap-1.5 border-t border-[#1e1e1e] pt-3">
-                    {(role === "seller" || role === "admin") && (
-                      <Link
-                        href="/seller"
-                        onClick={closeDrawer}
-                        className="text-[12px] font-medium text-[#cccccc] transition-colors hover:text-white"
-                      >
-                        Seller hub
+                  ) : null}
+                  <div className="mt-2 flex flex-col gap-1.5 border-t border-border-dark pt-3">
+                    <Link href="/buyer/purchases" onClick={closeDrawer} className={drawerLinkCls}>
+                      {accountLabels.accountPurchases}
+                    </Link>
+                    <Link href="/buyer/watchlist" onClick={closeDrawer} className={drawerLinkCls}>
+                      {accountLabels.accountSaved}
+                    </Link>
+                    <Link href="/buyer" onClick={closeDrawer} className={drawerLinkCls}>
+                      {accountLabels.accountSettings}
+                    </Link>
+                    {role && hasRole(role, "seller") ? (
+                      <Link href="/seller/listings" onClick={closeDrawer} className={drawerLinkCls}>
+                        {accountLabels.accountMyListings}
                       </Link>
-                    )}
-                    {(role === "buyer" || role === "seller" || role === "admin") && (
-                      <Link
-                        href="/buyer"
-                        onClick={closeDrawer}
-                        className="text-[12px] font-medium text-[#cccccc] transition-colors hover:text-white"
-                      >
-                        Purchases
+                    ) : null}
+                    {role && hasRole(role, "admin") ? (
+                      <Link href="/admin" onClick={closeDrawer} className={drawerLinkCls}>
+                        {accountLabels.accountAdmin}
                       </Link>
-                    )}
-                    {role === "admin" && (
-                      <Link
-                        href="/admin"
-                        onClick={closeDrawer}
-                        className="text-[12px] font-medium text-[#cccccc] transition-colors hover:text-white"
-                      >
-                        Admin
+                    ) : null}
+                    {role === "super_admin" ? (
+                      <Link href="/admin/users" onClick={closeDrawer} className={drawerLinkCls}>
+                        {accountLabels.accountUsers}
                       </Link>
-                    )}
+                    ) : null}
                   </div>
                   <LogoutButton className="mt-3 w-full rounded-none border border-[#333333] bg-transparent text-white hover:bg-[#1a1a1a]" />
                 </div>
@@ -263,7 +279,7 @@ export function SiteHeaderInner({
                   <Link
                     href="/auth/register"
                     onClick={closeDrawer}
-                    className="bg-[#1a7a4a] py-2.5 text-center text-[10px] font-bold uppercase tracking-[0.09em] text-white transition-colors hover:bg-[#15633c]"
+                    className="bg-[#1a7a4a] py-2.5 text-center text-[10px] font-bold uppercase tracking-[0.09em] text-white transition-colors hover:bg-mint-deep"
                   >
                     {join}
                   </Link>

@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { HomeSearch } from "@/components/marketing/home-search";
+import { SmartSearch } from "@/components/smart-search";
 
 const CATEGORY_LINKS = [
   { label: "Κιθάρες", slug: "guitars" },
@@ -35,7 +35,7 @@ export function HomeHero() {
           αναμονή και παρακολούθηση αποστολής με αποδεικτικές φωτογραφίες.
         </p>
 
-        <HomeSearch />
+        <SmartSearch variant="hero" />
 
         <div className="mt-4 flex items-center gap-2 overflow-x-auto [-ms-overflow-style:none] scrollbar-none [&::-webkit-scrollbar]:hidden sm:mt-5 lg:flex-wrap lg:justify-center lg:overflow-visible">
           <Link

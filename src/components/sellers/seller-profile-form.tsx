@@ -24,9 +24,11 @@ import type { SellerProfileFull } from "@/types/listings";
 export function SellerProfileForm({
   initial,
   mode,
+  variant = "default",
 }: {
   initial: SellerProfileFull | null;
   mode: "create" | "edit";
+  variant?: "default" | "hub";
 }) {
   const router = useRouter();
   const initialState = useMemo<SaveSellerProfileState>(() => ({ ok: false }), []);
@@ -35,10 +37,10 @@ export function SellerProfileForm({
 
   useEffect(() => {
     if (state.ok) {
-      router.push("/seller");
+      router.push(variant === "hub" ? "/seller/profile" : "/seller");
       router.refresh();
     }
-  }, [router, state]);
+  }, [router, state, variant]);
 
   const fieldErrors =
     state.ok === false && "fieldErrors" in state ? state.fieldErrors : undefined;
@@ -52,6 +54,113 @@ export function SellerProfileForm({
     startTransition(() => {
       formAction(new FormData(form));
     });
+  }
+
+  if (variant === "hub") {
+    return (
+      <form onSubmit={handleSubmit} className="rounded-2xl border border-[#EEECE8] bg-white p-6">
+        <h2 className="mb-1 text-base font-bold text-[#111111]">Προφίλ πωλητή</h2>
+        <p className="mb-6 text-sm text-[#6B6B6B]">Ενημέρωσε πώς εμφανίζεσαι στους αγοραστές.</p>
+
+        <div className="space-y-5">
+          <div className="space-y-2">
+            <Label htmlFor="display_name" className="text-sm font-medium text-[#111111]">
+              Εμφανιζόμενο όνομα
+            </Label>
+            <Input
+              id="display_name"
+              name="display_name"
+              required
+              minLength={2}
+              maxLength={120}
+              defaultValue={initial?.display_name ?? ""}
+              placeholder="Το όνομα του καταστήματός σου"
+              className="rounded-xl"
+            />
+            {fieldErrors?.display_name ? (
+              <p className="text-xs text-destructive">{fieldErrors.display_name}</p>
+            ) : null}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="bio" className="text-sm font-medium text-[#111111]">
+              Περιγραφή
+            </Label>
+            <Textarea
+              id="bio"
+              name="bio"
+              rows={4}
+              maxLength={2000}
+              defaultValue={initial?.bio ?? ""}
+              placeholder="Εξοπλισμός, αποστολές, χρόνοι απάντησης…"
+              className="rounded-xl"
+            />
+            {fieldErrors?.bio ? <p className="text-xs text-destructive">{fieldErrors.bio}</p> : null}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="location" className="text-sm font-medium text-[#111111]">
+              Τοποθεσία
+            </Label>
+            <Input
+              id="location"
+              name="location"
+              maxLength={200}
+              defaultValue={initial?.location ?? ""}
+              placeholder="Πόλη ή περιοχή"
+              className="rounded-xl"
+            />
+            {fieldErrors?.location ? (
+              <p className="text-xs text-destructive">{fieldErrors.location}</p>
+            ) : null}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="phone" className="text-sm font-medium text-[#111111]">
+              Τηλέφωνο
+            </Label>
+            <Input
+              id="phone"
+              name="phone"
+              type="tel"
+              maxLength={40}
+              defaultValue={initial?.phone ?? ""}
+              placeholder="Προαιρετικό — για επικοινωνία με αγοραστές"
+              className="rounded-xl"
+            />
+            {fieldErrors?.phone ? (
+              <p className="text-xs text-destructive">{fieldErrors.phone}</p>
+            ) : null}
+            <p className="text-xs text-[#6B6B6B]">
+              Το τηλέφωνό σου κοινοποιείται μόνο μετά την επιβεβαίωση πώλησης.
+            </p>
+          </div>
+        </div>
+
+        {!state.ok && state.error ? (
+          <p className="mt-4 text-sm text-destructive" role="alert">
+            {state.error}
+          </p>
+        ) : null}
+
+        <div className="mt-6 flex items-center gap-3 border-t border-[#EEECE8] pt-6">
+          <button
+            type="submit"
+            disabled={pending}
+            className="rounded-xl bg-[#1D9E75] px-6 py-2.5 text-sm font-bold text-white transition-colors hover:bg-[#188A65] disabled:opacity-60"
+          >
+            {pending ? "Αποθήκευση…" : "Αποθήκευση"}
+          </button>
+          <button
+            type="button"
+            className="text-sm font-medium text-[#6B6B6B] transition-colors hover:text-[#111111]"
+            onClick={() => router.refresh()}
+          >
+            Ακύρωση
+          </button>
+        </div>
+      </form>
+    );
   }
 
   return (

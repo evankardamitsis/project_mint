@@ -1,6 +1,10 @@
+import { AccountRoleBadge } from "@/components/account/account-role-badge";
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 import { adminNav } from "@/config/navigation";
-import { requireRole } from "@/lib/auth/guards";
+import { redirect } from "next/navigation";
+
+import { getProfile } from "@/lib/auth/guards";
+import { requireRole } from "@/lib/roles";
 import { getLocale } from "@/i18n/get-locale";
 import { MESSAGES } from "@/i18n/messages";
 import { initialsFromDisplayName } from "@/lib/profile-display";
@@ -10,7 +14,11 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const profile = await requireRole(["admin"], { nextAfterLogin: "/admin" });
+  await requireRole("admin");
+  const profile = await getProfile();
+  if (!profile) {
+    redirect("/auth/login?next=/admin");
+  }
   const locale = await getLocale();
   const m = MESSAGES[locale];
   const heading = "Admin";
@@ -23,6 +31,15 @@ export default async function AdminLayout({
           initials,
           heading,
           description: m.dashboard.admin,
+          badge: (
+            <AccountRoleBadge
+              role={profile.role}
+              labels={{
+                roleAdmin: m.header.roleAdmin,
+                roleSuperAdmin: m.header.roleSuperAdmin,
+              }}
+            />
+          ),
         }}
         navItems={adminNav}
       >

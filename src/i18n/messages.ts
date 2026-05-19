@@ -13,6 +13,14 @@ export type Messages = {
     join: string;
     searchAria: string;
     savedAria: string;
+    accountPurchases: string;
+    accountSaved: string;
+    accountSettings: string;
+    accountMyListings: string;
+    accountAdmin: string;
+    accountUsers: string;
+    roleAdmin: string;
+    roleSuperAdmin: string;
   };
   footer: {
     tagline: string;
@@ -54,6 +62,9 @@ export type Messages = {
   };
   browse: {
     title: string;
+    pageHeading: string;
+    pageSubtitleMany: string;
+    searchPlaceholder: string;
     countOne: string;
     countMany: string;
     emptyFilteredTitle: string;
@@ -88,6 +99,8 @@ export type Messages = {
     saveSearchSubmit: string;
     saveSearchCancel: string;
     saveSearchGuestHint: string;
+    saveSearchPromptText: string;
+    saveSearchPromptAction: string;
   };
   sell: {
     title: string;
@@ -185,6 +198,14 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       join: "Join",
       searchAria: "Search",
       savedAria: "Saved",
+      accountPurchases: "My purchases",
+      accountSaved: "Saved",
+      accountSettings: "Settings",
+      accountMyListings: "My listings",
+      accountAdmin: "Admin",
+      accountUsers: "Users",
+      roleAdmin: "Admin",
+      roleSuperAdmin: "Super admin",
     },
     footer: {
       tagline: "Music gear & collectibles — buy and sell with confidence.",
@@ -227,6 +248,9 @@ export const MESSAGES: Record<AppLocale, Messages> = {
     },
     browse: {
       title: "Browse gear",
+      pageHeading: "Gear",
+      pageSubtitleMany: "{n} listings from verified sellers",
+      searchPlaceholder: "Search gear, brands…",
       countOne: "1 listing",
       countMany: "{n} listings",
       emptyFilteredTitle: "No listings found",
@@ -264,6 +288,9 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       saveSearchSubmit: "Save",
       saveSearchCancel: "Cancel",
       saveSearchGuestHint: "Sign in to save searches and get alerts later.",
+      saveSearchPromptText:
+        "Save this search and get notified when new listings are added.",
+      saveSearchPromptAction: "Save →",
     },
     sell: {
       title: "Sell gear with protection built in.",
@@ -373,6 +400,14 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       join: "Εγγραφή",
       searchAria: "Αναζήτηση",
       savedAria: "Αποθηκευμένα",
+      accountPurchases: "Αγορές μου",
+      accountSaved: "Αποθηκευμένα",
+      accountSettings: "Ρυθμίσεις",
+      accountMyListings: "Αγγελίες μου",
+      accountAdmin: "Admin",
+      accountUsers: "Χρήστες",
+      roleAdmin: "Admin",
+      roleSuperAdmin: "Super Admin",
     },
     footer: {
       tagline:
@@ -417,6 +452,9 @@ export const MESSAGES: Record<AppLocale, Messages> = {
     },
     browse: {
       title: "Αναζήτηση εξοπλισμού",
+      pageHeading: "Εξοπλισμός",
+      pageSubtitleMany: "{n} αγγελίες από επαληθευμένους πωλητές",
+      searchPlaceholder: "Αναζήτησε εξοπλισμό, μάρκες...",
       countOne: "1 αγγελία",
       countMany: "{n} αγγελίες",
       emptyFilteredTitle: "Δεν βρέθηκαν αγγελίες",
@@ -455,6 +493,9 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       saveSearchCancel: "Ακύρωση",
       saveSearchGuestHint:
         "Συνδέσου για να αποθηκεύεις αναζητήσεις και ειδοποιήσεις.",
+      saveSearchPromptText:
+        "Αποθήκευσε αυτή την αναζήτηση και ειδοποιήσου όταν προστεθούν νέες αγγελίες.",
+      saveSearchPromptAction: "Αποθήκευση →",
     },
     sell: {
       title: "Πούλησε εξοπλισμό με ενσωματωμένη προστασία.",
@@ -465,8 +506,8 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       browseGear: "Δες αγγελίες",
       tile1h: "Προστασία σε κάθε πώληση",
       tile1t:
-        "Η πληρωμή κρατείται μέχρι ο αγοραστής να επιβεβαιώσει την παράδοση. Πληρώνεσαι, εγγυημένα.",
-      tile2h: "Φωτογραφίες απόδειξης",
+        "Η πληρωμή δεσμεύεται μέχρι να επιβεβαιωθεί η παράδοση. Πληρώνεσαι, εγγυημένα.",
+      tile2h: "Αποδεικτικές φωτογραφίες",
       tile2t:
         "Ανέβασε φωτογραφίες συσκευασίας πριν την αποστολή. Οι διαφορές λύνονται δίκαια με αποδείξεις.",
       tile3h: "Χωρίς προκαταβολή",
@@ -547,7 +588,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
     sellerOrders: {
       pageTitle: "Παραγγελίες",
       pageDescription:
-        "Όταν ένας αγοραστής ολοκληρώσει την πληρωμή για μια αγγελία σου, η παραγγελία θα εμφανιστεί εδώ.",
+        "Παραγγελίες που εκτελείς — στείλε με αποδείξεις για εμπιστοσύνη.",
       emptyTitle: "Δεν υπάρχουν παραγγελίες ακόμη",
       emptyDescription:
         "Όταν ένας αγοραστής ολοκληρώσει την πληρωμή για μια αγγελία σου, η παραγγελία θα εμφανιστεί εδώ.",

@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { getProfile } from "@/lib/auth/guards";
+import { hasRole } from "@/lib/roles";
 import { platformFeeCents } from "@/lib/orders/fees";
 import { ensureProtectedDeliveryCheckForOrder } from "@/lib/protected-delivery/ensure-check";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -287,7 +288,7 @@ export async function adminUpdateOrderStatusAction(
   paymentStatus: PaymentStatus,
 ): Promise<{ ok: boolean; error?: string }> {
   const profile = await getProfile();
-  if (!profile || profile.role !== "admin") {
+  if (!profile || !hasRole(profile.role, "admin")) {
     return { ok: false, error: "Forbidden." };
   }
   if (!adminEditableStatuses.includes(status)) {

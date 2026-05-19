@@ -36,12 +36,6 @@ export default async function NewListingPage() {
   }
 
   return (
-    <div className="space-y-8 bg-[var(--color-background-page)] pb-12 pt-2">
-      <PageHeader
-        title="New listing"
-        description="Guided steps: match a template or start from scratch, then submit for review."
-      />
-      <ListingWizard categories={categories} brands={brands} />
-    </div>
+    <ListingWizard categories={categories} brands={brands} />
   );
 }

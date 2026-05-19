@@ -1,12 +1,11 @@
 "use client";
 
+import { PenLine } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 
 import { searchProductsAction } from "@/lib/products/actions";
 import type { ProductSearchHit } from "@/types/product-catalog";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { ProductMatchCard } from "@/components/listings/wizard/product-match-card";
 import { cn } from "@/lib/utils";
 
@@ -48,18 +47,19 @@ export function ProductSearchStep({
   return (
     <div className={cn("space-y-6", className)}>
       <div className="space-y-2">
-        <label htmlFor="product-search" className="text-[11px] font-bold uppercase tracking-wide text-[#666666]">
-          Search brand or model
+        <label htmlFor="product-search" className="text-xs font-medium text-[#666666]">
+          Μάρκα ή μοντέλο
         </label>
-        <Input
+        <input
           id="product-search"
+          type="search"
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder="e.g. Strat, SM7B, Minilogue…"
-          className="rounded-xl border-[#dcd6cf] bg-white text-[15px] placeholder:text-[#aaaaaa]"
+          placeholder="π.χ. Strat, SM7B, Minilogue…"
           autoComplete="off"
+          className="w-full rounded-xl border border-[#EEECE8] bg-white px-4 py-3.5 text-sm text-[#111111] outline-none transition-all placeholder:text-[#ABABAB] focus:border-[#1D9E75] focus:ring-1 focus:ring-[#1D9E75]"
         />
-        {loading ? <p className="text-[12px] text-[#999999]">Searching…</p> : null}
+        {loading ? <p className="text-xs text-[#999999]">Αναζήτηση…</p> : null}
       </div>
 
       {hits.length > 0 ? (
@@ -71,23 +71,23 @@ export function ProductSearchStep({
           ))}
         </ul>
       ) : q.trim().length >= 2 && !loading ? (
-        <p className="rounded-xl border border-dashed border-[#dddddd] bg-[#faf9f6] px-4 py-6 text-center text-[13px] text-[#777777]">
-          No templates match yet. Try another spelling, or list from scratch.
+        <p className="rounded-xl border border-dashed border-[#EEECE8] bg-[#FAFAF8] px-4 py-6 text-center text-sm text-[#6B6B6B]">
+          Δεν βρέθηκε πρότυπο. Δοκίμασε άλλη ονομασία ή ξεκίνα από το μηδέν.
         </p>
       ) : null}
 
-      <div className="rounded-2xl border border-[#ece8e2] bg-[#faf9f6] p-4">
-        <p className="text-[13px] text-[#555555]">
-          Can’t find your exact model? You can still list everything — we’ll just skip the template hints.
+      <div className="rounded-2xl border border-[#EEECE8] bg-[#FAFAF8] p-4">
+        <p className="text-sm text-[#6B6B6B]">
+          Δεν βρίσκεις το ακριβές μοντέλο; Μπορείς να δημιουργήσεις αγγελία χωρίς πρότυπο.
         </p>
-        <Button
+        <button
           type="button"
-          variant="outline"
-          className="mt-3 rounded-xl border-[#111111] text-[11px] font-bold uppercase tracking-wide"
           onClick={onListFromScratch}
+          className="mt-3 flex items-center gap-2 rounded-xl border border-[#EEECE8] bg-[#F7F6F3] px-5 py-3 text-sm font-semibold text-[#111111] transition-all hover:border-[#DDDBD6] hover:bg-[#F0EEE9]"
         >
-          List from scratch
-        </Button>
+          <PenLine className="h-4 w-4 text-[#6B6B6B]" aria-hidden />
+          Ξεκίνα από το μηδέν
+        </button>
       </div>
     </div>
   );

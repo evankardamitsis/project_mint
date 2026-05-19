@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 
 import { getProfile } from "@/lib/auth/guards";
+import { hasRole } from "@/lib/roles";
 import { createClient } from "@/lib/supabase/server";
 import type { ListingStatus } from "@/types/domain";
 
@@ -19,7 +20,7 @@ function revalidateListingEverywhere(slug: string, listingId: string) {
 
 async function requireAdminClient() {
   const profile = await getProfile();
-  if (!profile || profile.role !== "admin") {
+  if (!profile || !hasRole(profile.role, "admin")) {
     return { ok: false as const, error: "Not authorized." };
   }
   const supabase = await createClient();

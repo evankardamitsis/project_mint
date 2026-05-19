@@ -1,17 +1,21 @@
 import Link from "next/link";
 import { IconCamera, IconCash, IconShieldCheck } from "@tabler/icons-react";
 
+import { SellActivateButton } from "@/components/sell/sell-activate-button";
 import { Button } from "@/components/ui/button";
 import { SITE_CONTAINER } from "@/config/site-layout";
-import { getProfile } from "@/lib/auth/guards";
+import { getProfile, getSessionUser } from "@/lib/auth/guards";
+import { hasRole } from "@/lib/roles";
 import { getLocale } from "@/i18n/get-locale";
 import { MESSAGES } from "@/i18n/messages";
 import { cn } from "@/lib/utils";
 
 export default async function SellPage() {
-  const profile = await getProfile();
+  const [profile, user] = await Promise.all([getProfile(), getSessionUser()]);
   const locale = await getLocale();
   const s = MESSAGES[locale].sell;
+  const role = profile?.role ?? null;
+  const isSeller = role ? hasRole(role, "seller") : false;
 
   return (
     <div className={cn(SITE_CONTAINER, "space-y-12 bg-[var(--color-background-page)] py-12")}>
@@ -22,10 +26,12 @@ export default async function SellPage() {
         </h1>
         <p className="max-w-2xl text-lg leading-relaxed text-[var(--color-text-secondary)]">{s.subtitle}</p>
         <div className="flex flex-wrap gap-3 pt-2">
-          {profile?.role === "seller" ? (
+          {isSeller ? (
             <Button className="bg-mint px-8 font-semibold text-white hover:bg-mint/90" render={<Link href="/seller/listings/new" />}>
               {s.newListing}
             </Button>
+          ) : user && role === "user" ? (
+            <SellActivateButton label={s.getStarted} />
           ) : (
             <>
               <Button className="bg-mint px-8 font-semibold text-white hover:bg-mint/90" render={<Link href="/auth/register" />}>
@@ -57,7 +63,7 @@ export default async function SellPage() {
         </div>
       </div>
 
-      {profile?.role !== "seller" ? (
+      {!isSeller ? (
         <p className="max-w-2xl text-sm leading-relaxed text-[var(--color-text-secondary)]">{s.footerBuyer}</p>
       ) : (
         <p className="max-w-2xl text-sm leading-relaxed text-[var(--color-text-secondary)]">

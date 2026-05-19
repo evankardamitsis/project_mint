@@ -1,121 +1,87 @@
-import Image from "next/image";
 import Link from "next/link";
+import { Layers, Plus } from "lucide-react";
 
-import { SellerListingRowActions } from "@/components/listings/seller-listing-row-actions";
+import { SellerListingCard } from "@/components/seller/seller-listing-card";
 import { EmptyState } from "@/components/empty-state";
-import { Price } from "@/components/price";
 import { Button } from "@/components/ui/button";
 import {
   fetchSellerHubCounts,
   fetchSellerListings,
   fetchSellerProfileForUser,
 } from "@/lib/listings/queries";
-import { cn } from "@/lib/utils";
-import { Layers } from "lucide-react";
-
-function statusColor(status: string) {
-  if (status === "active") {
-    return "text-mint";
-  }
-  if (status === "pending_review") {
-    return "text-amber";
-  }
-  if (status === "draft") {
-    return "text-ink-3";
-  }
-  if (status === "reserved") {
-    return "text-amber";
-  }
-  return "text-ink-2";
-}
-
-function statusLabel(status: string) {
-  return status.replace(/_/g, " ");
-}
 
 export default async function SellerListingsPage() {
   const seller = await fetchSellerProfileForUser();
   const listings = seller ? await fetchSellerListings(seller.id) : [];
   const hub = seller ? await fetchSellerHubCounts(seller.id) : { activeOffers: 0, activeOrders: 0 };
 
-  const live = listings.filter((l) => l.status === "active").length;
+  const liveCount = listings.filter((l) => l.status === "active").length;
+  const sellerName = seller?.display_name?.trim() || "Πωλητής";
 
   return (
-    <div className="space-y-0">
-      <div className="-mx-4 -mt-8 mb-8 bg-[#111111] px-6 py-8 text-white sm:-mx-6 sm:rounded-2xl">
-        <p className="text-sm font-medium text-white/80">{seller?.display_name ?? "Seller"}</p>
-        <h1 className="mt-1 text-2xl font-black uppercase tracking-tight">Listings</h1>
-        <div className="mt-5 grid grid-cols-3 gap-3">
-          <div className="rounded-xl bg-white/10 p-3 text-center">
-            <p className="text-2xl font-extrabold tabular-nums">{live}</p>
-            <p className="text-[0.65rem] font-medium uppercase tracking-wide text-white/70">Live</p>
-          </div>
-          <div className="rounded-xl bg-white/10 p-3 text-center">
-            <p className="text-2xl font-extrabold tabular-nums">{hub.activeOffers}</p>
-            <p className="text-[0.65rem] font-medium uppercase tracking-wide text-white/70">Offers</p>
-          </div>
-          <div className="rounded-xl bg-white/10 p-3 text-center">
-            <p className="text-2xl font-extrabold tabular-nums">{hub.activeOrders}</p>
-            <p className="text-[0.65rem] font-medium uppercase tracking-wide text-white/70">Orders</p>
-          </div>
+    <div>
+      <div className="mb-8 flex items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-[#111111]">Οι αγγελίες μου</h1>
+          <p className="mt-1 text-sm text-[#6B6B6B]">
+            {sellerName} · Πωλητής
+          </p>
         </div>
+        <Link
+          href="/seller/listings/new"
+          className="flex shrink-0 items-center gap-2 rounded-xl bg-[#1D9E75] px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-[#188A65]"
+        >
+          <Plus className="h-4 w-4" aria-hidden />
+          Νέα αγγελία
+        </Link>
       </div>
 
-      <div className="flex flex-wrap items-center justify-between gap-3 pb-6">
-        <p className="text-sm font-medium text-ink-2">
-          {listings.length} listing{listings.length === 1 ? "" : "s"}
-        </p>
-        <Button className="bg-mint px-6 font-semibold text-white hover:bg-mint/90" render={<Link href="/seller/listings/new" />}>
-          + New listing
-        </Button>
+      <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <div className="rounded-2xl border border-[#EEECE8] bg-white p-5">
+          <div className="text-4xl font-black tracking-tight text-[#111111] tabular-nums">{liveCount}</div>
+          <div className="mt-2 text-sm font-medium text-[#6B6B6B]">Ενεργές αγγελίες</div>
+        </div>
+        <div className="rounded-2xl border border-[#EEECE8] bg-white p-5">
+          <div className="text-4xl font-black tracking-tight text-[#111111] tabular-nums">{hub.activeOffers}</div>
+          <div className="mt-2 text-sm font-medium text-[#6B6B6B]">Ανοιχτές προσφορές</div>
+        </div>
+        <div className="rounded-2xl border border-[#EEECE8] bg-white p-5">
+          <div className="text-4xl font-black tracking-tight text-[#111111] tabular-nums">{hub.activeOrders}</div>
+          <div className="mt-2 text-sm font-medium text-[#6B6B6B]">Παραγγελίες</div>
+        </div>
       </div>
 
       {!seller || listings.length === 0 ? (
         <EmptyState
           icon={Layers}
-          title={seller ? "No listings yet" : "Create a seller profile first"}
+          title={seller ? "Δεν έχεις αγγελίες ακόμα" : "Δημιούργησε προφίλ πωλητή"}
           description={
             seller
-              ? "Publish your first piece of gear — photos up front help it sell."
-              : "You need a seller profile before listings can be created."
+              ? "Δημοσίευσε τον πρώτο σου εξοπλισμό — οι φωτογραφίες βοηθούν στην πώληση."
+              : "Χρειάζεσαι προφίλ πωλητή πριν δημιουργήσεις αγγελίες."
           }
         >
           {seller ? (
-            <Button render={<Link href="/seller/listings/new" />}>Create listing</Button>
+            <Button render={<Link href="/seller/listings/new" />}>Νέα αγγελία</Button>
           ) : (
-            <Button render={<Link href="/seller/profile" />}>Set up profile</Button>
+            <Button render={<Link href="/seller/profile" />}>Ρύθμιση προφίλ</Button>
           )}
         </EmptyState>
       ) : (
         <div className="space-y-3">
           {listings.map((row) => (
-            <div
+            <SellerListingCard
               key={row.id}
-              className="flex flex-wrap items-center gap-4 rounded-2xl bg-[var(--color-background-surface)] p-4 shadow-sm ring-1 ring-[#e0ddd8]/60 sm:flex-nowrap sm:gap-5 sm:p-5"
-            >
-              <div className="relative size-16 shrink-0 overflow-hidden rounded-xl bg-[#F0EEE9] sm:size-20">
-                {row.primary_image_url ? (
-                  <Image src={row.primary_image_url} alt="" fill className="object-cover" sizes="80px" />
-                ) : null}
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="font-semibold text-ink">{row.title}</p>
-                <p className="text-xs text-ink-3">{row.category_name ?? "Listing"}</p>
-                <p className="mt-1 text-xs font-medium text-ink-2 tabular-nums">
-                  {(row.watcher_count ?? 0) === 1 ? "1 watching" : `${row.watcher_count ?? 0} watching`}
-                </p>
-                <p className="mt-1 text-xs text-ink-3">
-                  {typeof row.latest_price_drop_percent === "number" && row.latest_price_drop_percent <= -5
-                    ? `Dropped ${Math.round(Math.abs(row.latest_price_drop_percent))}%`
-                    : "No price drop"}
-                </p>
-                <p className={cn("mt-1 text-xs font-medium capitalize", statusColor(row.status))}>{statusLabel(row.status)}</p>
-              </div>
-              <div className="flex w-full shrink-0 items-center justify-between gap-3 sm:w-auto sm:flex-col sm:items-end">
-                <Price amountCents={row.price_cents} currency={row.currency} className="text-lg font-extrabold tracking-tight text-ink" />
-                <SellerListingRowActions listingId={row.id} slug={row.slug} status={row.status} />
-              </div>
-            </div>
+              listingId={row.id}
+              slug={row.slug}
+              title={row.title}
+              categoryName={row.category_name ?? null}
+              status={row.status}
+              priceCents={row.price_cents}
+              currency={row.currency}
+              imageUrl={row.primary_image_url}
+              watcherCount={row.watcher_count ?? 0}
+            />
           ))}
         </div>
       )}

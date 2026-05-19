@@ -12,13 +12,26 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
 
-export function AdminListingRowActions({ listingId, slug }: { listingId: string; slug: string }) {
+const detailActionBtn =
+  "h-auto rounded-xl px-4 py-2.5 text-sm font-semibold shadow-none";
+
+export function AdminListingRowActions({
+  listingId,
+  slug,
+  context = "table",
+}: {
+  listingId: string;
+  slug: string;
+  context?: "table" | "detail";
+}) {
   const router = useRouter();
   const [showReject, setShowReject] = useState(false);
   const [reason, setReason] = useState("");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const isDetail = context === "detail";
 
   async function run(fn: () => Promise<{ ok: boolean; error?: string }>) {
     setPending(true);
@@ -35,17 +48,45 @@ export function AdminListingRowActions({ listingId, slug }: { listingId: string;
   }
 
   return (
-    <div className="flex flex-col items-end gap-2">
-      {error ? <p className="max-w-[220px] text-right text-xs text-destructive">{error}</p> : null}
-      <div className="flex flex-wrap justify-end gap-1">
-        <Button variant="ghost" size="sm" render={<Link href={`/listing/${slug}`} />}>
-          View
-        </Button>
+    <div
+      className={cn(
+        "flex flex-col gap-3",
+        isDetail ? "items-stretch" : "items-end",
+      )}
+    >
+      {error ? (
+        <p
+          className={cn(
+            "text-xs text-[#DC2626]",
+            isDetail ? "text-left" : "max-w-[220px] text-right",
+          )}
+          role="alert"
+        >
+          {error}
+        </p>
+      ) : null}
+
+      <div
+        className={cn(
+          "flex flex-wrap gap-2",
+          isDetail ? "w-full" : "justify-end",
+        )}
+      >
+        {!isDetail ? (
+          <Button variant="ghost" size="sm" render={<Link href={`/listing/${slug}`} />}>
+            View
+          </Button>
+        ) : null}
         <Button
           type="button"
           size="sm"
-          variant="secondary"
           disabled={pending}
+          className={cn(
+            detailActionBtn,
+            isDetail &&
+              "flex-1 border-0 bg-[#1D9E75] text-white hover:bg-[#188A65] sm:flex-none",
+          )}
+          variant={isDetail ? "default" : "secondary"}
           onClick={() => void run(() => adminApproveListingAction(listingId))}
         >
           Approve
@@ -55,17 +96,41 @@ export function AdminListingRowActions({ listingId, slug }: { listingId: string;
           size="sm"
           variant="outline"
           disabled={pending}
+          className={cn(
+            detailActionBtn,
+            isDetail &&
+              "flex-1 border-[#EEECE8] bg-white text-[#111111] hover:border-[#111111] sm:flex-none",
+          )}
           onClick={() => void run(() => adminArchiveListingAction(listingId))}
         >
           Archive
         </Button>
-        <Button type="button" size="sm" variant="destructive" disabled={pending} onClick={() => setShowReject((s) => !s)}>
-          Reject
+        <Button
+          type="button"
+          size="sm"
+          variant={isDetail ? "outline" : "destructive"}
+          disabled={pending}
+          className={cn(
+            detailActionBtn,
+            isDetail &&
+              "flex-1 border-[#FECACA] bg-white text-[#DC2626] hover:border-[#DC2626] hover:bg-[#FFF5F5] sm:flex-none",
+          )}
+          onClick={() => setShowReject((s) => !s)}
+        >
+          {showReject ? "Cancel" : "Reject"}
         </Button>
       </div>
+
       {showReject ? (
-        <div className="flex w-full max-w-xs flex-col gap-2 rounded-lg border border-border bg-muted/40 p-3">
-          <Label htmlFor={`reject-${listingId}`} className="text-xs">
+        <div
+          className={cn(
+            "flex flex-col gap-2 rounded-xl border p-4",
+            isDetail
+              ? "border-[#EEECE8] bg-white"
+              : "max-w-xs border-border bg-muted/40",
+          )}
+        >
+          <Label htmlFor={`reject-${listingId}`} className="text-xs font-medium text-text-secondary">
             Rejection note (optional)
           </Label>
           <Input
@@ -74,12 +139,14 @@ export function AdminListingRowActions({ listingId, slug }: { listingId: string;
             onChange={(e) => setReason(e.target.value)}
             placeholder="Reason for rejection"
             maxLength={2000}
+            className="rounded-lg border-[#EEECE8] text-sm"
           />
           <Button
             type="button"
             size="sm"
             variant="destructive"
             disabled={pending}
+            className={cn(isDetail && "rounded-xl py-2.5 font-semibold")}
             onClick={() => void run(() => adminRejectListingAction(listingId, reason))}
           >
             Confirm reject

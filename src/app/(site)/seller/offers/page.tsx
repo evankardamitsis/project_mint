@@ -14,13 +14,16 @@ export default async function SellerOffersPage() {
   if (!seller) {
     return (
       <div className="space-y-8">
-        <PageHeader title="Offers" description="Set up your seller profile to receive offers." />
+        <PageHeader
+          title="Προσφορές"
+          description="Ρύθμισε το προφίλ πωλητή για να λαμβάνεις προσφορές."
+        />
         <EmptyState
           icon={Handshake}
-          title="Seller profile required"
-          description="Complete your profile so buyers can find you and send offers on your listings."
+          title="Απαιτείται προφίλ πωλητή"
+          description="Ολοκλήρωσε το προφίλ σου ώστε οι αγοραστές να μπορούν να σου στέλνουν προσφορές."
         >
-          <Button render={<Link href="/seller/profile" />}>Set up profile</Button>
+          <Button render={<Link href="/seller/profile" />}>Ρύθμιση προφίλ</Button>
         </EmptyState>
       </div>
     );
@@ -31,14 +34,14 @@ export default async function SellerOffersPage() {
   return (
     <div className="space-y-8">
       <PageHeader
-        title="Offers"
-        description="Negotiations on your listings — counter, accept, or pass. When you accept, the listing stays reserved until checkout."
+        title="Προσφορές"
+        description="Διαπραγματεύσεις για τις αγγελίες σου — αντιπρότεινε, αποδέξου ή απόρριψε."
       />
       {rows.length === 0 ? (
         <EmptyState
           icon={Handshake}
-          title="No offers in your inbox"
-          description="When buyers submit offers on your active listings, they will appear here."
+          title="Δεν υπάρχουν προσφορές"
+          description="Όταν οι αγοραστές υποβάλουν προσφορές στις ενεργές αγγελίες σου, θα εμφανίζονται εδώ."
         />
       ) : (
         <SellerOfferDashboardList rows={rows} />

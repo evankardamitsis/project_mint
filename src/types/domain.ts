@@ -1,4 +1,6 @@
-export type UserRole = "buyer" | "seller" | "admin";
+import type { UserRole } from "@/lib/roles-shared";
+
+export type { UserRole };
 
 export type SellerVerificationStatus =
   | "unverified"

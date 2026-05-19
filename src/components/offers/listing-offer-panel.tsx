@@ -61,21 +61,20 @@ export function ListingOfferPanel({
   const [amount, setAmount] = useState("");
   const [state, formAction, pending] = useActionState(createOfferAction, initial);
 
-  // Auto-select the −10% preset when panel opens
   useEffect(() => {
-    if (showOffer) {
-      setAmount(String(presetEuros(priceCents, 10)));
-    } else {
-      setAmount("");
-    }
-  }, [showOffer, priceCents]);
-
-  useEffect(() => {
-    if (state.ok) {
-      router.refresh();
-      setShowOffer(false);
-    }
+    if (!state.ok) return;
+    router.refresh();
+    const closeTimer = window.setTimeout(() => setShowOffer(false), 0);
+    return () => window.clearTimeout(closeTimer);
   }, [state.ok, router]);
+
+  function toggleOfferPanel() {
+    setShowOffer((open) => {
+      const next = !open;
+      setAmount(next ? String(presetEuros(priceCents, 10)) : "");
+      return next;
+    });
+  }
 
   if (!listingActive || !offersEnabled) {
     if (!offersEnabled) {
@@ -131,12 +130,12 @@ export function ListingOfferPanel({
       {/* Toggle button */}
       <button
         type="button"
-        onClick={() => setShowOffer((v) => !v)}
+        onClick={toggleOfferPanel}
         className={cn(
-          "w-full rounded-2xl border-2 py-4 text-base font-bold transition-all duration-200",
+          "w-full rounded-2xl py-3.5 text-sm font-medium transition-all duration-200 cursor-pointer",
           showOffer
-            ? "border-[#111111] bg-[#111111] text-white"
-            : "border-[#111111] bg-transparent text-[#111111] hover:bg-[#111111] hover:text-white",
+            ? "border border-[#EEECE8] bg-transparent text-[#6B6B6B] hover:bg-[#F7F6F3] hover:text-[#111111]"
+            : "border-2 border-[#111111] bg-transparent text-[#111111] hover:bg-[#111111] hover:text-white",
         )}
       >
         {showOffer ? "Ακύρωση" : "Κάνε προσφορά"}

@@ -41,8 +41,8 @@ export default async function SellerHomePage() {
   const recent = listings.slice(0, 6);
 
   return (
-    <div className="space-y-0">
-      <div className="-mx-4 -mt-8 mb-6 bg-[#111111] px-6 py-8 text-white sm:-mx-6 sm:rounded-2xl">
+    <div className="mx-auto max-w-[1400px] space-y-6 px-6 py-8 lg:px-10">
+      <div className="mb-6 rounded-2xl bg-[#111111] px-6 py-8 text-white">
         <p className="text-sm font-medium text-white/80">{seller.display_name}</p>
         <h1 className="mt-1 text-2xl font-black uppercase tracking-tight sm:text-3xl">Your shop</h1>
         <p className="mt-2 max-w-xl text-sm text-white/70">List gear, answer offers, and ship with proof — buyers see you as a marketplace seller, not a dashboard.</p>
@@ -83,9 +83,9 @@ export default async function SellerHomePage() {
         </div>
       </div>
 
-      <div className="rounded-2xl bg-[var(--color-background-surface)] p-5 shadow-sm ring-1 ring-[#e0ddd8]/70">
+      <div className="rounded-2xl bg-(--color-background-surface) p-5 shadow-sm ring-1 ring-[#e0ddd8]/70">
         <div className="flex flex-wrap items-center justify-between gap-4">
-          <div className="flex flex-wrap items-center gap-3 text-sm text-[var(--color-text-secondary)]">
+          <div className="flex flex-wrap items-center gap-3 text-sm text-(--color-text-secondary)">
             <StatusBadge domain="seller_verification" value={seller.verification_status} />
             <span className="text-[#111111]">
               <span className="font-semibold">{seller.display_name}</span>
@@ -101,7 +101,7 @@ export default async function SellerHomePage() {
       <div className="space-y-4 pt-8">
         <div className="flex items-center justify-between gap-3">
           <h2 className="text-lg font-semibold text-[#111111]">On the shelf</h2>
-          <Button variant="ghost" size="sm" className="text-[var(--color-text-secondary)] hover:text-[#111111]" render={<Link href="/seller/listings" />}>
+          <Button variant="ghost" size="sm" className="text-(--color-text-secondary) hover:text-[#111111]" render={<Link href="/seller/listings" />}>
             View all
           </Button>
         </div>
