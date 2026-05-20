@@ -10,6 +10,8 @@ export type SellerVerificationStatus =
 
 export type SellerPayoutStatus = "not_started" | "pending" | "active" | "disabled";
 
+export type SellerTier = "new" | "trusted" | "top";
+
 export type ListingCondition =
   | "brand_new"
   | "mint"

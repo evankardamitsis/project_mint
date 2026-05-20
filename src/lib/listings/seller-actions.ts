@@ -348,6 +348,17 @@ export async function updateSellerListingAction(
       if (histErr) {
         console.error("[listings] updateSellerListingAction price history", histErr.message);
       }
+      if (newPrice < oldPrice) {
+        const { error: notifyErr } = await supabase.rpc("notify_price_drop", {
+          p_listing_id: listingId,
+          p_old_price_cents: oldPrice,
+          p_new_price_cents: newPrice,
+          p_listing_title: parsed.data.title.trim(),
+        });
+        if (notifyErr) {
+          console.error("[listings] notify_price_drop", notifyErr.message);
+        }
+      }
     }
 
     const { count: existingCount } = await supabase

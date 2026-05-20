@@ -9,12 +9,13 @@ import { ListingPurchaseSection } from "@/components/listings/listing-purchase-s
 import { ListingOfferPanel } from "@/components/offers/listing-offer-panel";
 import { ListingProtectedDeliveryTrustDetail } from "@/components/listings/listing-protected-delivery-trust-detail";
 import { ListingStickyCta } from "@/components/listings/listing-sticky-cta";
-import { ListingDetailSaveButton } from "@/components/listings/listing-detail-save-button";
+import { WatchButton } from "@/components/listings/watch-button";
+import { TierBadge } from "@/components/seller/tier-badge";
+import { getWatchStatus } from "@/app/actions/watchers";
 import { Button } from "@/components/ui/button";
 import { getProfile } from "@/lib/auth/guards";
 import { getCurrentUserRole, hasRole } from "@/lib/roles";
 import { SITE_CONTAINER } from "@/config/site-layout";
-import { fetchListingWatcherCount } from "@/lib/favorites/queries";
 import { fetchListingBySlug, fetchSellerProfileForUser } from "@/lib/listings/queries";
 import { cn, formatEuroPrefix } from "@/lib/utils";
 import type { ListingCondition } from "@/types/domain";
@@ -58,12 +59,12 @@ function sellerSubline(sales: number | null | undefined, rating: number | null |
   const r = typeof rating === "number" && !Number.isNaN(rating) ? rating : null;
   if (s > 0 && r != null) {
     const stars = Number.isInteger(r) ? String(r) : r.toFixed(1);
-    return `${s} sales · ${stars} ★`;
+    return `${s} πωλήσεις · ${stars} ★`;
   }
   if (s > 0) {
-    return `${s} sales`;
+    return `${s} πωλήσεις`;
   }
-  return "Verified seller";
+  return null;
 }
 
 export default async function ListingPage(props: PageProps) {
@@ -83,8 +84,9 @@ export default async function ListingPage(props: PageProps) {
   const isAdmin = userRole ? hasRole(userRole, "admin") : false;
   const isOwnerSeller = Boolean(sellerSelf?.id === listing.seller_id);
   const showAdminPanel = isAdmin || isOwnerSeller;
-  const showWatcher = isOwnerSeller || isAdmin;
-  const watcherCount = showWatcher ? await fetchListingWatcherCount(listing.id) : 0;
+  const watchStatus = await getWatchStatus(listing.id);
+  const watcherCount = watchStatus.count;
+  const isWatched = watchStatus.watching;
 
   const showMobileSticky =
     listing.status === "active" && !isOwnerSeller && !isAdmin;
@@ -101,6 +103,7 @@ export default async function ListingPage(props: PageProps) {
         }).format(listing.price_cents / 100);
 
   const loginNextPath = `/listing/${listing.slug}`;
+  const sellerLine = sellerSubline(listing.seller_sales_count, listing.seller_rating);
 
   return (
     <div className={cn("w-full", showMobileSticky && "pb-24 lg:pb-0")}>
@@ -119,13 +122,15 @@ export default async function ListingPage(props: PageProps) {
                 </Button>
               </div>
               <div className="absolute right-4 top-4 z-20 lg:right-4 lg:top-4">
-                <ListingDetailSaveButton
-                  listingId={listing.id}
-                  initialSaved={listing.is_saved_by_current_user}
-                  isGuest={!profile}
-                  isOwner={isOwnerSeller}
-                  loginNextPath={loginNextPath}
-                />
+                {!isOwnerSeller ? (
+                  <WatchButton
+                    listingId={listing.id}
+                    initialWatching={isWatched}
+                    isGuest={!profile}
+                    loginNextPath={loginNextPath}
+                    size="md"
+                  />
+                ) : null}
               </div>
               <ListingGallery
                 title={listing.title}
@@ -173,11 +178,12 @@ export default async function ListingPage(props: PageProps) {
                 <span className="font-semibold text-mint">{shortCondition[listing.condition]}</span>
                 <span className="text-ink-3">·</span>
                 <span className="text-ink-3">{listing.location?.trim() || "—"}</span>
-                {showWatcher ? (
+                {watcherCount > 0 ? (
                   <>
                     <span className="text-ink-3">·</span>
-                    <span className="text-ink-3 tabular-nums">
-                      {watcherCount === 1 ? "1 watching" : `${watcherCount} watching`}
+                    <span className="text-sm text-[#6B6B6B] tabular-nums">
+                      {watcherCount}{" "}
+                      {watcherCount === 1 ? "παρακολουθεί" : "παρακολουθούν"}
                     </span>
                   </>
                 ) : null}
@@ -189,9 +195,10 @@ export default async function ListingPage(props: PageProps) {
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-semibold text-ink">{listing.seller_display_name}</p>
-                  <p className="text-xs text-ink-3">
-                    {sellerSubline(listing.seller_sales_count, listing.seller_rating)}
-                  </p>
+                  <div className="mt-1 flex flex-wrap items-center gap-2">
+                    {sellerLine ? <p className="text-xs text-ink-3">{sellerLine}</p> : null}
+                    <TierBadge tier={listing.seller_tier ?? "new"} size="sm" />
+                  </div>
                 </div>
                 <ChevronRight className="size-5 shrink-0 text-ink-3" aria-hidden />
               </div>

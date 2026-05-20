@@ -16,6 +16,7 @@ import { fetchListingWizardContextAction } from "@/lib/products/actions";
 import { CATEGORY_LABELS, categoryDisplayName } from "@/lib/listings/category-display";
 import { createListingAction, type CreateListingState } from "@/lib/listings/actions";
 import { ListingImageUploader } from "@/components/listings/listing-image-uploader";
+import { FairPriceTool } from "@/components/listings/wizard/fair-price-tool";
 import {
   type WizardCondition,
   wizardConditionLabel,
@@ -64,6 +65,22 @@ const SELECT_TRIGGER =
 const PLATFORM_FEE_RATE = 0.05;
 const TRANSACTION_FEE_RATE = 0.014;
 const TRANSACTION_FEE_FIXED = 0.25;
+
+function wizardConditionToFairPriceKey(condition: WizardCondition): string {
+  switch (condition) {
+    case "new":
+      return "new";
+    case "excellent":
+      return "excellent";
+    case "good":
+      return "good";
+    case "fair":
+    case "parts":
+      return "fair";
+    default:
+      return "good";
+  }
+}
 
 function InfoTooltip({ content }: { content: string }) {
   return (
@@ -631,6 +648,13 @@ export function ListingWizard({
                 ) : null}
                 {fieldErrors?.price_euros ? (
                   <p className="mt-1 text-xs text-destructive">{fieldErrors.price_euros}</p>
+                ) : null}
+                {categoryId ? (
+                  <FairPriceTool
+                    categoryId={categoryId}
+                    condition={wizardConditionToFairPriceKey(wizardCondition)}
+                    price={price}
+                  />
                 ) : null}
               </div>
               <div>

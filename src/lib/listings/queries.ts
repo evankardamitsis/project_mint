@@ -24,7 +24,7 @@ import type {
   SellerListingEditData,
   SellerProfileFull,
 } from "@/types/listings";
-import type { ListingCondition, ListingStatus } from "@/types/domain";
+import type { ListingCondition, ListingStatus, SellerTier } from "@/types/domain";
 
 function sortImages(
   images: ListingImageRow[] | null | undefined,
@@ -59,6 +59,20 @@ function sellerDisplayNameFromRow(row: {
   return name || null;
 }
 
+function sellerTierFromRow(row: { seller_profiles: unknown }): SellerTier | null {
+  const raw = row.seller_profiles as
+    | { seller_tier?: string }
+    | { seller_tier?: string }[]
+    | null
+    | undefined;
+  const one = Array.isArray(raw) ? raw[0] : raw;
+  const t = one?.seller_tier;
+  if (t === "trusted" || t === "top" || t === "new") {
+    return t;
+  }
+  return null;
+}
+
 function sellerOwnerUserIdFromRow(row: { seller_profiles: unknown }): string | null {
   const raw = row.seller_profiles as
     | { user_id?: string }
@@ -87,7 +101,7 @@ export type { BrowseQueryParams } from "@/lib/listings/browse-params";
 export { browsePriceDropsMode } from "@/lib/listings/browse-params";
 
 const browseListingSelect =
-  "id, title, slug, price_cents, currency, condition, status, location, created_at, protected_delivery_enabled, categories ( name, slug ), listing_images ( id, url, sort_order ), seller_profiles ( display_name, user_id )";
+  "id, title, slug, price_cents, currency, condition, status, location, created_at, protected_delivery_enabled, categories ( name, slug ), listing_images ( id, url, sort_order ), seller_profiles ( display_name, user_id, seller_tier )";
 
 type BrowseFilterResolution = { categoryId?: string; brandId?: string };
 
@@ -212,7 +226,7 @@ export async function fetchSellerProfileForUser(): Promise<SellerProfileFull | n
   const { data, error } = await supabase
     .from("seller_profiles")
     .select(
-      "id, user_id, display_name, bio, location, phone, verification_status, payout_status, created_at, updated_at",
+      "id, user_id, display_name, bio, location, phone, verification_status, payout_status, seller_tier, completed_sales_count, average_rating, created_at, updated_at",
     )
     .eq("user_id", user.id)
     .maybeSingle();
@@ -269,6 +283,7 @@ export async function fetchBrowseListings(
         category_slug: cat?.slug ?? null,
         seller_display_name: sellerDisplayNameFromRow(row),
         seller_owner_user_id: sellerOwnerUserIdFromRow(row),
+        seller_tier: sellerTierFromRow(row),
       };
     });
 
@@ -338,7 +353,7 @@ export async function fetchHomeListings(limit = 8): Promise<ListingCardData[]> {
   const { data, error } = await supabase
     .from("listings")
     .select(
-      "id, title, slug, price_cents, currency, condition, status, location, created_at, protected_delivery_enabled, categories ( name, slug ), listing_images ( id, url, sort_order ), seller_profiles ( display_name, user_id )",
+      browseListingSelect,
     )
     .eq("status", "active")
     .order("created_at", { ascending: false })
@@ -371,6 +386,7 @@ export async function fetchHomeListings(limit = 8): Promise<ListingCardData[]> {
       category_slug: cat?.slug ?? null,
       seller_display_name: sellerDisplayNameFromRow(row),
       seller_owner_user_id: sellerOwnerUserIdFromRow(row),
+      seller_tier: sellerTierFromRow(row),
     };
   });
   const saved = await fetchSavedListingIdsForUser(mapped.map((r) => r.id));
@@ -418,9 +434,7 @@ export async function fetchHomeListingsByCategorySlug(
   }
   const { data, error } = await supabase
     .from("listings")
-    .select(
-      "id, title, slug, price_cents, currency, condition, status, location, created_at, protected_delivery_enabled, categories ( name, slug ), listing_images ( id, url, sort_order ), seller_profiles ( display_name, user_id )",
-    )
+    .select(browseListingSelect)
     .eq("status", "active")
     .eq("category_id", cat.id)
     .order("created_at", { ascending: false })
@@ -453,6 +467,7 @@ export async function fetchHomeListingsByCategorySlug(
       category_slug: c?.slug ?? null,
       seller_display_name: sellerDisplayNameFromRow(row),
       seller_owner_user_id: sellerOwnerUserIdFromRow(row),
+      seller_tier: sellerTierFromRow(row),
     };
   });
   const saved = await fetchSavedListingIdsForUser(mapped.map((r) => r.id));
@@ -540,6 +555,7 @@ type ListingDetailRow = {
     display_name: string;
     completed_sales_count?: number | null;
     average_rating?: number | null;
+    seller_tier?: string | null;
   } | null;
   listing_images: ListingImageRow[] | null;
 };
@@ -569,7 +585,7 @@ export async function fetchListingBySlug(
       rejection_reason,
       categories ( id, name, slug ),
       brands ( id, name, slug ),
-      seller_profiles ( display_name, completed_sales_count, average_rating ),
+      seller_profiles ( display_name, completed_sales_count, average_rating, seller_tier ),
       listing_images ( id, listing_id, url, sort_order, created_at )
     `,
     )
@@ -636,6 +652,10 @@ export async function fetchListingBySlug(
     seller_sales_count:
       sellerSales != null ? Math.max(0, Math.floor(sellerSales)) : null,
     seller_rating: sellerRating,
+    seller_tier:
+      seller?.seller_tier === "trusted" || seller?.seller_tier === "top" || seller?.seller_tier === "new"
+        ? seller.seller_tier
+        : "new",
     images,
     is_saved_by_current_user,
   };

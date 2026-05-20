@@ -2,6 +2,7 @@ import type {
   ListingCondition,
   ListingStatus,
   SellerPayoutStatus,
+  SellerTier,
   SellerVerificationStatus,
 } from "@/types/domain";
 
@@ -43,6 +44,8 @@ export interface ListingCardData {
   category_slug?: string | null;
   /** Seller shop name from `seller_profiles.display_name` when joined */
   seller_display_name?: string | null;
+  /** Seller tier when joined in browse/home queries */
+  seller_tier?: SellerTier | null;
   /** Seller account id (`seller_profiles.user_id`); for save/owner checks on public grids */
   seller_owner_user_id?: string | null;
   /** When viewer is logged in; omitted/false for anonymous */
@@ -80,6 +83,7 @@ export interface ListingDetailData {
   seller_sales_count?: number | null;
   /** From `seller_profiles` when present (e.g. 4.8). */
   seller_rating?: number | null;
+  seller_tier?: SellerTier | null;
   images: ListingImageRow[];
   /** Current viewer has this listing saved */
   is_saved_by_current_user: boolean;
@@ -102,6 +106,9 @@ export interface SellerProfileFull extends SellerProfileRow {
   phone: string | null;
   verification_status: SellerVerificationStatus;
   payout_status: SellerPayoutStatus;
+  seller_tier?: SellerTier;
+  completed_sales_count?: number;
+  average_rating?: number | null;
   created_at: string;
   updated_at: string;
 }

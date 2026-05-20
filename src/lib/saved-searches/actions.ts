@@ -199,6 +199,7 @@ export async function createSavedSearchAction(_prev: SavedSearchActionState | un
     revalidatePath("/browse");
     revalidatePath("/buyer");
     revalidatePath("/buyer/alerts");
+    revalidatePath("/buyer/saved-searches");
     return { ok: true };
   } catch (e) {
     console.error("[saved-searches] create", e);

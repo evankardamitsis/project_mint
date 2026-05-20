@@ -13,7 +13,9 @@ import {
 } from "@tabler/icons-react";
 import { ShieldCheck } from "lucide-react";
 
-import { ListingCardHeartButton } from "@/components/listings/listing-card-heart-button";
+import { WatchButton } from "@/components/listings/watch-button";
+import { TierBadge } from "@/components/seller/tier-badge";
+import type { SellerTier } from "@/types/domain";
 import { cn, formatEuroPrefix } from "@/lib/utils";
 import { conditionDisplayLabel } from "@/lib/listings/condition-display";
 import type { ListingCondition, ListingStatus } from "@/types/domain";
@@ -92,6 +94,7 @@ export function ListingCard({
   categoryName,
   categorySlug,
   sellerDisplayName,
+  sellerTier = null,
   listingId,
   viewerUserId = null,
   sellerOwnerUserId = null,
@@ -118,6 +121,7 @@ export function ListingCard({
   categoryName?: string | null;
   categorySlug?: string | null;
   sellerDisplayName?: string | null;
+  sellerTier?: SellerTier | null;
   listingId?: string;
   viewerUserId?: string | null;
   sellerOwnerUserId?: string | null;
@@ -260,22 +264,27 @@ export function ListingCard({
                 </p>
               ) : null}
             </div>
-            {metaLine ? (
-              <p className="max-w-[110px] shrink-0 overflow-hidden text-ellipsis whitespace-nowrap text-[9px] uppercase tracking-[0.04em] text-text-muted">
-                {metaLine}
-              </p>
-            ) : null}
+            <div className="flex max-w-[110px] shrink-0 flex-col items-end gap-1">
+              {sellerTier && sellerTier !== "new" ? (
+                <TierBadge tier={sellerTier} size="sm" />
+              ) : null}
+              {metaLine ? (
+                <p className="overflow-hidden text-ellipsis whitespace-nowrap text-[9px] uppercase tracking-[0.04em] text-text-muted">
+                  {metaLine}
+                </p>
+              ) : null}
+            </div>
           </div>
         </div>
       </Link>
 
-      {listingId ? (
-        <ListingCardHeartButton
+      {listingId && !isOwnerSeller ? (
+        <WatchButton
           listingId={listingId}
-          initialSaved={isSaved}
+          initialWatching={isSaved}
           isGuest={isGuest}
-          isOwner={isOwnerSeller}
-          className="absolute right-2 top-2 z-30 flex size-[26px] items-center justify-center bg-[rgba(255,255,255,0.88)] text-[#333333] shadow-sm"
+          size="sm"
+          className="absolute right-2 top-2 z-30 shadow-sm"
         />
       ) : null}
 

@@ -9,6 +9,7 @@ import {
   ListingFilterChips,
   type BrowseFilterChipLabels,
 } from "@/components/listings/listing-filter-chips";
+import { BrowseInlineSaveButton } from "@/components/saved-searches/browse-inline-save-button";
 import { BrowseSaveSearchPanel } from "@/components/saved-searches/browse-save-search-panel";
 import { SmartSearch } from "@/components/smart-search";
 import { Button } from "@/components/ui/button";
@@ -137,12 +138,33 @@ export function BrowsePageClient({
       </div>
 
       <div className="space-y-4">
-        <SmartSearch
-          variant="browse"
-          initialQuery={serverQ}
-          onQueryChange={setLiveQuery}
-          placeholder={searchPlaceholder}
-        />
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <SmartSearch
+            variant="browse"
+            initialQuery={serverQ}
+            onQueryChange={setLiveQuery}
+            placeholder={searchPlaceholder}
+            className="min-w-0 flex-1"
+          />
+          {!viewerId ? null : (
+            <BrowseInlineSaveButton
+              query={liveQuery}
+              defaultName={defaultSearchName}
+              formDefaults={{
+                q: liveQuery,
+                category: chipValues.category,
+                brand: chipValues.brand,
+                condition: chipValues.condition,
+                min_price: chipValues.min_price,
+                max_price: chipValues.max_price,
+                sort: chipValues.sort,
+                deal: chipValues.deal,
+                priceDrop: chipValues.priceDrop,
+              }}
+              disabled={Boolean(matchedSaved)}
+            />
+          )}
+        </div>
         <ListingFilterChips
           categories={categories}
           brands={brands}
@@ -212,6 +234,7 @@ export function BrowsePageClient({
               categoryName={item.category_name}
               categorySlug={item.category_slug ?? null}
               sellerDisplayName={item.seller_display_name}
+              sellerTier={item.seller_tier ?? null}
               latestPriceDropPercent={item.latest_price_drop_percent ?? null}
               latestPriceDropOldPriceCents={item.latest_price_drop_old_price_cents ?? null}
               latestPriceDropCreatedAt={item.latest_price_drop_created_at ?? null}

@@ -112,8 +112,8 @@ export function SellerListingCard({
         <div className="mt-2 flex items-center gap-2">
           <span className={badgeClass(key)}>{statusLabel(status)}</span>
           {watcherCount > 0 ? (
-            <span className="flex items-center gap-1 text-[10px] text-[#6B6B6B]">
-              <Heart className="h-3 w-3" aria-hidden />
+            <span className="flex items-center gap-1 text-xs text-[#6B6B6B]">
+              <Heart className="h-3 w-3 fill-[#CC4444] stroke-[#CC4444]" aria-hidden />
               {watcherCount}
             </span>
           ) : null}

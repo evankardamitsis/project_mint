@@ -40,7 +40,7 @@ export function FairPriceCard({
         <span className="text-[14px] font-semibold text-[#888888]">–</span>{" "}
         <Price amountCents={row.high_price_cents} />
       </p>
-      <p className="mt-2 text-[12px] leading-relaxed text-[#666666]">
+      <p className="mt-2 text-[12px] leading-relaxed text-text-secondary">
         Based on similar items in this condition (seed data — not a live market quote).
       </p>
     </div>
