@@ -12,7 +12,7 @@ import {
   fetchSellerListingForEdit,
   fetchSellerProfileForUser,
 } from "@/lib/listings/queries";
-import { fetchListingWatcherCount } from "@/lib/favorites/queries";
+import { fetchListingFollowCount } from "@/lib/follows/queries";
 
 type PageProps = { params: Promise<{ id: string }> };
 
@@ -29,8 +29,13 @@ export default async function EditSellerListingPage(props: PageProps) {
     notFound();
   }
 
-  const watcherCount = await fetchListingWatcherCount(listing.id);
-  const watcherLabel = watcherCount === 1 ? "1 watching" : `${watcherCount} watching`;
+  const followCount = await fetchListingFollowCount(listing.id);
+  const followLabel =
+    followCount === 0
+      ? null
+      : followCount === 1
+        ? "1 ακολουθεί"
+        : `${followCount} ακολουθούν`;
 
   if (listing.status === "sold") {
     return (
@@ -57,7 +62,7 @@ export default async function EditSellerListingPage(props: PageProps) {
     <div className="space-y-8">
       <PageHeader
         title="Edit listing"
-        description={`Changes to active or rejected listings send the item back to admin review. ${watcherLabel}.`}
+        description={`Changes to active or rejected listings send the item back to admin review.${followLabel ? ` ${followLabel}.` : ""}`}
         actions={
           <div className="flex flex-wrap items-center gap-2">
             <StatusBadge domain="listing" value={listing.status} />

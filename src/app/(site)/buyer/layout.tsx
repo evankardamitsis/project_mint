@@ -25,7 +25,7 @@ export default async function BuyerLayout({
     { href: "/buyer", label: m.buyerNav.overview },
     { href: "/buyer/purchases", label: m.buyerNav.purchases },
     { href: "/buyer/offers", label: m.buyerNav.offers },
-    { href: "/buyer/watchlist", label: m.buyerNav.watchlist },
+    { href: "/buyer/follows", label: m.buyerNav.follows },
     { href: "/buyer/alerts", label: m.buyerNav.alerts },
   ] as const;
 

@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useEffect, useState, useCallback } from "react";
-import { Menu, Search, X } from "lucide-react";
+import { Eye, Menu, Search, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 import { AccountRoleBadge } from "@/components/account/account-role-badge";
@@ -123,6 +123,15 @@ export function SiteHeaderInner({
           >
             <Search className="size-4" />
           </button>
+          {account && account !== "session_no_profile" ? (
+            <Link
+              href="/buyer/follows"
+              className="hidden items-center gap-1.5 self-center px-4 text-sm font-medium text-white/80 transition-colors hover:text-white lg:flex"
+            >
+              <Eye className="h-4 w-4" aria-hidden />
+              Ακολουθώ
+            </Link>
+          ) : null}
         </div>
 
         {centerSlot}
@@ -241,8 +250,8 @@ export function SiteHeaderInner({
                     <Link href="/buyer/purchases" onClick={closeDrawer} className={drawerLinkCls}>
                       {accountLabels.accountPurchases}
                     </Link>
-                    <Link href="/buyer/watchlist" onClick={closeDrawer} className={drawerLinkCls}>
-                      {accountLabels.accountSaved}
+                    <Link href="/buyer/follows" onClick={closeDrawer} className={drawerLinkCls}>
+                      Ακολουθώ
                     </Link>
                     <Link href="/buyer" onClick={closeDrawer} className={drawerLinkCls}>
                       {accountLabels.accountSettings}

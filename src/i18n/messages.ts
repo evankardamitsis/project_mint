@@ -137,7 +137,7 @@ export type Messages = {
     overview: string;
     purchases: string;
     offers: string;
-    watchlist: string;
+    follows: string;
     alerts: string;
   };
   buyerWatchlist: {
@@ -332,7 +332,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       overview: "Overview",
       purchases: "Purchases",
       offers: "Offers",
-      watchlist: "Watchlist",
+      follows: "Following",
       alerts: "Alerts",
     },
     buyerWatchlist: {
@@ -539,7 +539,7 @@ export const MESSAGES: Record<AppLocale, Messages> = {
       overview: "Επισκόπηση",
       purchases: "Αγορές",
       offers: "Προσφορές",
-      watchlist: "Αποθηκευμένα",
+      follows: "Ακολουθώ",
       alerts: "Ειδοποιήσεις",
     },
     buyerWatchlist: {

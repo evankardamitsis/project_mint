@@ -1,6 +1,6 @@
 "use client";
 
-import { Heart, Home, Search, Tag, User } from "lucide-react";
+import { Eye, Home, Search, Tag, User } from "lucide-react";
 import Link from "next/link";
 import type React from "react";
 import { usePathname } from "next/navigation";
@@ -19,7 +19,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/", label: "Αρχική", Icon: Home, exact: true },
   { href: "/browse", label: "Αναζήτηση", Icon: Search, exact: false },
   { href: "/sell", label: "Πούλησε", Icon: Tag, exact: false, accent: true },
-  { href: "/buyer/watchlist", label: "Αποθηκευμένα", Icon: Heart, exact: false },
+  { href: "/buyer/follows", label: "Ακολουθώ", Icon: Eye, exact: false },
   { href: "/buyer", label: "Λογαριασμός", Icon: User, exact: true },
 ];
 

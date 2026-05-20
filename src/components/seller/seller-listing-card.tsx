@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Archive, Eye, Heart, Pencil } from "lucide-react";
+import { Archive, Eye, Pencil } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 import { archiveSellerListingAction } from "@/lib/listings/seller-actions";
@@ -18,7 +18,7 @@ type SellerListingCardProps = {
   priceCents: number;
   currency: string;
   imageUrl: string | null;
-  watcherCount: number;
+  followCount: number;
 };
 
 function badgeKey(status: ListingStatus): "live" | "reserved" | "draft" | "pending" | "archived" | "other" {
@@ -81,7 +81,7 @@ export function SellerListingCard({
   priceCents,
   currency,
   imageUrl,
-  watcherCount,
+  followCount,
 }: SellerListingCardProps) {
   const router = useRouter();
   const key = badgeKey(status);
@@ -111,17 +111,17 @@ export function SellerListingCard({
         <p className="text-xs text-[#ABABAB]">{categoryName ?? "Αγγελία"}</p>
         <div className="mt-2 flex items-center gap-2">
           <span className={badgeClass(key)}>{statusLabel(status)}</span>
-          {watcherCount > 0 ? (
-            <span className="flex items-center gap-1 text-xs text-[#6B6B6B]">
-              <Heart className="h-3 w-3 fill-[#CC4444] stroke-[#CC4444]" aria-hidden />
-              {watcherCount}
-            </span>
-          ) : null}
         </div>
       </div>
 
-      <div className="shrink-0 text-right">
-        <p className="text-lg font-black text-[#111111] tabular-nums">{formatPrice(priceCents, currency)}</p>
+      <div className={cn("flex shrink-0 items-center", followCount > 0 && "gap-3")}>
+        {followCount > 0 && (
+          <span className="flex items-center gap-1 text-xs font-semibold text-[#1D9E75]">
+            <Eye className="h-3.5 w-3.5" aria-hidden />
+            {followCount}
+          </span>
+        )}
+        <span className="text-lg font-black text-[#111111] tabular-nums">{formatPrice(priceCents, currency)}</span>
       </div>
 
       <div className="flex shrink-0 items-center gap-1">

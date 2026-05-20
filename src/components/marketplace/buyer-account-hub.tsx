@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
-import { ArrowRight, Bell, Handshake, Heart, Package, Shield } from "lucide-react";
+import { ArrowRight, Bell, Eye, Handshake, Package, Shield } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -77,13 +77,13 @@ export function BuyerAccountHub({
   copy,
   purchaseCount,
   offerCount,
-  watchlistCount,
+  followsCount,
   alertsCount,
 }: {
   copy: HubCopy;
   purchaseCount: number;
   offerCount: number;
-  watchlistCount: number;
+  followsCount: number;
   alertsCount: number;
 }) {
   return (
@@ -119,13 +119,13 @@ export function BuyerAccountHub({
           }
         />
         <HubTile
-          href="/buyer/watchlist"
-          icon={Heart}
+          href="/buyer/follows"
+          icon={Eye}
           title={copy.cardSavedTitle}
           body={copy.cardSavedBody}
           footer={
             <p className="mt-3 text-xs font-medium uppercase tracking-wide text-[var(--color-text-muted)]">
-              {watchlistCount === 1 ? "1 saved" : `${watchlistCount} saved`}
+              {followsCount === 1 ? "1 ακολουθείς" : `${followsCount} ακολουθείς`}
             </p>
           }
         />

@@ -9,9 +9,10 @@ import { ListingPurchaseSection } from "@/components/listings/listing-purchase-s
 import { ListingOfferPanel } from "@/components/offers/listing-offer-panel";
 import { ListingProtectedDeliveryTrustDetail } from "@/components/listings/listing-protected-delivery-trust-detail";
 import { ListingStickyCta } from "@/components/listings/listing-sticky-cta";
-import { WatchButton } from "@/components/listings/watch-button";
+import { FollowButton } from "@/components/listings/follow-button";
 import { TierBadge } from "@/components/seller/tier-badge";
-import { getWatchStatus } from "@/app/actions/watchers";
+import { getFollowStatus } from "@/app/actions/follows";
+import { Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getProfile } from "@/lib/auth/guards";
 import { getCurrentUserRole, hasRole } from "@/lib/roles";
@@ -84,9 +85,9 @@ export default async function ListingPage(props: PageProps) {
   const isAdmin = userRole ? hasRole(userRole, "admin") : false;
   const isOwnerSeller = Boolean(sellerSelf?.id === listing.seller_id);
   const showAdminPanel = isAdmin || isOwnerSeller;
-  const watchStatus = await getWatchStatus(listing.id);
-  const watcherCount = watchStatus.count;
-  const isWatched = watchStatus.watching;
+  const followStatus = await getFollowStatus(listing.id);
+  const followCount = followStatus.count;
+  const isFollowing = followStatus.following;
 
   const showMobileSticky =
     listing.status === "active" && !isOwnerSeller && !isAdmin;
@@ -123,9 +124,9 @@ export default async function ListingPage(props: PageProps) {
               </div>
               <div className="absolute right-4 top-4 z-20 lg:right-4 lg:top-4">
                 {!isOwnerSeller ? (
-                  <WatchButton
+                  <FollowButton
                     listingId={listing.id}
-                    initialWatching={isWatched}
+                    initialFollowing={isFollowing}
                     isGuest={!profile}
                     loginNextPath={loginNextPath}
                     size="md"
@@ -178,12 +179,12 @@ export default async function ListingPage(props: PageProps) {
                 <span className="font-semibold text-mint">{shortCondition[listing.condition]}</span>
                 <span className="text-ink-3">·</span>
                 <span className="text-ink-3">{listing.location?.trim() || "—"}</span>
-                {watcherCount > 0 ? (
+                {followCount > 0 ? (
                   <>
                     <span className="text-ink-3">·</span>
-                    <span className="text-sm text-[#6B6B6B] tabular-nums">
-                      {watcherCount}{" "}
-                      {watcherCount === 1 ? "παρακολουθεί" : "παρακολουθούν"}
+                    <span className="flex items-center gap-1.5 text-sm text-[#6B6B6B] tabular-nums">
+                      <Eye className="h-3.5 w-3.5" aria-hidden />
+                      {followCount === 1 ? "1 ακολουθεί" : `${followCount} ακολουθούν`}
                     </span>
                   </>
                 ) : null}

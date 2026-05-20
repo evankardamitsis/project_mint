@@ -26,7 +26,7 @@ function mapListingToCard(
       listingId={item.id}
       viewerUserId={viewerUserId}
       sellerOwnerUserId={item.seller_owner_user_id ?? null}
-      isSaved={Boolean(item.is_saved_by_current_user)}
+      isFollowed={Boolean(item.is_followed_by_current_user)}
       sellerTier={item.seller_tier ?? null}
       isGuest={isGuest}
       title={item.title}

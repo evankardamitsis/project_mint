@@ -220,7 +220,7 @@ export function BrowsePageClient({
               listingId={item.id}
               viewerUserId={viewerId}
               sellerOwnerUserId={item.seller_owner_user_id ?? null}
-              isSaved={Boolean(item.is_saved_by_current_user)}
+              isFollowed={Boolean(item.is_followed_by_current_user)}
               isGuest={!viewerId}
               title={item.title}
               slug={item.slug}

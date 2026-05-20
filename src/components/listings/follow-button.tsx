@@ -2,21 +2,21 @@
 
 import { useRouter, usePathname } from "next/navigation";
 import { useState, useTransition } from "react";
-import { Heart } from "lucide-react";
+import { Eye } from "lucide-react";
 
-import { toggleWatch } from "@/app/actions/watchers";
+import { toggleFollow } from "@/app/actions/follows";
 import { cn } from "@/lib/utils";
 
-export function WatchButton({
+export function FollowButton({
   listingId,
-  initialWatching,
+  initialFollowing,
   isGuest = false,
   loginNextPath,
   size = "sm",
   className,
 }: {
   listingId: string;
-  initialWatching: boolean;
+  initialFollowing: boolean;
   isGuest?: boolean;
   loginNextPath?: string;
   size?: "sm" | "md";
@@ -24,7 +24,7 @@ export function WatchButton({
 }) {
   const router = useRouter();
   const pathname = usePathname();
-  const [watching, setWatching] = useState(initialWatching);
+  const [following, setFollowing] = useState(initialFollowing);
   const [isPending, startTransition] = useTransition();
 
   const handleClick = (e: React.MouseEvent) => {
@@ -35,17 +35,16 @@ export function WatchButton({
       router.push(`/auth/login?next=${encodeURIComponent(next)}`);
       return;
     }
-    const prev = watching;
-    const newState = !watching;
-    setWatching(newState);
+    const prev = following;
+    setFollowing(!prev);
     startTransition(async () => {
-      const result = await toggleWatch(listingId);
+      const result = await toggleFollow(listingId);
       if (result.error) {
-        setWatching(prev);
+        setFollowing(prev);
         return;
       }
-      if (result.watching !== undefined) {
-        setWatching(result.watching);
+      if (result.following !== undefined) {
+        setFollowing(result.following);
       }
       router.refresh();
     });
@@ -56,20 +55,26 @@ export function WatchButton({
       type="button"
       onClick={handleClick}
       disabled={isPending}
-      aria-label={watching ? "Αφαίρεση από αποθηκευμένα" : "Αποθήκευση αγγελίας"}
-      aria-pressed={watching}
+      title={
+        following ? "Ακολουθείς αυτή την αγγελία" : "Ακολούθησε — ειδοποίηση για μείωση τιμής"
+      }
+      aria-label={following ? "Διακοπή ακολούθησης" : "Ακολούθησε αγγελία"}
+      aria-pressed={following}
       className={cn(
-        "flex items-center justify-center rounded-full bg-white/90 backdrop-blur-sm transition-all hover:bg-white",
+        "flex items-center justify-center rounded-full transition-all",
+        following
+          ? "border border-[#1D9E75]/30 bg-[#E8F7F1] hover:bg-[#D4F0E6]"
+          : "bg-white/90 backdrop-blur-sm hover:bg-white",
         size === "sm" ? "h-8 w-8" : "h-10 w-10",
-        isPending && "opacity-70",
+        isPending && "cursor-not-allowed opacity-60",
         className,
       )}
     >
-      <Heart
+      <Eye
         className={cn(
           "transition-all",
           size === "sm" ? "h-4 w-4" : "h-5 w-5",
-          watching ? "fill-[#CC4444] stroke-[#CC4444]" : "fill-transparent stroke-[#6B6B6B]",
+          following ? "fill-[#E8F7F1] stroke-[#1D9E75]" : "fill-transparent stroke-[#6B6B6B]",
         )}
         aria-hidden
       />

@@ -2,21 +2,21 @@
 
 import { revalidatePath } from "next/cache";
 
+import { fetchBuyerFollowListings } from "@/lib/follows/queries";
 import { createClient } from "@/lib/supabase/server";
-import { fetchBuyerWatchlistListings } from "@/lib/favorites/queries";
 import type { ListingCardData } from "@/types/listings";
 
-export type ToggleWatchResult =
-  | { watching: boolean; error?: undefined }
-  | { watching?: undefined; error: string };
+export type ToggleFollowResult =
+  | { following: boolean; error?: undefined }
+  | { following?: undefined; error: string };
 
-export async function toggleWatch(listingId: string): Promise<ToggleWatchResult> {
+export async function toggleFollow(listingId: string): Promise<ToggleFollowResult> {
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) {
-    return { error: "Πρέπει να συνδεθείς για να αποθηκεύσεις αγγελίες." };
+    return { error: "Πρέπει να συνδεθείς για να ακολουθήσεις αγγελία." };
   }
 
   const { data: listing } = await supabase
@@ -36,44 +36,40 @@ export async function toggleWatch(listingId: string): Promise<ToggleWatchResult>
     .maybeSingle();
 
   if (seller?.user_id === user.id) {
-    return { error: "Δεν μπορείς να αποθηκεύσεις τη δική σου αγγελία." };
+    return { error: "Δεν μπορείς να ακολουθήσεις τη δική σου αγγελία." };
   }
 
   const slug = listing.slug as string | undefined;
 
   const { data: existing } = await supabase
-    .from("favorites")
+    .from("follows")
     .select("id")
     .eq("user_id", user.id)
     .eq("listing_id", listingId)
     .maybeSingle();
 
   if (existing) {
-    const { error } = await supabase
-      .from("favorites")
-      .delete()
-      .eq("user_id", user.id)
-      .eq("listing_id", listingId);
+    const { error } = await supabase.from("follows").delete().eq("id", existing.id);
     if (error) {
       return { error: "Δεν ήταν δυνατή η αφαίρεση." };
     }
-    revalidateWatchSurfaces(slug);
-    return { watching: false };
+    revalidateFollowSurfaces(slug);
+    return { following: false };
   }
 
-  const { error } = await supabase.from("favorites").insert({
+  const { error } = await supabase.from("follows").insert({
     user_id: user.id,
     listing_id: listingId,
   });
   if (error && error.code !== "23505") {
-    return { error: "Δεν ήταν δυνατή η αποθήκευση." };
+    return { error: "Δεν ήταν δυνατή η ακολούθηση." };
   }
-  revalidateWatchSurfaces(slug);
-  return { watching: true };
+  revalidateFollowSurfaces(slug);
+  return { following: true };
 }
 
-function revalidateWatchSurfaces(slug?: string) {
-  revalidatePath("/buyer/watchlist");
+function revalidateFollowSurfaces(slug?: string) {
+  revalidatePath("/buyer/follows");
   revalidatePath("/browse");
   revalidatePath("/");
   revalidatePath("/seller/listings");
@@ -82,8 +78,8 @@ function revalidateWatchSurfaces(slug?: string) {
   }
 }
 
-export async function getWatchStatus(listingId: string): Promise<{
-  watching: boolean;
+export async function getFollowStatus(listingId: string): Promise<{
+  following: boolean;
   count: number;
 }> {
   const supabase = await createClient();
@@ -91,32 +87,32 @@ export async function getWatchStatus(listingId: string): Promise<{
     data: { user },
   } = await supabase.auth.getUser();
 
-  const [{ data: watch }, { data: countData }] = await Promise.all([
+  const [{ data: follow }, { data: countData }] = await Promise.all([
     user
       ? supabase
-          .from("favorites")
+          .from("follows")
           .select("id")
           .eq("user_id", user.id)
           .eq("listing_id", listingId)
           .maybeSingle()
       : Promise.resolve({ data: null }),
-    supabase.rpc("listing_watcher_count_public", { p_listing_id: listingId }),
+    supabase
+      .from("listing_follow_counts")
+      .select("follow_count")
+      .eq("listing_id", listingId)
+      .maybeSingle(),
   ]);
 
-  const countRaw = countData;
+  const countRaw = (countData as { follow_count?: number | string } | null)?.follow_count;
   const count =
-    typeof countRaw === "number"
-      ? countRaw
-      : countRaw != null
-        ? Number(countRaw)
-        : 0;
+    typeof countRaw === "number" ? countRaw : countRaw != null ? Number(countRaw) : 0;
 
   return {
-    watching: Boolean(watch),
+    following: Boolean(follow),
     count: Number.isFinite(count) ? count : 0,
   };
 }
 
-export async function getUserWatchlist(): Promise<ListingCardData[]> {
-  return fetchBuyerWatchlistListings();
+export async function getUserFollows(): Promise<ListingCardData[]> {
+  return fetchBuyerFollowListings();
 }

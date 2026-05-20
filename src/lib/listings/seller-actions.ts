@@ -234,7 +234,7 @@ function revalidateListingPaths(slug: string, listingId: string) {
   revalidatePath(`/seller/listings/${listingId}/edit`);
   revalidatePath(`/listing/${slug}`);
   revalidatePath("/admin/listings");
-  revalidatePath("/buyer/watchlist");
+  revalidatePath("/buyer/follows");
 }
 
 export async function updateSellerListingAction(

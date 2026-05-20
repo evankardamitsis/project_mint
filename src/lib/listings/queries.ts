@@ -3,9 +3,9 @@ import { browsePriceDropsMode } from "@/lib/listings/browse-params";
 import { createClient } from "@/lib/supabase/server";
 
 import {
-  fetchSavedListingIdsForUser,
-  fetchSellerWatcherCountsByListingId,
-} from "@/lib/favorites/queries";
+  fetchFollowedListingIdsForUser,
+  fetchSellerFollowCountsByListingId,
+} from "@/lib/follows/queries";
 import {
   attachPublicPriceDropToCard,
   attachPublicPriceDropToDetail,
@@ -311,9 +311,9 @@ export async function fetchBrowseListings(
     const idx = new Map(orderedFiltered.map((o, i) => [o.listing_id, i]));
     mapped = [...mapped].sort((a, b) => (idx.get(a.id) ?? 1e9) - (idx.get(b.id) ?? 1e9));
     const signals = await fetchPublicPriceDropSignalsForListingIds(supabase, mapped.map((r) => r.id));
-    const saved = await fetchSavedListingIdsForUser(mapped.map((r) => r.id));
+    const saved = await fetchFollowedListingIdsForUser(mapped.map((r) => r.id));
     return mapped.map((r) =>
-      attachPublicPriceDropToCard({ ...r, is_saved_by_current_user: saved.has(r.id) }, signals.get(r.id)),
+      attachPublicPriceDropToCard({ ...r, is_followed_by_current_user: saved.has(r.id) }, signals.get(r.id)),
     );
   }
 
@@ -342,9 +342,9 @@ export async function fetchBrowseListings(
 
   const mapped = mapBrowseRows(data ?? []);
   const signals = await fetchPublicPriceDropSignalsForListingIds(supabase, mapped.map((r) => r.id));
-  const saved = await fetchSavedListingIdsForUser(mapped.map((r) => r.id));
+  const saved = await fetchFollowedListingIdsForUser(mapped.map((r) => r.id));
   return mapped.map((r) =>
-    attachPublicPriceDropToCard({ ...r, is_saved_by_current_user: saved.has(r.id) }, signals.get(r.id)),
+    attachPublicPriceDropToCard({ ...r, is_followed_by_current_user: saved.has(r.id) }, signals.get(r.id)),
   );
 }
 
@@ -389,10 +389,10 @@ export async function fetchHomeListings(limit = 8): Promise<ListingCardData[]> {
       seller_tier: sellerTierFromRow(row),
     };
   });
-  const saved = await fetchSavedListingIdsForUser(mapped.map((r) => r.id));
+  const saved = await fetchFollowedListingIdsForUser(mapped.map((r) => r.id));
   const signals = await fetchPublicPriceDropSignalsForListingIds(supabase, mapped.map((r) => r.id));
   return mapped.map((r) =>
-    attachPublicPriceDropToCard({ ...r, is_saved_by_current_user: saved.has(r.id) }, signals.get(r.id)),
+    attachPublicPriceDropToCard({ ...r, is_followed_by_current_user: saved.has(r.id) }, signals.get(r.id)),
   );
 }
 
@@ -470,10 +470,10 @@ export async function fetchHomeListingsByCategorySlug(
       seller_tier: sellerTierFromRow(row),
     };
   });
-  const saved = await fetchSavedListingIdsForUser(mapped.map((r) => r.id));
+  const saved = await fetchFollowedListingIdsForUser(mapped.map((r) => r.id));
   const signals = await fetchPublicPriceDropSignalsForListingIds(supabase, mapped.map((r) => r.id));
   return mapped.map((r) =>
-    attachPublicPriceDropToCard({ ...r, is_saved_by_current_user: saved.has(r.id) }, signals.get(r.id)),
+    attachPublicPriceDropToCard({ ...r, is_followed_by_current_user: saved.has(r.id) }, signals.get(r.id)),
   );
 }
 
@@ -519,13 +519,36 @@ export async function fetchSellerListings(
     };
   });
 
-  const counts = await fetchSellerWatcherCountsByListingId();
+  const listingIds = mapped.map((r) => r.id);
+  const countByListingId = new Map<string, number>();
+
+  if (listingIds.length > 0) {
+    const { data: countRows, error: countErr } = await supabase
+      .from("listing_follow_counts")
+      .select("listing_id, follow_count")
+      .in("listing_id", listingIds);
+
+    if (countErr) {
+      console.error("[listings] fetchSellerListings follow counts", countErr.message);
+      const rpcCounts = await fetchSellerFollowCountsByListingId();
+      for (const [id, n] of rpcCounts) {
+        countByListingId.set(id, n);
+      }
+    } else {
+      for (const row of countRows ?? []) {
+        const id = row.listing_id as string;
+        const n = row.follow_count as number | string;
+        countByListingId.set(id, typeof n === "number" ? n : Number(n));
+      }
+    }
+  }
+
   const insights = await fetchSellerPriceDropInsights(supabase);
   return mapped.map((r) => {
     const ins = insights.get(r.id);
     return {
       ...r,
-      watcher_count: counts.get(r.id) ?? 0,
+      follow_count: countByListingId.get(r.id) ?? 0,
       latest_price_drop_percent: ins?.drop_percent ?? null,
       latest_price_drop_old_price_cents: null,
       latest_price_drop_created_at: ins?.last_drop_at ?? null,
@@ -619,15 +642,15 @@ export async function fetchListingBySlug(
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  let is_saved_by_current_user = false;
+  let is_followed_by_current_user = false;
   if (user) {
-    const { data: fav } = await supabase
-      .from("favorites")
+    const { data: follow } = await supabase
+      .from("follows")
       .select("id")
       .eq("user_id", user.id)
       .eq("listing_id", row.id)
       .maybeSingle();
-    is_saved_by_current_user = Boolean(fav);
+    is_followed_by_current_user = Boolean(follow);
   }
 
   const base: ListingDetailData = {
@@ -657,7 +680,7 @@ export async function fetchListingBySlug(
         ? seller.seller_tier
         : "new",
     images,
-    is_saved_by_current_user,
+    is_followed_by_current_user,
   };
 
   if (row.status !== "active") {

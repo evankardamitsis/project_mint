@@ -4,9 +4,7 @@ import { attachPublicPriceDropToCard, fetchPublicPriceDropSignalsForListingIds }
 import type { ListingCardData, ListingImageRow } from "@/types/listings";
 import type { ListingCondition, ListingStatus } from "@/types/domain";
 
-function primaryImageUrl(
-  images: ListingImageRow[] | null | undefined,
-): string | null {
+function primaryImageUrl(images: ListingImageRow[] | null | undefined): string | null {
   if (!images?.length) {
     return null;
   }
@@ -14,8 +12,8 @@ function primaryImageUrl(
   return sorted[0]?.url ?? null;
 }
 
-/** Saved listing ids for the current user within the given id set (empty if guest). */
-export async function fetchSavedListingIdsForUser(
+/** Followed listing ids for the current user within the given id set (empty if guest). */
+export async function fetchFollowedListingIdsForUser(
   listingIds: readonly string[],
 ): Promise<Set<string>> {
   if (listingIds.length === 0) {
@@ -29,18 +27,18 @@ export async function fetchSavedListingIdsForUser(
     return new Set();
   }
   const { data, error } = await supabase
-    .from("favorites")
+    .from("follows")
     .select("listing_id")
     .eq("user_id", user.id)
     .in("listing_id", [...listingIds]);
   if (error) {
-    console.error("[favorites] fetchSavedListingIdsForUser", error.message);
+    console.error("[follows] fetchFollowedListingIdsForUser", error.message);
     return new Set();
   }
   return new Set((data ?? []).map((r) => r.listing_id as string));
 }
 
-export async function fetchBuyerWatchlistCount(): Promise<number> {
+export async function fetchBuyerFollowsCount(): Promise<number> {
   const supabase = await createClient();
   const {
     data: { user },
@@ -49,17 +47,17 @@ export async function fetchBuyerWatchlistCount(): Promise<number> {
     return 0;
   }
   const { count, error } = await supabase
-    .from("favorites")
+    .from("follows")
     .select("id", { count: "exact", head: true })
     .eq("user_id", user.id);
   if (error) {
-    console.error("[favorites] fetchBuyerWatchlistCount", error.message);
+    console.error("[follows] fetchBuyerFollowsCount", error.message);
     return 0;
   }
   return count ?? 0;
 }
 
-export async function fetchBuyerWatchlistListings(): Promise<ListingCardData[]> {
+export async function fetchBuyerFollowListings(): Promise<ListingCardData[]> {
   const supabase = await createClient();
   const {
     data: { user },
@@ -69,7 +67,7 @@ export async function fetchBuyerWatchlistListings(): Promise<ListingCardData[]> 
   }
 
   const { data, error } = await supabase
-    .from("favorites")
+    .from("follows")
     .select(
       `
       created_at,
@@ -94,7 +92,7 @@ export async function fetchBuyerWatchlistListings(): Promise<ListingCardData[]> 
     .order("created_at", { ascending: false });
 
   if (error) {
-    console.error("[favorites] fetchBuyerWatchlistListings", error.message);
+    console.error("[follows] fetchBuyerFollowListings", error.message);
     return [];
   }
 
@@ -119,7 +117,8 @@ export async function fetchBuyerWatchlistListings(): Promise<ListingCardData[]> 
             | { display_name?: string; user_id?: string }[]
             | null;
         }
-      | {
+      | null
+      | Array<{
           id: string;
           title: string;
           slug: string;
@@ -136,8 +135,7 @@ export async function fetchBuyerWatchlistListings(): Promise<ListingCardData[]> 
             | { display_name?: string; user_id?: string }
             | { display_name?: string; user_id?: string }[]
             | null;
-        }[]
-      | null;
+        }>;
   }[];
 
   const out: ListingCardData[] = [];
@@ -171,17 +169,18 @@ export async function fetchBuyerWatchlistListings(): Promise<ListingCardData[]> 
       followed_at: row.created_at as string,
     });
   }
+
   const signals = await fetchPublicPriceDropSignalsForListingIds(supabase, out.map((r) => r.id));
   return out.map((r) => attachPublicPriceDropToCard(r, signals.get(r.id)));
 }
 
-export async function fetchListingWatcherCount(listingId: string): Promise<number> {
+export async function fetchListingFollowCount(listingId: string): Promise<number> {
   const supabase = await createClient();
-  const { data, error } = await supabase.rpc("listing_watcher_count", {
+  const { data, error } = await supabase.rpc("listing_follow_count_public", {
     p_listing_id: listingId,
   });
   if (error) {
-    console.error("[favorites] fetchListingWatcherCount", error.message);
+    console.error("[follows] fetchListingFollowCount", error.message);
     return 0;
   }
   if (data == null) {
@@ -190,18 +189,18 @@ export async function fetchListingWatcherCount(listingId: string): Promise<numbe
   return typeof data === "number" ? data : Number(data);
 }
 
-export async function fetchSellerWatcherCountsByListingId(): Promise<Map<string, number>> {
+export async function fetchSellerFollowCountsByListingId(): Promise<Map<string, number>> {
   const supabase = await createClient();
-  const { data, error } = await supabase.rpc("seller_listing_watcher_counts");
+  const { data, error } = await supabase.rpc("seller_listing_follow_counts");
   if (error) {
-    console.error("[favorites] fetchSellerWatcherCountsByListingId", error.message);
+    console.error("[follows] fetchSellerFollowCountsByListingId", error.message);
     return new Map();
   }
   const map = new Map<string, number>();
   for (const row of data ?? []) {
-    const r = row as { listing_id: string; watcher_count: number | string };
+    const r = row as { listing_id: string; follow_count: number | string };
     if (r.listing_id) {
-      map.set(r.listing_id, typeof r.watcher_count === "number" ? r.watcher_count : Number(r.watcher_count));
+      map.set(r.listing_id, typeof r.follow_count === "number" ? r.follow_count : Number(r.follow_count));
     }
   }
   return map;

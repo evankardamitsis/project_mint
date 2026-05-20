@@ -13,7 +13,7 @@ import {
 } from "@tabler/icons-react";
 import { ShieldCheck } from "lucide-react";
 
-import { WatchButton } from "@/components/listings/watch-button";
+import { FollowButton } from "@/components/listings/follow-button";
 import { TierBadge } from "@/components/seller/tier-badge";
 import type { SellerTier } from "@/types/domain";
 import { cn, formatEuroPrefix } from "@/lib/utils";
@@ -98,12 +98,12 @@ export function ListingCard({
   listingId,
   viewerUserId = null,
   sellerOwnerUserId = null,
-  isSaved = false,
+  isFollowed = false,
   isGuest = true,
   latestPriceDropPercent = null,
   latestPriceDropOldPriceCents = null,
   latestPriceDropCreatedAt = null,
-  watchlistSavedAt = null,
+  followedAt = null,
 }: {
   title: string;
   slug: string;
@@ -125,12 +125,12 @@ export function ListingCard({
   listingId?: string;
   viewerUserId?: string | null;
   sellerOwnerUserId?: string | null;
-  isSaved?: boolean;
+  isFollowed?: boolean;
   isGuest?: boolean;
   latestPriceDropPercent?: number | null;
   latestPriceDropOldPriceCents?: number | null;
   latestPriceDropCreatedAt?: string | null;
-  watchlistSavedAt?: string | null;
+  followedAt?: string | null;
 }) {
   const reserved = status === "reserved";
   const cityLine = location?.trim() ?? "";
@@ -169,8 +169,8 @@ export function ListingCard({
           }).format(latestPriceDropOldPriceCents / 100)
       : null;
   const newDropSinceWatch =
-    Boolean(watchlistSavedAt && latestPriceDropCreatedAt) &&
-    new Date(latestPriceDropCreatedAt as string).getTime() > new Date(watchlistSavedAt as string).getTime();
+    Boolean(followedAt && latestPriceDropCreatedAt) &&
+    new Date(latestPriceDropCreatedAt as string).getTime() > new Date(followedAt as string).getTime();
 
   const href = `/listing/${slug}`;
   const conditionLabel = conditionDisplayLabel(condition);
@@ -279,9 +279,9 @@ export function ListingCard({
       </Link>
 
       {listingId && !isOwnerSeller ? (
-        <WatchButton
+        <FollowButton
           listingId={listingId}
-          initialWatching={isSaved}
+          initialFollowing={isFollowed}
           isGuest={isGuest}
           size="sm"
           className="absolute right-2 top-2 z-30 shadow-sm"

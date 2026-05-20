@@ -80,7 +80,7 @@ export default async function SellerListingsPage() {
               priceCents={row.price_cents}
               currency={row.currency}
               imageUrl={row.primary_image_url}
-              watcherCount={row.watcher_count ?? 0}
+              followCount={row.follow_count ?? 0}
             />
           ))}
         </div>

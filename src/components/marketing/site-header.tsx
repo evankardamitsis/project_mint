@@ -54,8 +54,8 @@ export async function SiteHeader({
 
   const savedHref =
     account && account !== "session_no_profile"
-      ? "/buyer/watchlist"
-      : `/auth/login?next=${encodeURIComponent("/buyer/watchlist")}`;
+      ? "/buyer/follows"
+      : `/auth/login?next=${encodeURIComponent("/buyer/follows")}`;
 
   const logo = (
     <Link

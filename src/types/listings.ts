@@ -49,15 +49,15 @@ export interface ListingCardData {
   /** Seller account id (`seller_profiles.user_id`); for save/owner checks on public grids */
   seller_owner_user_id?: string | null;
   /** When viewer is logged in; omitted/false for anonymous */
-  is_saved_by_current_user?: boolean;
-  /** Aggregate savers (seller dashboard only); no identities */
-  watcher_count?: number;
+  is_followed_by_current_user?: boolean;
+  /** Aggregate followers (seller dashboard only); no identities */
+  follow_count?: number;
   /** Signed % change for latest ≥5% price-down on active listing; null if none */
   latest_price_drop_percent?: number | null;
   latest_price_drop_old_price_cents?: number | null;
   latest_price_drop_created_at?: string | null;
-  /** Watchlist only: when the user saved this listing (for “new drop since saved”) */
-  watchlist_saved_at?: string | null;
+  /** Follows page: when the user started following */
+  followed_at?: string | null;
 }
 
 export interface ListingDetailData {
@@ -85,10 +85,10 @@ export interface ListingDetailData {
   seller_rating?: number | null;
   seller_tier?: SellerTier | null;
   images: ListingImageRow[];
-  /** Current viewer has this listing saved */
-  is_saved_by_current_user: boolean;
-  /** Total favorites (seller or admin on detail only) */
-  watcher_count?: number;
+  /** Current viewer follows this listing */
+  is_followed_by_current_user: boolean;
+  /** Total followers (public on detail) */
+  follow_count?: number;
   latest_price_drop_percent?: number | null;
   latest_price_drop_old_price_cents?: number | null;
   latest_price_drop_created_at?: string | null;
