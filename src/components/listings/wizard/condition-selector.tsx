@@ -2,20 +2,10 @@
 
 import type { ListingCondition } from "@/types/domain";
 
+import { CONDITION_DESCRIPTION_EL } from "@/lib/listings/condition-hints";
 import { conditionDisplayLabel, LISTING_CONDITION_OPTIONS } from "@/lib/listings/condition-display";
 
 import { cn } from "@/lib/utils";
-
-const HINTS: Partial<Record<ListingCondition, string>> = {
-  brand_new: "Factory sealed or never used — include unopened proof if relevant.",
-  mint: "Opened briefly; no play wear; complete as new.",
-  excellent: "Light use; no major flaws; fully functional.",
-  very_good: "Normal play wear; small marks possible; works great.",
-  good: "Visible wear or minor issues — disclose clearly in photos and text.",
-  fair: "Heavy wear or needs attention — be explicit about what works.",
-  poor: "Serious cosmetic or functional issues — describe accurately.",
-  non_functioning: "Sold as-is for parts or repair — state what is wrong.",
-};
 
 export function ConditionSelector({
   value,
@@ -45,7 +35,9 @@ export function ConditionSelector({
           </button>
         ))}
       </div>
-      {HINTS[value] ? <p className="text-[12px] leading-relaxed text-[#666666]">{HINTS[value]}</p> : null}
+      <div className="mt-4 rounded-xl bg-[#F7F6F3] p-4">
+        <p className="text-sm leading-relaxed text-[#444444]">{CONDITION_DESCRIPTION_EL[value]}</p>
+      </div>
     </div>
   );
 }

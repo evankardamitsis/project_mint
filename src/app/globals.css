@@ -203,6 +203,13 @@
   .mint-pulse-dot {
     animation: mint-pulse-dot 1.8s ease-in-out infinite;
   }
+  .scrollbar-none {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
   .heading {
     font-size: 28px;
     font-weight: 700;

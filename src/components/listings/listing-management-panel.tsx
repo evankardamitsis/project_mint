@@ -61,7 +61,7 @@ export function ListingManagementPanel({
         {rejectionReason && (isOwnerSeller || isAdmin) ? (
           <div
             className={cn(
-              "mt-4 rounded-xl border border-[#F0DEDE] bg-[#FFF9F9] px-4 py-3 text-sm leading-relaxed text-[#666666]",
+              "mt-4 rounded-xl border border-[#F0DEDE] bg-[#FFF9F9] px-4 py-3 text-sm leading-relaxed text-text-secondary",
               !isDetail && "mt-3",
             )}
           >

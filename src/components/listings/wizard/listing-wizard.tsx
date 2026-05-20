@@ -13,18 +13,33 @@ import {
 } from "react";
 
 import { fetchListingWizardContextAction } from "@/lib/products/actions";
-import { conditionDisplayLabel } from "@/lib/listings/condition-display";
+import { CATEGORY_LABELS, categoryDisplayName } from "@/lib/listings/category-display";
 import { createListingAction, type CreateListingState } from "@/lib/listings/actions";
 import { ListingImageUploader } from "@/components/listings/listing-image-uploader";
-import { ConditionSelector } from "@/components/listings/wizard/condition-selector";
-import { FairPriceCard } from "@/components/listings/wizard/fair-price-card";
-import { PhotoRequirementChecklist } from "@/components/listings/wizard/photo-requirement-checklist";
+import {
+  type WizardCondition,
+  wizardConditionLabel,
+  WizardConditionPicker,
+  wizardConditionToListingCondition,
+} from "@/components/listings/wizard/wizard-condition-picker";
+import {
+  type PhotoSlotId,
+  PhotoRequirementChecklist,
+} from "@/components/listings/wizard/photo-requirement-checklist";
 import { ProductSearchStep } from "@/components/listings/wizard/product-search-step";
 import { ShippingProfileRecommendation } from "@/components/listings/wizard/shipping-profile-recommendation";
-import { Button } from "@/components/ui/button";
+import { WizardStepNav } from "@/components/listings/wizard/wizard-step-nav";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { Info, ShieldCheck } from "lucide-react";
 import type { BrandOption, CategoryOption } from "@/types/listings";
 import type { ListingCondition } from "@/types/domain";
 import type { ProductSearchHit, ProductWizardBundle } from "@/types/product-catalog";
@@ -40,13 +55,54 @@ const STEPS = [
   { label: "Έλεγχος" },
 ] as const;
 
+const STEP_CARD =
+  "mx-auto max-w-2xl rounded-2xl border border-[#ece8e2] bg-white p-5 shadow-sm sm:p-8";
+const STEP_TITLE = "mb-1 text-2xl font-bold tracking-tight text-[#111111]";
+const SELECT_TRIGGER =
+  "h-12 w-full rounded-xl border-[#EEECE8] text-sm focus:border-[#1D9E75] focus:ring-1 focus:ring-[#1D9E75]";
+
+const PLATFORM_FEE_RATE = 0.05;
+const TRANSACTION_FEE_RATE = 0.014;
+const TRANSACTION_FEE_FIXED = 0.25;
+
+function InfoTooltip({ content }: { content: string }) {
+  return (
+    <div className="group/tooltip relative">
+      <button
+        type="button"
+        className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[#E8E6E1] transition-colors hover:bg-[#DDDBD6]"
+        aria-label="Πληροφορίες"
+      >
+        <Info className="h-2.5 w-2.5 text-[#6B6B6B]" aria-hidden />
+      </button>
+      <div className="pointer-events-none invisible absolute bottom-full left-1/2 z-50 mb-2 w-60 -translate-x-1/2 rounded-xl bg-[#111111] px-3 py-2.5 text-xs leading-relaxed text-white opacity-0 shadow-lg transition-all duration-150 group-hover/tooltip:visible group-hover/tooltip:opacity-100">
+        {content}
+        <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-[#111111]" />
+      </div>
+    </div>
+  );
+}
+
+function parsePriceEuros(value: string): number {
+  const n = Number(value.replace(",", ".").trim());
+  return Number.isFinite(n) && n > 0 ? n : 0;
+}
+
+function formatReviewPrice(euros: string): string {
+  const n = Number(euros.replace(",", ".").trim());
+  if (!euros.trim() || Number.isNaN(n)) {
+    return "—";
+  }
+  return `€${n.toLocaleString("el-GR", { maximumFractionDigits: n % 1 === 0 ? 0 : 2 })}`;
+}
+
 function buildWizardFormData(
   fields: {
     title: string;
     categoryId: string;
     brandId: string;
     description: string;
-    condition: ListingCondition;
+    condition: ListingCondition; // mapped from wizardCondition at submit
     priceEuros: string;
     location: string;
     offersEnabled: boolean;
@@ -93,6 +149,7 @@ export function ListingWizard({
 }) {
   const router = useRouter();
   const imageInputRef = useRef<HTMLInputElement>(null);
+  const stepRefs = useRef<(HTMLDivElement | null)[]>([]);
   const initial = useMemo<CreateListingState>(() => ({ ok: false }), []);
 
   const [step, setStep] = useState(1);
@@ -102,12 +159,17 @@ export function ListingWizard({
   const [title, setTitle] = useState("");
   const [categoryId, setCategoryId] = useState("");
   const [brandId, setBrandId] = useState("");
+  /** When template `brand_id` is not in `brands` options, Radix would show the UUID — keep display name from search hit. */
+  const [brandLabelFallback, setBrandLabelFallback] = useState<string | null>(null);
   const [description, setDescription] = useState("");
-  const [condition, setCondition] = useState<ListingCondition>("excellent");
+  const [wizardCondition, setWizardCondition] = useState<WizardCondition>("excellent");
   const [priceEuros, setPriceEuros] = useState("");
   const [location, setLocation] = useState("");
   const [offersEnabled, setOffersEnabled] = useState(true);
-  const [protectedDeliveryEnabled, setProtectedDeliveryEnabled] = useState(false);
+  const [protectedDeliveryEnabled, setProtectedDeliveryEnabled] = useState(true);
+  const [imageCount, setImageCount] = useState(0);
+  const [filledPhotoSlots, setFilledPhotoSlots] = useState<Set<PhotoSlotId>>(() => new Set());
+  const [activePhotoSlot, setActivePhotoSlot] = useState<PhotoSlotId | null>(null);
 
   const [wizardBundle, setWizardBundle] = useState<ProductWizardBundle | null>(null);
   const [bundleLoading, setBundleLoading] = useState(false);
@@ -123,6 +185,11 @@ export function ListingWizard({
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [step]);
+
+  useEffect(() => {
+    const el = stepRefs.current[step - 1];
+    el?.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
   }, [step]);
 
   useEffect(() => {
@@ -156,6 +223,7 @@ export function ListingWizard({
     setProductId(hit.id);
     setCategoryId(hit.category_id);
     setBrandId(hit.brand_id);
+    setBrandLabelFallback(hit.brand_name?.trim() || null);
     setTitle(hit.default_title_template?.trim() || `${hit.brand_name} ${hit.name}`.trim());
     setDescription(hit.description_prompt?.trim() || "");
     setProtectedDeliveryEnabled(hit.protected_delivery_recommended);
@@ -170,9 +238,32 @@ export function ListingWizard({
     setDescription("");
     setCategoryId("");
     setBrandId("");
-    setProtectedDeliveryEnabled(false);
+    setBrandLabelFallback(null);
+    setProtectedDeliveryEnabled(true);
     setWizardBundle(null);
     setStep(2);
+  }
+
+  function triggerImageUpload() {
+    imageInputRef.current?.click();
+  }
+
+  function openUploadForSlot(slotId: PhotoSlotId) {
+    setActivePhotoSlot(slotId);
+    triggerImageUpload();
+  }
+
+  function handleImagesSelected(files: FileList) {
+    if (files.length === 0) {
+      return;
+    }
+    if (activePhotoSlot) {
+      setFilledPhotoSlots((prev) => {
+        const next = new Set(prev);
+        next.add(activePhotoSlot);
+        return next;
+      });
+    }
   }
 
   function canGoNext(from: number): boolean {
@@ -222,7 +313,7 @@ export function ListingWizard({
         categoryId,
         brandId,
         description,
-        condition,
+        condition: wizardConditionToListingCondition(wizardCondition),
         priceEuros,
         location,
         offersEnabled,
@@ -236,75 +327,99 @@ export function ListingWizard({
     });
   }
 
-  const estimates = wizardBundle?.priceEstimates ?? [];
-  const hasEstimateForCondition = estimates.some((r) => r.condition === condition);
+  const selectedCategory = categories.find((c) => c.id === categoryId);
+  const selectedBrand = brands.find((b) => b.id === brandId);
+  const categoryName = selectedCategory
+    ? (CATEGORY_LABELS[selectedCategory.name] ?? categoryDisplayName(selectedCategory.name))
+    : "—";
+  const brandName =
+    brandId.trim() === ""
+      ? "—"
+      : (selectedBrand?.name ?? brandLabelFallback ?? "—");
+  const brandIdInOptions = Boolean(brandId) && brands.some((b) => b.id === brandId);
+  const price = parsePriceEuros(priceEuros);
+  const platformFee = price > 0 ? price * PLATFORM_FEE_RATE : 0;
+  const transactionFee = price > 0 ? price * TRANSACTION_FEE_RATE + TRANSACTION_FEE_FIXED : 0;
+  const totalFees = platformFee + transactionFee;
+  const youReceive = price > 0 ? price - totalFees : 0;
 
   return (
     <div className="space-y-8">
-      <nav
-        aria-label="Βήματα δημιουργίας αγγελίας"
-        className="sticky top-[49px] z-30 -mx-6 mb-6 flex items-center gap-0 overflow-x-auto border-b border-[#EEECE8] bg-[#F7F6F3] px-6 py-3 [-ms-overflow-style:none] scrollbar-none lg:-mx-10 lg:px-10 [&::-webkit-scrollbar]:hidden"
-      >
-        {STEPS.map((stepItem, i) => {
-          const n = i + 1;
-          const isCompleted = step > n;
-          const isActive = step === n;
-          const isUpcoming = step < n;
+      <div className="sticky top-[49px] z-30 -mx-6 mb-6 border-b border-[#EEECE8] bg-[#F7F6F3] lg:-mx-10">
+        <nav
+          aria-label="Βήματα δημιουργίας αγγελίας"
+          className="scrollbar-none flex items-center gap-0 overflow-x-auto px-4 py-3"
+        >
+          {STEPS.map((stepItem, i) => {
+            const n = i + 1;
+            const isCompleted = step > n;
+            const isActive = step === n;
+            const isUpcoming = step < n;
 
-          const stepIndicator = (
-            <>
-              <div
-                className={cn(
-                  "flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold",
-                  isActive && "bg-[#111111] text-white",
-                  isCompleted && "bg-[#1D9E75] text-white",
-                  isUpcoming && "bg-[#EEECE8] text-[#ABABAB]",
-                )}
-              >
-                {isCompleted ? "✓" : n}
-              </div>
-              {stepItem.label}
-            </>
-          );
-
-          return (
-            <div key={stepItem.label} className="flex items-center">
-              {isCompleted ? (
-                <button
-                  type="button"
-                  onClick={() => goToStep(n)}
-                  className="flex cursor-pointer items-center gap-2 px-4 py-2.5 text-xs font-medium whitespace-nowrap text-[#1D9E75] transition-opacity hover:opacity-80"
-                >
-                  {stepIndicator}
-                </button>
-              ) : (
+            const stepIndicator = (
+              <>
                 <div
                   className={cn(
-                    "flex items-center gap-2 px-4 py-2.5 text-xs whitespace-nowrap",
-                    isActive && "font-semibold text-[#111111]",
-                    isUpcoming && "cursor-default font-medium text-[#ABABAB] opacity-50",
+                    "flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold",
+                    isActive && "bg-[#111111] text-white",
+                    isCompleted && "bg-[#1D9E75] text-white",
+                    isUpcoming && "bg-[#EEECE8] text-[#ABABAB]",
                   )}
                 >
-                  {stepIndicator}
+                  {isCompleted ? "✓" : n}
                 </div>
-              )}
-              {i < STEPS.length - 1 ? (
-                <div className={cn("h-px w-8 shrink-0", isCompleted ? "bg-[#1D9E75]" : "bg-[#EEECE8]")} />
-              ) : null}
-            </div>
-          );
-        })}
-      </nav>
+                <span>{stepItem.label}</span>
+                {isActive ? (
+                  <span className="ml-1 text-[10px] font-medium text-[#ABABAB] sm:hidden">
+                    · βήμα {step} από 7
+                  </span>
+                ) : null}
+              </>
+            );
+
+            return (
+              <div
+                key={stepItem.label}
+                ref={(el) => {
+                  stepRefs.current[i] = el;
+                }}
+                className="flex shrink-0 items-center"
+              >
+                {isCompleted ? (
+                  <button
+                    type="button"
+                    onClick={() => goToStep(n)}
+                    className="flex cursor-pointer items-center gap-2 px-4 py-2.5 text-xs font-medium whitespace-nowrap text-[#1D9E75] transition-opacity hover:opacity-80"
+                  >
+                    {stepIndicator}
+                  </button>
+                ) : (
+                  <div
+                    className={cn(
+                      "flex items-center gap-2 px-4 py-2.5 text-xs whitespace-nowrap",
+                      isActive && "font-semibold text-[#111111]",
+                      isUpcoming && "cursor-default font-medium text-[#ABABAB] opacity-50",
+                    )}
+                  >
+                    {stepIndicator}
+                  </div>
+                )}
+                {i < STEPS.length - 1 ? (
+                  <div className={cn("h-px w-8 shrink-0", isCompleted ? "bg-[#1D9E75]" : "bg-[#EEECE8]")} />
+                ) : null}
+              </div>
+            );
+          })}
+        </nav>
+      </div>
 
       {step === 1 ? (
-        <section className="rounded-3xl border border-[#ece8e2] bg-white p-5 shadow-sm sm:p-8">
-          <h2 className="mb-1 text-xl font-bold text-[#111111]">Τι πουλάς;</h2>
-          <p className="mb-6 text-sm text-[#6B6B6B]">
+        <section className={STEP_CARD}>
+          <h2 className={STEP_TITLE}>Τι πουλάς;</h2>
+          <p className="mb-2 text-sm text-[#6B6B6B]">
             Ψάξε για το μοντέλο σου ή ξεκίνα από το μηδέν.
           </p>
-          <div className="mt-8">
-            <ProductSearchStep onSelectProduct={applyProductHit} onListFromScratch={handleListFromScratch} />
-          </div>
+          <ProductSearchStep onSelectProduct={applyProductHit} onListFromScratch={handleListFromScratch} />
           <div className="mt-8 flex justify-end border-t border-[#f0ebe5] pt-6">
             <Link
               href="/seller/listings"
@@ -317,13 +432,11 @@ export function ListingWizard({
       ) : null}
 
       {step > 1 ? (
-        <form onSubmit={handleSubmit} className="space-y-0">
+        <form onSubmit={handleSubmit} className="space-y-0 pb-24 lg:pb-0">
           {step === 2 ? (
-            <section className="space-y-6 rounded-3xl border border-[#ece8e2] bg-white p-5 shadow-sm sm:p-8">
+            <section className={cn(STEP_CARD, "space-y-6")}>
               <div>
-                <h2 className="text-[clamp(20px,4vw,26px)] font-black uppercase tracking-tight text-[#111111]">
-                  {STEPS[1].label}
-                </h2>
+                <h2 className={STEP_TITLE}>{STEPS[1].label}</h2>
                 {templateLabel ? (
                   <p className="mt-2 text-[13px] text-[#1a7a4a]">
                     Πρότυπο: <span className="font-semibold">{templateLabel}</span>
@@ -349,41 +462,59 @@ export function ListingWizard({
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="wiz-category">Κατηγορία</Label>
-                  <select
-                    id="wiz-category"
-                    required
-                    className="flex h-10 w-full rounded-xl border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/50"
-                    value={categoryId}
-                    onChange={(e) => setCategoryId(e.target.value)}
-                  >
-                    <option value="" disabled>
-                      Επέλεξε κατηγορία
-                    </option>
-                    {categories.map((c) => (
-                      <option key={c.id} value={c.id}>
-                        {c.name}
-                      </option>
-                    ))}
-                  </select>
+                  <Select value={categoryId || undefined} onValueChange={(value) => setCategoryId(value ?? "")}>
+                    <SelectTrigger id="wiz-category" className={SELECT_TRIGGER}>
+                      <SelectValue>
+                        {categoryId
+                          ? (() => {
+                              const cat = categories.find((c) => c.id === categoryId);
+                              return cat
+                                ? (CATEGORY_LABELS[cat.name] ?? cat.name)
+                                : "Επέλεξε κατηγορία";
+                            })()
+                          : "Επέλεξε κατηγορία"}
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {categories.map((cat) => (
+                        <SelectItem key={cat.id} value={cat.id}>
+                          {CATEGORY_LABELS[cat.name] ?? cat.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   {fieldErrors?.category_id ? (
                     <p className="text-xs text-destructive">{fieldErrors.category_id}</p>
                   ) : null}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="wiz-brand">Μάρκα (προαιρετικό)</Label>
-                  <select
-                    id="wiz-brand"
-                    className="flex h-10 w-full rounded-xl border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/50"
-                    value={brandId}
-                    onChange={(e) => setBrandId(e.target.value)}
+                  <Select
+                    value={brandId ?? ""}
+                    onValueChange={(v) => {
+                      setBrandId(v || "");
+                      setBrandLabelFallback(null);
+                    }}
                   >
-                    <option value="">Χωρίς μάρκα</option>
-                    {brands.map((b) => (
-                      <option key={b.id} value={b.id}>
-                        {b.name}
-                      </option>
-                    ))}
-                  </select>
+                    <SelectTrigger id="wiz-brand" className={SELECT_TRIGGER}>
+                      <SelectValue placeholder="Χωρίς μάρκα">
+                        {brandId
+                          ? (selectedBrand?.name ?? brandLabelFallback ?? "Μάρκα")
+                          : null}
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">Χωρίς μάρκα</SelectItem>
+                      {brandId && !brandIdInOptions ? (
+                        <SelectItem value={brandId}>{brandLabelFallback ?? "Μάρκα"}</SelectItem>
+                      ) : null}
+                      {brands.map((brand) => (
+                        <SelectItem key={brand.id} value={brand.id}>
+                          {brand.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
               <div className="space-y-2">
@@ -391,11 +522,13 @@ export function ListingWizard({
                 <Textarea
                   id="wiz-desc"
                   rows={6}
+                  maxLength={1000}
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   className="rounded-xl"
                   placeholder="Κατάσταση, τι περιλαμβάνεται, τροποποιήσεις ή επισκευές…"
                 />
+                <p className="mt-1.5 text-right text-xs text-[#ABABAB]">{description.length} / 1000</p>
                 {fieldErrors?.description ? (
                   <p className="text-xs text-destructive">{fieldErrors.description}</p>
                 ) : null}
@@ -404,34 +537,47 @@ export function ListingWizard({
           ) : null}
 
           {step === 3 ? (
-            <section className="space-y-6 rounded-3xl border border-[#ece8e2] bg-white p-5 shadow-sm sm:p-8">
-              <h2 className="text-[clamp(20px,4vw,26px)] font-black uppercase tracking-tight text-[#111111]">
-                {STEPS[2].label}
-              </h2>
-              {bundleLoading ? <p className="text-[13px] text-[#888888]">Φόρτωση λίστας φωτογραφιών…</p> : null}
-              <PhotoRequirementChecklist items={wizardBundle?.photoRequirements ?? []} />
-              <div className="space-y-2 border-t border-[#f0ebe5] pt-6">
-                <Label htmlFor="wiz-images">Οι φωτογραφίες σου — έως 10</Label>
-                <p className="text-[12px] text-[#777777]">Η πρώτη εικόνα είναι το εξώφυλλο.</p>
-                <ListingImageUploader ref={imageInputRef} hideLabel />
+            <section className={cn(STEP_CARD, "space-y-4")}>
+              <div>
+                <h2 className={STEP_TITLE}>{STEPS[2].label}</h2>
+                <p className="text-sm text-[#6B6B6B]">Η πρώτη εικόνα είναι το εξώφυλλο της αγγελίας.</p>
               </div>
+              <div className="flex items-start gap-3 rounded-2xl border border-[#F5E6B0] bg-[#FEF9EC] p-4">
+                <span className="shrink-0 text-lg" aria-hidden>
+                  💡
+                </span>
+                <p className="text-xs leading-relaxed text-[#8B6914]">
+                  <strong>Συμβουλή:</strong> Πάτα κάθε εικονίδιο για να φωτογραφίσεις αυτό το σημείο. Φωτογράφισε σε
+                  φωτεινό χώρο με φυσικό φως.
+                </p>
+              </div>
+              <PhotoRequirementChecklist
+                uploadedCount={imageCount}
+                filledSlotIds={filledPhotoSlots}
+                activeSlot={activePhotoSlot}
+                onSlotClick={openUploadForSlot}
+              />
+              <ListingImageUploader
+                ref={imageInputRef}
+                hideLabel
+                variant="wizard"
+                className="[&>label>div]:mt-0"
+                onFileCountChange={setImageCount}
+                onFilesSelected={handleImagesSelected}
+              />
             </section>
           ) : null}
 
           {step === 4 ? (
-            <section className="space-y-6 rounded-3xl border border-[#ece8e2] bg-white p-5 shadow-sm sm:p-8">
-              <h2 className="text-[clamp(20px,4vw,26px)] font-black uppercase tracking-tight text-[#111111]">
-                {STEPS[3].label}
-              </h2>
-              <p className="text-[13px] text-text-secondary">
-                Η ειλικρινής κατάσταση βοηθά στην Προστατευμένη παράδοση — οι αγοραστές ξέρουν τι να περιμένουν.
-              </p>
-              <ConditionSelector value={condition} onChange={setCondition} />
-              {productId && estimates.length > 0 ? (
-                <p className="text-[12px] text-[#777777]">
-                  Οι ενδείξεις τιμής στο επόμενο βήμα εξαρτώνται από την κατάσταση που επιλέγεις εδώ.
+            <section className={cn(STEP_CARD, "space-y-5")}>
+              <div>
+                <h2 className={STEP_TITLE}>{STEPS[3].label}</h2>
+                <p className="text-sm text-[#6B6B6B]">
+                  Η ειλικρινής κατάσταση βοηθά στην Προστατευμένη παράδοση — οι αγοραστές ξέρουν τι να
+                  περιμένουν.
                 </p>
-              ) : null}
+              </div>
+              <WizardConditionPicker value={wizardCondition} onChange={setWizardCondition} />
               {fieldErrors?.condition ? (
                 <p className="text-xs text-destructive">{fieldErrors.condition}</p>
               ) : null}
@@ -439,77 +585,109 @@ export function ListingWizard({
           ) : null}
 
           {step === 5 ? (
-            <section className="space-y-6 rounded-3xl border border-[#ece8e2] bg-white p-5 shadow-sm sm:p-8">
-              <h2 className="text-[clamp(20px,4vw,26px)] font-black uppercase tracking-tight text-[#111111]">
-                {STEPS[4].label}
-              </h2>
-              {productId && hasEstimateForCondition ? (
-                <FairPriceCard condition={condition} estimates={estimates} />
-              ) : productId ? (
-                <p className="text-[13px] text-[#777777]">
-                  Δεν υπάρχει εύρος για αυτή την κατάσταση — βάλε την τιμή που σε ικανοποιεί.
-                </p>
-              ) : (
-                <p className="text-[13px] text-[#777777]">
-                  Οι ενδείξεις τιμής ισχύουν όταν ξεκινάς από πρότυπο καταλόγου. Μπορείς να βάλεις ελεύθερα τιμή.
-                </p>
-              )}
-              <p className="text-[12px] text-[#999999]">Οι εκτιμήσεις είναι ενδεικτικές, όχι ζωντανές τιμές αγοράς.</p>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="wiz-price">Τιμή (EUR)</Label>
-                  <Input
+            <section className={cn(STEP_CARD, "space-y-6")}>
+              <h2 className={STEP_TITLE}>{STEPS[4].label}</h2>
+              <div className="mb-6">
+                <label htmlFor="wiz-price" className="mb-2 block text-sm font-semibold text-[#111111]">
+                  Τιμή
+                </label>
+                <div className="relative">
+                  <span className="pointer-events-none absolute top-1/2 left-4 -translate-y-1/2 text-2xl font-black text-[#111111]">
+                    €
+                  </span>
+                  <input
                     id="wiz-price"
                     required
-                    inputMode="decimal"
+                    type="number"
+                    inputMode="numeric"
                     value={priceEuros}
                     onChange={(e) => setPriceEuros(e.target.value)}
-                    className="rounded-xl"
-                    placeholder="π.χ. 850"
+                    placeholder="π.χ. 450"
+                    className="w-full rounded-2xl border-2 border-[#EEECE8] bg-white py-4 pr-4 pl-10 text-2xl font-black text-[#111111] transition-all placeholder:text-[#EEECE8] focus:border-[#1D9E75] focus:outline-none"
                   />
-                  {fieldErrors?.price_euros ? (
-                    <p className="text-xs text-destructive">{fieldErrors.price_euros}</p>
-                  ) : null}
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="wiz-location">Τοποθεσία</Label>
-                  <Input
-                    id="wiz-location"
-                    value={location}
-                    onChange={(e) => setLocation(e.target.value)}
-                    className="rounded-xl"
-                    placeholder="Πόλη ή περιοχή"
-                  />
-                  {fieldErrors?.location ? (
-                    <p className="text-xs text-destructive">{fieldErrors.location}</p>
-                  ) : null}
-                </div>
+                {price > 0 ? (
+                  <div className="mt-3 space-y-3 rounded-2xl border border-[#EEECE8] bg-[#F7F6F3] p-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-sm text-[#555555]">Προμήθεια πλατφόρμας</span>
+                        <InfoTooltip content="Η mint λαμβάνει αυτό το ποσό μόνο όταν η πώληση ολοκληρωθεί. Δεν χρεώνεσαι τίποτα αν η αγγελία δεν πουληθεί." />
+                      </div>
+                      <span className="text-sm text-[#555555]">−€{platformFee.toFixed(2)}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-sm text-[#555555]">Χρέωση συναλλαγής</span>
+                        <InfoTooltip content="Κόστος επεξεργασίας ηλεκτρονικής πληρωμής (κάρτα ή τραπεβική μεταφορά). Περιλαμβάνει ασφάλεια και προστασία αγοραστή." />
+                      </div>
+                      <span className="text-sm text-[#555555]">−€{transactionFee.toFixed(2)}</span>
+                    </div>
+                    <div className="h-px bg-[#E4E2DC]" />
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-bold text-[#111111]">Εσύ λαμβάνεις</span>
+                      <span className="text-xl font-black text-[#1D9E75]">€{youReceive.toFixed(2)}</span>
+                    </div>
+                  </div>
+                ) : null}
+                {fieldErrors?.price_euros ? (
+                  <p className="mt-1 text-xs text-destructive">{fieldErrors.price_euros}</p>
+                ) : null}
+              </div>
+              <div>
+                <label htmlFor="wiz-location" className="mb-2 block text-sm font-semibold text-[#111111]">
+                  Τοποθεσία
+                </label>
+                <input
+                  id="wiz-location"
+                  type="text"
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
+                  placeholder="π.χ. Αθήνα, Θεσσαλονίκη..."
+                  className="w-full rounded-2xl border border-[#EEECE8] bg-white px-4 py-3.5 text-sm transition-all focus:border-[#1D9E75] focus:outline-none"
+                />
+                {fieldErrors?.location ? (
+                  <p className="mt-1 text-xs text-destructive">{fieldErrors.location}</p>
+                ) : null}
               </div>
             </section>
           ) : null}
 
           {step === 6 ? (
-            <section className="space-y-6 rounded-3xl border border-[#ece8e2] bg-white p-5 shadow-sm sm:p-8">
-              <h2 className="text-[clamp(20px,4vw,26px)] font-black uppercase tracking-tight text-[#111111]">
-                {STEPS[5].label}
-              </h2>
-              <p className="text-[14px] leading-relaxed text-[#555555]">
-                Η Προστατευμένη παράδοση ενισχύει την εμπιστοσύνη για την κατάσταση και τη συσκευασία πριν την αποστολή.
-                Τεκμηριώνεις το προϊόν· η ροή μένει προβλέψιμη και για τις δύο πλευρές.
-              </p>
-              {bundleLoading ? <p className="text-[13px] text-[#888888]">Φόρτωση οδηγιών συσκευασίας…</p> : null}
-              <ShippingProfileRecommendation profile={wizardBundle?.shippingProfile ?? null} />
-              <div className="flex items-center gap-2 rounded-xl border border-[#f0ebe5] bg-[#faf9f6] px-3 py-3">
-                <input
-                  id="wiz-pd"
-                  type="checkbox"
-                  checked={protectedDeliveryEnabled}
-                  onChange={(e) => setProtectedDeliveryEnabled(e.target.checked)}
-                  className="size-4 rounded border border-input accent-[#1a7a4a]"
-                />
-                <Label htmlFor="wiz-pd" className="font-normal text-[13px] text-[#333333]">
-                  Προσφορά προστατευμένης παράδοσης σε αυτή την αγγελία
-                </Label>
+            <section className={cn(STEP_CARD, "space-y-5")}>
+              <div>
+                <h2 className={STEP_TITLE}>{STEPS[5].label}</h2>
+                <p className="text-sm leading-relaxed text-[#6B6B6B]">
+                  Η Προστατευμένη παράδοση ενισχύει την εμπιστοσύνη για την κατάσταση και τη συσκευασία πριν την
+                  αποστολή. Τεκμηριώνεις το προϊόν· η ροή μένει προβλέψιμη και για τις δύο πλευρές.
+                </p>
+              </div>
+              {bundleLoading ? <p className="text-sm text-[#888888]">Φόρτωση οδηγιών συσκευασίας…</p> : null}
+              <ShippingProfileRecommendation
+                profile={wizardBundle?.shippingProfile ?? null}
+                categoryName={categoryName}
+              />
+              <div>
+                <div className="flex items-center gap-2 rounded-xl border border-[#f0ebe5] bg-[#faf9f6] px-3 py-3">
+                  <input
+                    id="wiz-pd"
+                    type="checkbox"
+                    checked={protectedDeliveryEnabled}
+                    onChange={(e) => setProtectedDeliveryEnabled(e.target.checked)}
+                    className="size-4 rounded border border-input accent-[#1a7a4a]"
+                  />
+                  <Label htmlFor="wiz-pd" className="font-normal text-[13px] text-[#333333]">
+                    Προσφορά προστατευμένης παράδοσης σε αυτή την αγγελία
+                  </Label>
+                </div>
+                {protectedDeliveryEnabled ? (
+                  <div className="mt-3 flex items-start gap-3 rounded-2xl bg-[#E8F7F1] p-4">
+                    <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-[#1D9E75]" aria-hidden />
+                    <p className="text-xs leading-relaxed text-[#0A5C43]">
+                      Η προστατευμένη παράδοση αυξάνει σημαντικά την εμπιστοσύνη των αγοραστών και τις πιθανότητες
+                      πώλησης.
+                    </p>
+                  </div>
+                ) : null}
               </div>
               <div className="flex items-center gap-2">
                 <input
@@ -527,37 +705,33 @@ export function ListingWizard({
           ) : null}
 
           {step === 7 ? (
-            <section className="space-y-6 rounded-3xl border border-[#ece8e2] bg-white p-5 shadow-sm sm:p-8">
-              <h2 className="text-[clamp(20px,4vw,26px)] font-black uppercase tracking-tight text-[#111111]">
-                {STEPS[6].label}
-              </h2>
-              <div className="space-y-3 rounded-2xl border border-[#f0ebe5] bg-[#faf9f6] p-4 text-[13px] text-[#444444]">
-                <p>
-                  <span className="font-bold text-[#111111]">Τίτλος:</span> {title}
-                </p>
-                <p>
-                  <span className="font-bold text-[#111111]">Κατηγορία:</span>{" "}
-                  {categories.find((c) => c.id === categoryId)?.name ?? "—"}
-                </p>
-                <p>
-                  <span className="font-bold text-[#111111]">Μάρκα:</span>{" "}
-                  {brands.find((b) => b.id === brandId)?.name ?? "—"}
-                </p>
-                <p>
-                  <span className="font-bold text-[#111111]">Κατάσταση:</span> {conditionDisplayLabel(condition)}
-                </p>
-                <p>
-                  <span className="font-bold text-[#111111]">Τιμή:</span> {priceEuros} EUR
-                </p>
-                <p>
-                  <span className="font-bold text-[#111111]">Προστατευμένη παράδοση:</span>{" "}
-                  {protectedDeliveryEnabled ? "Ναι" : "Όχι"}
-                </p>
-                {productId ? (
-                  <p>
-                    <span className="font-bold text-[#111111]">Αντιστοίχιση καταλόγου:</span> {templateLabel ?? "Ναι"}
-                  </p>
-                ) : null}
+            <section className={cn(STEP_CARD, "space-y-6")}>
+              <h2 className={STEP_TITLE}>{STEPS[6].label}</h2>
+              <div className="divide-y divide-[#EEECE8] rounded-2xl border border-[#EEECE8] bg-white px-4">
+                {[
+                  { label: "Τίτλος", value: title },
+                  { label: "Κατηγορία", value: categoryName },
+                  ...(brandId ? [{ label: "Μάρκα", value: brandName }] : []),
+                  { label: "Κατάσταση", value: wizardConditionLabel(wizardCondition) },
+                  { label: "Τιμή", value: formatReviewPrice(priceEuros) },
+                  { label: "Τοποθεσία", value: location.trim() || "—" },
+                  {
+                    label: "Προστατευμένη παράδοση",
+                    value: protectedDeliveryEnabled ? "✓ Ναι" : "Όχι",
+                  },
+                ].map((row) => (
+                  <div key={row.label} className="flex items-center justify-between py-3.5">
+                    <span className="text-sm text-[#6B6B6B]">{row.label}</span>
+                    <span
+                      className={cn(
+                        "text-sm font-semibold text-[#111111]",
+                        row.label === "Τιμή" && "text-xl font-black",
+                      )}
+                    >
+                      {row.value}
+                    </span>
+                  </div>
+                ))}
               </div>
               {!state.ok && state.error ? (
                 <p className="text-sm text-destructive" role="alert">
@@ -569,10 +743,17 @@ export function ListingWizard({
                   {state.warning}
                 </p>
               ) : null}
-              <div className="flex flex-wrap gap-3">
-                <Button type="submit" disabled={pending} className="rounded-xl bg-[#111111] text-white">
-                  {pending ? "Υποβολή…" : "Υποβολή για έγκριση"}
-                </Button>
+              <button
+                type="submit"
+                disabled={pending}
+                className="mt-6 w-full rounded-2xl bg-[#1D9E75] py-4 text-base font-bold text-white transition-all hover:bg-[#188A65] active:scale-[0.99] disabled:opacity-60"
+              >
+                {pending ? "Υποβολή…" : "Υποβολή για έγκριση →"}
+              </button>
+              <p className="mt-3 text-center text-xs text-[#ABABAB]">
+                Η αγγελία θα εμφανιστεί μετά από έλεγχο από την ομάδα mint.
+              </p>
+              <div className="flex justify-center pt-2">
                 <Link
                   href="/seller/listings"
                   className="text-sm font-medium text-[#6B6B6B] transition-colors hover:text-[#111111]"
@@ -584,20 +765,19 @@ export function ListingWizard({
           ) : null}
 
           {step > 1 && step < 7 ? (
-            <div className="mt-8 space-y-3 border-t border-[#ece8e2] pt-6">
+            <div className="mt-4 lg:mt-8">
               {stepError ? (
-                <p className="text-sm text-destructive" role="alert">
+                <p className="mb-3 text-sm text-destructive" role="alert">
                   {stepError}
                 </p>
               ) : null}
-              <div className="flex flex-wrap justify-between gap-3">
-                <Button type="button" variant="outline" className="rounded-xl" onClick={goBack}>
-                  Πίσω
-                </Button>
-                <Button type="button" className="rounded-xl bg-[#111111] text-white" onClick={goNext}>
-                  Συνέχεια
-                </Button>
-              </div>
+              <WizardStepNav onBack={goBack} onNext={goNext} />
+            </div>
+          ) : null}
+
+          {step === 7 ? (
+            <div className="mt-4 lg:mt-8">
+              <WizardStepNav onBack={goBack} showNext={false} />
             </div>
           ) : null}
         </form>

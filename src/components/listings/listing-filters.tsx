@@ -57,7 +57,7 @@ export function ListingFilters({
         <input type="hidden" name="priceDrop" value={values.priceDrop} />
         <div className="relative w-full">
           <Search
-            className="pointer-events-none absolute top-1/2 left-[14px] size-4 -translate-y-1/2 text-[#666666]"
+            className="pointer-events-none absolute top-1/2 left-[14px] size-4 -translate-y-1/2 text-text-secondary"
             aria-hidden
           />
           <input
