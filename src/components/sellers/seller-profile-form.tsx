@@ -125,14 +125,15 @@ export function SellerProfileForm({
               type="tel"
               maxLength={40}
               defaultValue={initial?.phone ?? ""}
-              placeholder="Προαιρετικό — για επικοινωνία με αγοραστές"
+              placeholder="Προαιρετικό"
               className="rounded-xl"
             />
             {fieldErrors?.phone ? (
               <p className="text-xs text-destructive">{fieldErrors.phone}</p>
             ) : null}
             <p className="text-xs text-[#6B6B6B]">
-              Το τηλέφωνό σου κοινοποιείται μόνο μετά την επιβεβαίωση πώλησης.
+              Χρησιμοποιείται μόνο από τη mint για επιβεβαίωση παραγγελιών. Δεν κοινοποιείται ποτέ σε
+              αγοραστές.
             </p>
           </div>
         </div>

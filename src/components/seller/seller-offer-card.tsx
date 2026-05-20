@@ -149,7 +149,7 @@ export function SellerOfferCard({ row }: { row: SellerOfferRow }) {
           ) : slug ? (
             <Link
               href={`/listing/${slug}`}
-              className="text-xs font-bold text-[#6B6B6B] transition-colors hover:text-[#111111]"
+              className="text-sm font-semibold text-[#1D9E75] transition-colors hover:text-[#0A5C43]"
             >
               Δες αγγελία →
             </Link>
