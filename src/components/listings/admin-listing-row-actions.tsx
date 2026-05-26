@@ -14,6 +14,30 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 
+export type AdminListingActionLabels = {
+  viewBtn: string;
+  approveBtn: string;
+  archiveBtn: string;
+  rejectBtn: string;
+  cancelBtn: string;
+  rejectReasonLabel: string;
+  rejectReasonPlaceholder: string;
+  rejectConfirmBtn: string;
+  actionFailed: string;
+};
+
+const DEFAULT_LABELS: AdminListingActionLabels = {
+  viewBtn: "View",
+  approveBtn: "Approve",
+  archiveBtn: "Archive",
+  rejectBtn: "Reject",
+  cancelBtn: "Cancel",
+  rejectReasonLabel: "Reason (optional)",
+  rejectReasonPlaceholder: "Rejection reason",
+  rejectConfirmBtn: "Confirm rejection",
+  actionFailed: "Action failed.",
+};
+
 const detailActionBtn =
   "h-auto rounded-xl px-4 py-2.5 text-sm font-semibold shadow-none";
 
@@ -21,11 +45,14 @@ export function AdminListingRowActions({
   listingId,
   slug,
   context = "table",
+  labels,
 }: {
   listingId: string;
   slug: string;
   context?: "table" | "detail";
+  labels?: AdminListingActionLabels;
 }) {
+  const l = labels ?? DEFAULT_LABELS;
   const router = useRouter();
   const [showReject, setShowReject] = useState(false);
   const [reason, setReason] = useState("");
@@ -39,7 +66,7 @@ export function AdminListingRowActions({
     const r = await fn();
     setPending(false);
     if (!r.ok) {
-      setError(r.error ?? "Action failed.");
+      setError(r.error ?? l.actionFailed);
       return;
     }
     setShowReject(false);
@@ -74,7 +101,7 @@ export function AdminListingRowActions({
       >
         {!isDetail ? (
           <Button variant="ghost" size="sm" render={<Link href={`/listing/${slug}`} />}>
-            View
+            {l.viewBtn}
           </Button>
         ) : null}
         <Button
@@ -89,7 +116,7 @@ export function AdminListingRowActions({
           variant={isDetail ? "default" : "secondary"}
           onClick={() => void run(() => adminApproveListingAction(listingId))}
         >
-          Approve
+          {l.approveBtn}
         </Button>
         <Button
           type="button"
@@ -103,7 +130,7 @@ export function AdminListingRowActions({
           )}
           onClick={() => void run(() => adminArchiveListingAction(listingId))}
         >
-          Archive
+          {l.archiveBtn}
         </Button>
         <Button
           type="button"
@@ -117,7 +144,7 @@ export function AdminListingRowActions({
           )}
           onClick={() => setShowReject((s) => !s)}
         >
-          {showReject ? "Cancel" : "Reject"}
+          {showReject ? l.cancelBtn : l.rejectBtn}
         </Button>
       </div>
 
@@ -131,13 +158,13 @@ export function AdminListingRowActions({
           )}
         >
           <Label htmlFor={`reject-${listingId}`} className="text-xs font-medium text-text-secondary">
-            Rejection note (optional)
+            {l.rejectReasonLabel}
           </Label>
           <Input
             id={`reject-${listingId}`}
             value={reason}
             onChange={(e) => setReason(e.target.value)}
-            placeholder="Reason for rejection"
+            placeholder={l.rejectReasonPlaceholder}
             maxLength={2000}
             className="rounded-lg border-[#EEECE8] text-sm"
           />
@@ -149,7 +176,7 @@ export function AdminListingRowActions({
             className={cn(isDetail && "rounded-xl py-2.5 font-semibold")}
             onClick={() => void run(() => adminRejectListingAction(listingId, reason))}
           >
-            Confirm reject
+            {l.rejectConfirmBtn}
           </Button>
         </div>
       ) : null}

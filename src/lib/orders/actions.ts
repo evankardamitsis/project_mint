@@ -270,6 +270,55 @@ export async function demoMarkOrderPaidAction(orderId: string): Promise<{ ok: bo
   }
 }
 
+export async function confirmDeliveryAction(orderId: string): Promise<{ ok: boolean; error?: string }> {
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) {
+      return { ok: false, error: "Απαιτείται σύνδεση." };
+    }
+
+    const { data: row } = await supabase
+      .from("orders")
+      .select("id, buyer_id, status, payment_status, listing_id, listings ( slug )")
+      .eq("id", orderId)
+      .maybeSingle();
+    if (!row || row.buyer_id !== user.id) {
+      return { ok: false, error: "Η παραγγελία δεν βρέθηκε." };
+    }
+    if (row.status !== "shipped") {
+      return { ok: false, error: "Η παραγγελία δεν βρίσκεται σε κατάσταση αποστολής." };
+    }
+
+    const rawL = row.listings as { slug: string } | { slug: string }[] | null;
+    const slug = rawL ? (Array.isArray(rawL) ? rawL[0]?.slug : rawL.slug) : null;
+
+    const { error } = await runAdmin(async (admin) =>
+      admin
+        .from("orders")
+        .update({ status: "completed", payment_status: "released" })
+        .eq("id", orderId)
+        .eq("buyer_id", user.id)
+        .eq("status", "shipped"),
+    );
+
+    if (error) {
+      console.error("[orders] confirmDeliveryAction", error.message);
+      return { ok: false, error: "Δεν ήταν δυνατή η επιβεβαίωση." };
+    }
+
+    revalidateOrderSurfaces(slug ?? undefined);
+    revalidatePath(`/buyer/purchases/${orderId}`);
+    revalidatePath(`/seller/orders/${orderId}`);
+    return { ok: true };
+  } catch (e) {
+    console.error("[orders] confirmDeliveryAction", e);
+    return { ok: false, error: "Κάτι πήγε στραβά." };
+  }
+}
+
 const adminEditableStatuses: OrderStatus[] = [
   "pending_payment",
   "paid",

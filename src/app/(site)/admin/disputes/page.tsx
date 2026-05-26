@@ -1,38 +1,18 @@
 import Link from "next/link";
 
 import { DisputeDashboardList } from "@/components/disputes/dispute-dashboard-list";
-import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
+import { getLocale } from "@/i18n/get-locale";
+import { MESSAGES } from "@/i18n/messages";
 import { fetchDisputesForAdmin } from "@/lib/disputes/queries";
 import type { DisputeStatus } from "@/types/domain";
 
-const tabs: { label: string; value: DisputeStatus | "all" }[] = [
-  { label: "All", value: "all" },
-  { label: "Open", value: "open" },
-  { label: "Awaiting seller", value: "awaiting_seller" },
-  { label: "Awaiting buyer", value: "awaiting_buyer" },
-  { label: "Under review", value: "under_review" },
-  { label: "Resolved (buyer)", value: "resolved_buyer" },
-  { label: "Resolved (seller)", value: "resolved_seller" },
-  { label: "Refunded", value: "refunded" },
-  { label: "Closed", value: "closed" },
-];
-
 function parseStatus(raw: string | undefined): DisputeStatus | "all" {
   const allowed = new Set<string>([
-    "open",
-    "awaiting_seller",
-    "awaiting_buyer",
-    "under_review",
-    "resolved_buyer",
-    "resolved_seller",
-    "refunded",
-    "closed",
-    "all",
+    "open", "awaiting_seller", "awaiting_buyer", "under_review",
+    "resolved_buyer", "resolved_seller", "refunded", "closed", "all",
   ]);
-  if (raw && allowed.has(raw)) {
-    return raw as DisputeStatus | "all";
-  }
+  if (raw && allowed.has(raw)) return raw as DisputeStatus | "all";
   return "all";
 }
 
@@ -41,17 +21,33 @@ type PageProps = { searchParams: Promise<{ status?: string }> };
 export default async function AdminDisputesPage(props: PageProps) {
   const sp = await props.searchParams;
   const filter = parseStatus(sp.status);
-  const rows = await fetchDisputesForAdmin(filter === "all" ? null : filter);
+  const [rows, locale] = await Promise.all([
+    fetchDisputesForAdmin(filter === "all" ? null : filter),
+    getLocale(),
+  ]);
+  const s = MESSAGES[locale].adminDisputes;
+
+  const STATUS_TABS = [
+    { label: s.tabAll, value: "all" as const },
+    { label: s.tabOpen, value: "open" as const },
+    { label: s.tabAwaitingSeller, value: "awaiting_seller" as const },
+    { label: s.tabAwaitingBuyer, value: "awaiting_buyer" as const },
+    { label: s.tabUnderReview, value: "under_review" as const },
+    { label: s.tabResolvedBuyer, value: "resolved_buyer" as const },
+    { label: s.tabResolvedSeller, value: "resolved_seller" as const },
+    { label: s.tabRefunded, value: "refunded" as const },
+    { label: s.tabClosed, value: "closed" as const },
+  ];
 
   return (
-    <div className="space-y-8">
-      <PageHeader
-        title="Disputes"
-        description="Review cases with buyer evidence and seller responses. Refunds and releases are status placeholders until Stripe is live."
-      />
+    <div>
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold tracking-tight text-[#111111]">{s.title}</h1>
+        <p className="mt-1 text-sm text-[#6B6B6B]">{s.subtitle}</p>
+      </div>
 
-      <div className="flex flex-wrap gap-2 border-b border-[#e0ddd8]/80 pb-4">
-        {tabs.map((t) => {
+      <div className="mb-6 flex flex-wrap gap-2 overflow-x-auto pb-1">
+        {STATUS_TABS.map((t) => {
           const active = filter === t.value;
           const href = t.value === "all" ? "/admin/disputes" : `/admin/disputes?status=${t.value}`;
           return (

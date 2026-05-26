@@ -12,21 +12,35 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { getLocale } from "@/i18n/get-locale";
+import { MESSAGES } from "@/i18n/messages";
 import type { DisputeListRow } from "@/types/disputes";
 
-function formatWhen(iso: string) {
+function formatWhen(iso: string, locale: string) {
   try {
-    return new Date(iso).toLocaleString("el-GR", { dateStyle: "short", timeStyle: "short" });
+    return new Date(iso).toLocaleString(locale === "el" ? "el-GR" : "en-GB", {
+      dateStyle: "short",
+      timeStyle: "short",
+    });
   } catch {
     return "—";
   }
 }
 
-export function DisputeDashboardList({ rows, statusFilter }: { rows: DisputeListRow[]; statusFilter: string }) {
+export async function DisputeDashboardList({
+  rows,
+  statusFilter,
+}: {
+  rows: DisputeListRow[];
+  statusFilter: string;
+}) {
+  const locale = await getLocale();
+  const s = MESSAGES[locale].adminDisputes;
+
   if (rows.length === 0) {
     return (
       <p className="text-sm text-muted-foreground">
-        No disputes{statusFilter && statusFilter !== "all" ? ` in “${statusFilter}”` : ""}.
+        {statusFilter && statusFilter !== "all" ? s.noDisputesFiltered : s.noDisputes}
       </p>
     );
   }
@@ -37,14 +51,14 @@ export function DisputeDashboardList({ rows, statusFilter }: { rows: DisputeList
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-14">Photo</TableHead>
-              <TableHead>Listing</TableHead>
-              <TableHead>Buyer</TableHead>
-              <TableHead>Seller</TableHead>
-              <TableHead>Reason</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Created</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+              <TableHead className="w-14">{s.colPhoto}</TableHead>
+              <TableHead>{s.colListing}</TableHead>
+              <TableHead>{s.colBuyer}</TableHead>
+              <TableHead>{s.colSeller}</TableHead>
+              <TableHead>{s.colReason}</TableHead>
+              <TableHead>{s.colStatus}</TableHead>
+              <TableHead>{s.colCreated}</TableHead>
+              <TableHead className="text-right">{s.colActions}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -70,10 +84,12 @@ export function DisputeDashboardList({ rows, statusFilter }: { rows: DisputeList
                     <DisputeStatusBadge status={row.status} />
                   </div>
                 </TableCell>
-                <TableCell className="whitespace-nowrap text-xs text-muted-foreground">{formatWhen(row.created_at)}</TableCell>
+                <TableCell className="whitespace-nowrap text-xs text-muted-foreground">
+                  {formatWhen(row.created_at, locale)}
+                </TableCell>
                 <TableCell className="text-right">
                   <Button variant="ghost" size="sm" render={<Link href={`/admin/orders/${row.order_id}/dispute`} />}>
-                    Review
+                    {s.reviewBtn}
                   </Button>
                 </TableCell>
               </TableRow>
@@ -99,11 +115,11 @@ export function DisputeDashboardList({ rows, statusFilter }: { rows: DisputeList
                   <DisputeReasonBadge reason={row.reason} />
                   <DisputeStatusBadge status={row.status} />
                 </div>
-                <p className="text-xs text-muted-foreground">{formatWhen(row.created_at)}</p>
+                <p className="text-xs text-muted-foreground">{formatWhen(row.created_at, locale)}</p>
               </div>
             </div>
             <Button variant="outline" size="sm" className="w-full" render={<Link href={`/admin/orders/${row.order_id}/dispute`} />}>
-              Review
+              {s.reviewBtn}
             </Button>
           </div>
         ))}

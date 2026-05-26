@@ -14,36 +14,35 @@ import {
 import { ShieldCheck } from "lucide-react";
 
 import { FollowButton } from "@/components/listings/follow-button";
-import { TierBadge } from "@/components/seller/tier-badge";
-import type { SellerTier } from "@/types/domain";
 import { cn, formatEuroPrefix } from "@/lib/utils";
-import { conditionDisplayLabel } from "@/lib/listings/condition-display";
 import type { ListingCondition, ListingStatus } from "@/types/domain";
 
-function conditionPillColor(condition: ListingCondition): string {
-  switch (condition) {
-    case "brand_new":
-    case "mint":
-    case "excellent":
-      return "#1a7a4a";
-    case "very_good":
-      return "#2563eb";
-    case "good":
-      return "#b45309";
-    case "fair":
-    case "poor":
-    case "non_functioning":
-      return "#9f1239";
-    default:
-      return "#1a7a4a";
-  }
-}
+const CONDITION_LABELS: Record<ListingCondition, string> = {
+  brand_new: "Καινούριο",
+  mint: "Άριστο",
+  excellent: "Άριστο",
+  very_good: "Πολύ καλό",
+  good: "Καλό",
+  fair: "Μέτρια",
+  poor: "Φθαρμένο",
+  non_functioning: "Ανταλλακτικά",
+};
 
-function pillBackground(hex: string): string {
-  if (hex.length === 7 && hex.startsWith("#")) {
-    return `${hex}14`;
-  }
-  return "rgba(26, 122, 74, 0.08)";
+const CONDITION_PILL: Record<ListingCondition, { color: string; bg: string }> = {
+  brand_new:      { color: "#0a6640", bg: "#e6f4ed" },
+  mint:           { color: "#0a6640", bg: "#e6f4ed" },
+  excellent:      { color: "#0a6640", bg: "#e6f4ed" },
+  very_good:      { color: "#1d4ed8", bg: "#eff4ff" },
+  good:           { color: "#92400e", bg: "#fef3c7" },
+  fair:           { color: "#9f1239", bg: "#fef2f2" },
+  poor:           { color: "#9f1239", bg: "#fef2f2" },
+  non_functioning:{ color: "#6b7280", bg: "#f3f4f6" },
+};
+
+function formatCity(location: string | null | undefined): string {
+  if (!location) return "";
+  const city = location.split(",")[0]!.trim();
+  return city.charAt(0).toUpperCase() + city.slice(1).toLowerCase();
 }
 
 function ListingCardImagePlaceholder({ categorySlug }: { categorySlug: string | null | undefined }) {
@@ -93,15 +92,12 @@ export function ListingCard({
   status = "active",
   categoryName,
   categorySlug,
-  sellerDisplayName,
-  sellerTier = null,
+  sellerTier: _sellerTier = null,
   listingId,
   viewerUserId = null,
   sellerOwnerUserId = null,
   isFollowed = false,
   isGuest = true,
-  latestPriceDropPercent = null,
-  latestPriceDropOldPriceCents = null,
   latestPriceDropCreatedAt = null,
   followedAt = null,
 }: {
@@ -121,7 +117,7 @@ export function ListingCard({
   categoryName?: string | null;
   categorySlug?: string | null;
   sellerDisplayName?: string | null;
-  sellerTier?: SellerTier | null;
+  sellerTier?: string | null;
   listingId?: string;
   viewerUserId?: string | null;
   sellerOwnerUserId?: string | null;
@@ -133,9 +129,6 @@ export function ListingCard({
   followedAt?: string | null;
 }) {
   const reserved = status === "reserved";
-  const cityLine = location?.trim() ?? "";
-  const metaLine = cityLine || null;
-  const categoryTrimmed = categoryName?.trim() ?? "";
   const hasImage = Boolean(imageUrl?.trim());
   const isOwnerSeller = Boolean(
     viewerUserId && sellerOwnerUserId && viewerUserId === sellerOwnerUserId,
@@ -151,46 +144,32 @@ export function ListingCard({
           maximumFractionDigits: 2,
         }).format(priceCents / 100);
 
-  const pct = latestPriceDropPercent;
-  const hasMeaningfulDrop = typeof pct === "number" && Number.isFinite(pct) && pct <= -5;
-  const majorDrop = typeof pct === "number" && Number.isFinite(pct) && pct <= -10;
-  const dropPctRounded = hasMeaningfulDrop ? Math.round(Math.abs(pct)) : 0;
-  const oldStrike =
-    hasMeaningfulDrop &&
-    typeof latestPriceDropOldPriceCents === "number" &&
-    latestPriceDropOldPriceCents > priceCents
-      ? currency === "EUR"
-        ? formatEuroPrefix(latestPriceDropOldPriceCents)
-        : new Intl.NumberFormat("en-US", {
-            style: "currency",
-            currency,
-            minimumFractionDigits: latestPriceDropOldPriceCents % 100 === 0 ? 0 : 2,
-            maximumFractionDigits: 2,
-          }).format(latestPriceDropOldPriceCents / 100)
-      : null;
   const newDropSinceWatch =
     Boolean(followedAt && latestPriceDropCreatedAt) &&
     new Date(latestPriceDropCreatedAt as string).getTime() > new Date(followedAt as string).getTime();
 
+  const conditionLabel = CONDITION_LABELS[condition] ?? condition;
+  const conditionPill = CONDITION_PILL[condition] ?? { color: "#6b7280", bg: "#f3f4f6" };
+  const categoryTrimmed = categoryName?.trim() ?? "";
+  const city = formatCity(location);
   const href = `/listing/${slug}`;
-  const conditionLabel = conditionDisplayLabel(condition);
-  const pillColor = conditionPillColor(condition);
 
   return (
     <article
       className={cn(
-        "group relative block w-full bg-[var(--color-background-page)]",
+        "group relative block w-full bg-(--color-background-page)",
         newDropSinceWatch && "shadow-[inset_3px_0_0_0_#1a7a4a]",
         className,
       )}
     >
       <Link
         href={href}
-        className="block focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--ring)]"
+        className="block focus-visible:outline focus-visible:outline-offset-2 focus-visible:outline-ring"
         aria-label={`${title}, ${priceLabel}`}
       >
+        {/* Image */}
         <div className={cn("relative w-full overflow-hidden", reserved && "opacity-95")}>
-          <div className="relative aspect-[3/5] w-full overflow-hidden bg-[#e8e5de]">
+          <div className="relative aspect-3/5 w-full overflow-hidden bg-[#e8e5de]">
             {hasImage ? (
               <Image
                 src={imageUrl!.trim()}
@@ -210,82 +189,63 @@ export function ListingCard({
               </div>
             )}
 
-            {protectedDeliveryEnabled ? (
-              <div
-                className="pointer-events-none absolute right-2 top-10 z-10 flex items-center gap-1 rounded-lg bg-white/90 px-2.5 py-1 backdrop-blur-sm"
-                aria-label="Protected delivery"
-              >
-                <ShieldCheck className="size-3 text-[#0A5C43]" strokeWidth={2.5} aria-hidden />
-                <span className="text-[10px] font-bold uppercase tracking-wide text-[#0A5C43]">Protected</span>
-              </div>
-            ) : null}
+            {/* Protected badge — bottom-left */}
+            <div className="absolute bottom-3 left-3 z-10">
+              {protectedDeliveryEnabled ? (
+                <span className="flex items-center gap-1.5 rounded-full bg-white/90 px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-wide text-[#1D9E75] backdrop-blur-sm">
+                  <ShieldCheck className="h-3 w-3" aria-hidden />
+                  PROTECTED
+                </span>
+              ) : null}
+            </div>
 
-            {reserved ? <div className="pointer-events-none absolute inset-0 z-10 bg-black/10" aria-hidden /> : null}
+            {reserved ? (
+              <div className="pointer-events-none absolute inset-0 z-10 bg-black/10" aria-hidden />
+            ) : null}
           </div>
         </div>
 
-        <div className="border-t border-[#111111] px-[10px] pb-4 pt-3">
-          <p className="mb-[5px] overflow-hidden text-ellipsis whitespace-nowrap text-[13px] font-bold tracking-[-0.01em] text-[#111111]">
+        {/* Card body — 3-line hierarchy */}
+        <div className="border-t border-[#111111] p-3">
+          {/* Line 1: Title */}
+          <p className="truncate text-sm font-semibold leading-snug text-[#111111]">
             {title}
           </p>
-          <p className="mb-[7px] flex min-w-0 items-center gap-[5px]">
+
+          {/* Line 2: Condition pill · Category */}
+          <div className="mt-1.5 flex min-w-0 items-center gap-1.5">
             <span
-              className="mint-condition-pill shrink-0 rounded-none border px-[5px] py-0.5 text-[9px] font-bold uppercase tracking-[0.07em]"
-              style={{
-                color: pillColor,
-                borderColor: pillColor,
-                backgroundColor: pillBackground(pillColor),
-              }}
+              className="shrink-0 rounded-none px-2 py-[3px] text-[10px] font-black uppercase leading-none tracking-[0.08em]"
+              style={{ color: conditionPill.color, backgroundColor: conditionPill.bg }}
             >
               {conditionLabel}
             </span>
             {categoryTrimmed ? (
-              <>
-                <span className="shrink-0 select-none text-[9px] text-[#cccccc]" aria-hidden>
-                  ·
-                </span>
-                <span className="min-w-0 flex-1 truncate text-[9px] font-bold uppercase tracking-wider text-[#999999]">
-                  {categoryTrimmed}
-                </span>
-              </>
+              <span className="truncate text-xs text-[#ABABAB]">{categoryTrimmed}</span>
             ) : null}
-          </p>
-          <div className="flex items-baseline justify-between gap-1">
-            <div className="min-w-0">
-              {oldStrike ? (
-                <p className="mb-0.5 text-[11px] font-semibold tabular-nums text-[#999999] line-through">{oldStrike}</p>
-              ) : null}
-              <p className="text-[19px] font-black leading-none tracking-[-0.03em] text-[#111111] tabular-nums">
-                {priceLabel}
-              </p>
-              {hasMeaningfulDrop ? (
-                <p className="mt-1 text-[8px] font-black uppercase tracking-[0.12em] text-[#1a7a4a]">
-                  {majorDrop ? `−${dropPctRounded}%` : "Price drop"}
-                </p>
-              ) : null}
-            </div>
-            <div className="flex max-w-[110px] shrink-0 flex-col items-end gap-1">
-              {sellerTier && sellerTier !== "new" ? (
-                <TierBadge tier={sellerTier} size="sm" />
-              ) : null}
-              {metaLine ? (
-                <p className="overflow-hidden text-ellipsis whitespace-nowrap text-[9px] uppercase tracking-[0.04em] text-text-muted">
-                  {metaLine}
-                </p>
-              ) : null}
-            </div>
+          </div>
+
+          {/* Line 3: Price + City */}
+          <div className="mt-2 flex items-baseline justify-between">
+            <span className="text-base font-black text-[#111111]">{priceLabel}</span>
+            {city ? (
+              <span className="text-xs text-[#ABABAB]">{city}</span>
+            ) : null}
           </div>
         </div>
       </Link>
 
+      {/* Eye / save button — top-right of image */}
       {listingId && !isOwnerSeller ? (
-        <FollowButton
-          listingId={listingId}
-          initialFollowing={isFollowed}
-          isGuest={isGuest}
-          size="sm"
-          className="absolute right-2 top-2 z-30 shadow-sm"
-        />
+        <div className="absolute right-3 top-3 z-10">
+          <FollowButton
+            listingId={listingId}
+            initialFollowing={isFollowed}
+            isGuest={isGuest}
+            size="sm"
+            className="shadow-sm"
+          />
+        </div>
       ) : null}
 
       {footer ? <div className="mt-2">{footer}</div> : null}

@@ -5,38 +5,17 @@ import { usePathname } from "next/navigation";
 
 import { cn } from "@/lib/utils";
 
-export type SellerTabLabels = {
+export type BuyerTabLabels = {
   overview: string;
-  listings: string;
-  newListing: string;
-  orders: string;
+  purchases: string;
   offers: string;
-  profile: string;
+  follows: string;
+  alerts: string;
 };
 
-function buildTabs(labels: SellerTabLabels) {
-  return [
-    { label: labels.overview, href: "/seller" },
-    { label: labels.listings, href: "/seller/listings" },
-    { label: labels.newListing, href: "/seller/listings/new" },
-    { label: labels.orders, href: "/seller/orders" },
-    { label: labels.offers, href: "/seller/offers" },
-    { label: labels.profile, href: "/seller/profile" },
-  ];
-}
-
 function isTabActive(pathname: string, href: string): boolean {
-  if (href === "/seller") {
-    return pathname === "/seller";
-  }
-  if (href === "/seller/listings/new") {
-    return pathname === "/seller/listings/new";
-  }
-  if (href === "/seller/listings") {
-    return (
-      pathname === "/seller/listings" ||
-      (pathname.startsWith("/seller/listings/") && !pathname.startsWith("/seller/listings/new"))
-    );
+  if (href === "/buyer") {
+    return pathname === "/buyer";
   }
   if (pathname === href) {
     return true;
@@ -44,9 +23,16 @@ function isTabActive(pathname: string, href: string): boolean {
   return pathname.startsWith(`${href}/`);
 }
 
-export function SellerTabBar({ labels }: { labels: SellerTabLabels }) {
+export function BuyerTabBar({ labels }: { labels: BuyerTabLabels }) {
   const pathname = usePathname();
-  const tabs = buildTabs(labels);
+
+  const tabs = [
+    { label: labels.overview, href: "/buyer" },
+    { label: labels.purchases, href: "/buyer/purchases" },
+    { label: labels.offers, href: "/buyer/offers" },
+    { label: labels.follows, href: "/buyer/follows" },
+    { label: labels.alerts, href: "/buyer/alerts" },
+  ];
 
   return (
     <div className="sticky top-12 z-40 border-b border-[#EEECE8] bg-white lg:top-14">

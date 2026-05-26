@@ -3,9 +3,14 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/server";
 import { orderAllowsNewDispute, pickActiveDispute } from "@/lib/disputes/eligibility";
+import { getLocale } from "@/i18n/get-locale";
+import { MESSAGES } from "@/i18n/messages";
 import type { OrderDetail } from "@/types/orders";
 
 export async function BuyerDisputeSection({ order }: { order: OrderDetail }) {
+  const locale = await getLocale();
+  const s = MESSAGES[locale].disputes;
+
   const supabase = await createClient();
   const { data: statusRows } = await supabase.from("disputes").select("id, status").eq("order_id", order.id);
   const active = pickActiveDispute(statusRows ?? []);
@@ -22,41 +27,43 @@ export async function BuyerDisputeSection({ order }: { order: OrderDetail }) {
 
   return (
     <div id="get-help" className="rounded-2xl bg-[var(--color-background-surface)] p-5 shadow-sm ring-1 ring-[#e0ddd8]/70">
-      <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[var(--color-text-muted)]">Help</p>
-      <p className="mt-2 text-base font-semibold text-[#111111]">Get help with this order</p>
-      <p className="mt-2 text-sm leading-relaxed text-[var(--color-text-secondary)]">
-        Something not right after delivery? Open a case — we review with your photos and tracking.
+      <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[var(--color-text-muted)]">
+        {s.supportKicker}
       </p>
+      <p className="mt-2 text-base font-semibold text-[#111111]">{s.supportTitle}</p>
+      <p className="mt-2 text-sm leading-relaxed text-[var(--color-text-secondary)]">{s.supportBody}</p>
       <div className="mt-5 space-y-3">
         {activeExists && active ? (
           <div className="flex flex-wrap items-center gap-3">
-            <span className="text-sm capitalize text-[var(--color-text-muted)]">Case · {String(active.status).replace(/_/g, " ")}</span>
+            <span className="text-sm capitalize text-[var(--color-text-muted)]">
+              Case · {String(active.status).replace(/_/g, " ")}
+            </span>
             <Button size="sm" render={<Link href={`/buyer/purchases/${order.id}/dispute`} />}>
-              View case
+              {s.viewCase}
             </Button>
           </div>
         ) : null}
         {!activeExists && hasDisputeHistory ? (
           <div className="flex flex-wrap items-center gap-3">
-            <span className="text-sm text-[var(--color-text-muted)]">You have a case on file</span>
+            <span className="text-sm text-[var(--color-text-muted)]">{s.existingCase}</span>
             <Button size="sm" variant="outline" render={<Link href={`/buyer/purchases/${order.id}/dispute`} />}>
-              View case
+              {s.viewCase}
             </Button>
           </div>
         ) : null}
         {canOpen ? (
-          <Button render={<Link href={`/buyer/purchases/${order.id}/dispute/new`} />}>Get help with this order</Button>
+          <Button render={<Link href={`/buyer/purchases/${order.id}/dispute/new`} />}>
+            {s.openHelp}
+          </Button>
         ) : null}
         {!activeExists && !canOpen && order.status === "pending_payment" ? (
-          <p className="text-xs text-[var(--color-text-muted)]">Help is available after checkout and shipment.</p>
+          <p className="text-xs text-[var(--color-text-muted)]">{s.pendingHint}</p>
         ) : null}
         {showPaymentHint ? (
-          <p className="text-xs text-[var(--color-text-muted)]">
-            Complete checkout so payment can be held — then you can reach out if needed.
-          </p>
+          <p className="text-xs text-[var(--color-text-muted)]">{s.paymentHint}</p>
         ) : null}
         {!activeExists && !canOpen && (order.status === "cancelled" || order.status === "refunded") ? (
-          <p className="text-xs text-[var(--color-text-muted)]">This order is closed — help is not available.</p>
+          <p className="text-xs text-[var(--color-text-muted)]">{s.closedHint}</p>
         ) : null}
       </div>
     </div>

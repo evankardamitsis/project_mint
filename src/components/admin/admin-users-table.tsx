@@ -84,7 +84,7 @@ export function AdminUsersTable({ users }: { users: AdminUserRow[] }) {
     <div className="space-y-4">
       <Input
         type="search"
-        placeholder="Search by name or email…"
+        placeholder="Αναζήτηση με όνομα ή email..."
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         className="max-w-md"
@@ -93,9 +93,9 @@ export function AdminUsersTable({ users }: { users: AdminUserRow[] }) {
         <table className="w-full text-left text-sm">
           <thead className="border-b border-border bg-muted/40 text-xs uppercase tracking-wide text-muted-foreground">
             <tr>
-              <th className="px-4 py-3 font-medium">User</th>
-              <th className="px-4 py-3 font-medium">Role</th>
-              <th className="px-4 py-3 font-medium text-right">Actions</th>
+              <th className="px-4 py-3 font-medium">Χρήστης</th>
+              <th className="px-4 py-3 font-medium">Ρόλος</th>
+              <th className="px-4 py-3 font-medium text-right">Ενέργειες</th>
             </tr>
           </thead>
           <tbody>
@@ -119,7 +119,7 @@ export function AdminUsersTable({ users }: { users: AdminUserRow[] }) {
                 </td>
                 <td className="px-4 py-3 text-right">
                   {user.role === "super_admin" ? (
-                    <span className="text-xs font-medium text-muted-foreground">Owner</span>
+                    <span className="text-xs font-medium text-muted-foreground">Ιδιοκτήτης</span>
                   ) : user.role === "admin" ? (
                     <Button
                       type="button"
@@ -127,12 +127,12 @@ export function AdminUsersTable({ users }: { users: AdminUserRow[] }) {
                       variant="outline"
                       disabled={pending}
                       onClick={() =>
-                        runAction(`Remove admin access for ${user.email ?? user.id}?`, () =>
+                        runAction(`Αφαίρεση admin πρόσβασης για ${user.email ?? user.id};`, () =>
                           demoteAdmin(user.id),
                         )
                       }
                     >
-                      Remove Admin
+                      Αφαίρεση Admin
                     </Button>
                   ) : (
                     <Button
@@ -140,10 +140,10 @@ export function AdminUsersTable({ users }: { users: AdminUserRow[] }) {
                       size="sm"
                       disabled={pending}
                       onClick={() =>
-                        runAction(`Make ${user.email ?? user.id} an admin?`, () => inviteAdmin(user.id))
+                        runAction(`Ορισμός ${user.email ?? user.id} ως admin;`, () => inviteAdmin(user.id))
                       }
                     >
-                      Make Admin
+                      Ορισμός Admin
                     </Button>
                   )}
                 </td>
@@ -152,7 +152,7 @@ export function AdminUsersTable({ users }: { users: AdminUserRow[] }) {
           </tbody>
         </table>
         {filtered.length === 0 ? (
-          <p className="px-4 py-8 text-center text-sm text-muted-foreground">No users match your search.</p>
+          <p className="px-4 py-8 text-center text-sm text-muted-foreground">Δεν βρέθηκαν χρήστες.</p>
         ) : null}
       </div>
     </div>

@@ -4,6 +4,9 @@ import { redirect, notFound } from "next/navigation";
 import { DisputeForm } from "@/components/disputes/dispute-form";
 import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
+import { getLocale } from "@/i18n/get-locale";
+import { MESSAGES } from "@/i18n/messages";
+import { DISPUTE_DESCRIPTION_MIN_LEN } from "@/lib/disputes/constants";
 import { hasActiveDispute, orderAllowsNewDispute } from "@/lib/disputes/eligibility";
 import { fetchOrderDetailForBuyer } from "@/lib/orders/queries";
 import { createClient } from "@/lib/supabase/server";
@@ -26,18 +29,32 @@ export default async function BuyerNewDisputePage(props: PageProps) {
     redirect(`/buyer/purchases/${id}`);
   }
 
+  const locale = await getLocale();
+  const s = MESSAGES[locale].disputes;
+
+  const formLabels = {
+    reasonLabel: s.reasonLabel,
+    reasonDamaged: s.reasonDamaged,
+    reasonNotAsDescribed: s.reasonNotAsDescribed,
+    reasonNotReceived: s.reasonNotReceived,
+    reasonCounterfeit: s.reasonCounterfeit,
+    reasonOther: s.reasonOther,
+    descriptionLabel: s.descriptionLabel,
+    descriptionPlaceholder: s.descriptionPlaceholder.replace("{n}", String(DISPUTE_DESCRIPTION_MIN_LEN)),
+    submitBtn: s.submitBtn,
+    submittingBtn: s.submittingBtn,
+    refundNote: s.refundNote,
+  };
+
   return (
     <div className="space-y-8">
       <div className="flex flex-wrap gap-2">
         <Button variant="ghost" size="sm" render={<Link href={`/buyer/purchases/${id}`} />}>
-          Back to order
+          {s.backToOrder}
         </Button>
       </div>
-      <PageHeader
-        title="Report an issue"
-        description="Describe the problem and attach photos or documents. This opens a dispute and pauses the order for review."
-      />
-      <DisputeForm orderId={id} />
+      <PageHeader title={s.reportTitle} description={s.reportDescription} />
+      <DisputeForm orderId={id} labels={formLabels} />
     </div>
   );
 }

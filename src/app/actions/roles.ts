@@ -45,6 +45,7 @@ export async function inviteAdmin(targetUserId: string) {
     throw error;
   }
   revalidatePath("/admin/users");
+  revalidatePath(`/admin/users/${targetUserId}`);
   return { success: true };
 }
 
@@ -65,5 +66,6 @@ export async function demoteAdmin(targetUserId: string) {
     throw error;
   }
   revalidatePath("/admin/users");
+  revalidatePath(`/admin/users/${targetUserId}`);
   return { success: true };
 }

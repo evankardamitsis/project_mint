@@ -20,7 +20,7 @@ export default async function SellPage() {
   return (
     <div className={cn(SITE_CONTAINER, "space-y-12 bg-[var(--color-background-page)] py-12")}>
       <header className="max-w-3xl space-y-5">
-        <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[var(--color-text-muted)]">For sellers</p>
+        <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[var(--color-text-muted)]">{s.sellersKicker}</p>
         <h1 className="text-[clamp(2rem,6vw,3rem)] font-black uppercase leading-[0.95] tracking-[-0.04em] text-[#111111]">
           {s.title}
         </h1>
